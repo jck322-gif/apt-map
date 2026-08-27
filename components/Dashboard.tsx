@@ -94,11 +94,22 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
     );
   }, [data, staticRegions]);
 
-  const filtered = useMemo(
-    () => (filter === "전체" ? regions : regions.filter((r) => r.group === filter)),
-    [regions, filter]
+  const busanList = useMemo(
+    () => regions.filter((r) => r.group === "부산").sort((a, b) => b.count - a.count),
+    [regions]
   );
-  const sortedList = useMemo(() => filtered.slice().sort((a, b) => b.count - a.count), [filtered]);
+  const ulsanList = useMemo(
+    () => regions.filter((r) => r.group === "울산").sort((a, b) => b.count - a.count),
+    [regions]
+  );
+  // 부산/울산이 뒤섞이지 않도록, 화면 아래 리스트는 항상 부산 그룹 · 울산 그룹으로 나눠서 보여줍니다.
+  // 칩("전체"/"부산"/"울산")으로 필터링하면 해당 그룹 섹션만 남습니다.
+  const groupSections = useMemo(() => {
+    const sections: { group: "부산" | "울산"; list: RegionSummary[] }[] = [];
+    if (filter === "전체" || filter === "부산") sections.push({ group: "부산", list: busanList });
+    if (filter === "전체" || filter === "울산") sections.push({ group: "울산", list: ulsanList });
+    return sections;
+  }, [filter, busanList, ulsanList]);
   const top5 = useMemo(() => regions.slice().sort((a, b) => b.count - a.count).slice(0, 5), [regions]);
   const maxCount = useMemo(() => Math.max(1, ...regions.map((r) => r.count)), [regions]);
 
@@ -111,7 +122,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
     <div className="wrap">
       <header className="app-header">
         <div className="title-row">
-          <h1>우리동네 실거래</h1>
+          <h1>부울산 아파트 실거래</h1>
           <span className="live-badge">실시간 연동</span>
         </div>
         <div className="controls">
@@ -238,42 +249,48 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       </section>
 
       <section className="block">
-        <h2>{filter === "전체" ? "전체 지역" : `${filter} 지역`} ({sortedList.length})</h2>
-        <div className="region-list">
-          {sortedList.map((r) => (
-            <div
-              key={r.code}
-              className={`region-row${selectedCode === r.code ? " selected" : ""}${openCode === r.code ? " open" : ""}`}
-            >
-              <button className="region-head" onClick={() => selectRegion(r.code)}>
-                <span className="grp">{r.group}</span>
-                <span className="nm">{r.name}</span>
-                <TrendBadge trendPct={r.trendPct} />
-                <span className="cnt">{r.count}건</span>
-                <span className="chev">▾</span>
-              </button>
-              <div className="listing-panel">
-                {r.listings.length === 0 ? (
-                  <div className="empty-note">이번 달 거래 데이터가 없습니다.</div>
-                ) : (
-                  r.listings.map((l, i) => (
-                    <div className="listing" key={i}>
-                      <div className="l-top">
-                        <span>{l.dong} · {l.complex}</span>
-                        <span className="l-price">{fmtPrice(l.priceManwon)}</span>
-                      </div>
-                      <div className="l-meta">
-                        <span>{l.areaM2.toFixed(0)}㎡</span>
-                        <span>{l.floor}층</span>
-                        <span>{l.date} 계약</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+        <h2>지역별 실거래 리스트</h2>
+        {groupSections.map(({ group, list }) => (
+          <div className="group-section" key={group}>
+            <h3 className="group-heading">
+              {group} <span className="group-count">({list.length})</span>
+            </h3>
+            <div className="region-list">
+              {list.map((r) => (
+                <div
+                  key={r.code}
+                  className={`region-row${selectedCode === r.code ? " selected" : ""}${openCode === r.code ? " open" : ""}`}
+                >
+                  <button className="region-head" onClick={() => selectRegion(r.code)}>
+                    <span className="nm">{r.name}</span>
+                    <TrendBadge trendPct={r.trendPct} />
+                    <span className="cnt">{r.count}건</span>
+                    <span className="chev">▾</span>
+                  </button>
+                  <div className="listing-panel">
+                    {r.listings.length === 0 ? (
+                      <div className="empty-note">이번 달 거래 데이터가 없습니다.</div>
+                    ) : (
+                      r.listings.map((l, i) => (
+                        <div className="listing" key={i}>
+                          <div className="l-top">
+                            <span>{l.dong} · {l.complex}</span>
+                            <span className="l-price">{fmtPrice(l.priceManwon)}</span>
+                          </div>
+                          <div className="l-meta">
+                            <span>{l.areaM2.toFixed(0)}㎡</span>
+                            <span>{l.floor}층</span>
+                            <span>{l.date} 계약</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </section>
 
       <footer className="end">
