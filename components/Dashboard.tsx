@@ -144,7 +144,19 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       )}
       {!loadError && data && data.errors.length > 0 && (
         <div className="banner info">
-          일부 지역({data.errors.map((e) => e.region).join(", ")})은 이번 업데이트에서 데이터를 가져오지 못했습니다.
+          <strong>일부 지역 데이터를 가져오지 못했습니다 ({data.errors.length}개 지역)</strong>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+            {data.errors.slice(0, 3).map((e, i) => (
+              <li key={i} style={{ fontSize: 13, wordBreak: "break-all" }}>
+                {e.region}: {e.message}
+              </li>
+            ))}
+          </ul>
+          {data.errors.length > 3 && (
+            <p style={{ margin: "4px 0 0", fontSize: 12 }}>
+              (나머지 {data.errors.length - 3}개 지역도 같은 원인일 가능성이 높습니다)
+            </p>
+          )}
         </div>
       )}
 
