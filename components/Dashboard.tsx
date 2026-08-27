@@ -8,28 +8,61 @@ type Listing = {
   dong: string;
   complex: string;
   areaM2: number;
+  pyeong: number;
   floor: number;
-  priceManwon: number;
   date: string;
+  priceManwon: number | null;
+  depositManwon: number | null;
+  monthlyRentManwon: number | null;
 };
 
 type RegionSummary = Region & {
   count: number;
   trendPct: number | null;
-  avgPriceManwon: number | null;
+  avgValueManwon: number | null;
   listings: Listing[];
 };
 
+type DealType = "sale" | "jeonse" | "monthly";
+
 type ApiResponse = {
   updatedAt: string;
+  dealType: DealType;
   dealYmd: string;
   prevYmd: string;
   regions: RegionSummary[];
   errors: { region: string; message: string }[];
 };
 
-function fmtPrice(manwon: number): string {
-  return (manwon / 10000).toFixed(1) + "억";
+const DEAL_TABS: { key: DealType; label: string }[] = [
+  { key: "sale", label: "매매" },
+  { key: "jeonse", label: "전세" },
+  { key: "monthly", label: "월세" },
+];
+
+function dealLabel(dealType: DealType): string {
+  return DEAL_TABS.find((t) => t.key === dealType)?.label ?? "매매";
+}
+
+/** 만원 단위 금액을 "5억 1,400만원" 같은 한국식 표기로 바꿉니다. */
+function fmtManwon(manwon: number): string {
+  const sign = manwon < 0 ? "-" : "";
+  const abs = Math.abs(Math.round(manwon));
+  const eok = Math.floor(abs / 10000);
+  const rest = abs % 10000;
+  if (eok === 0) return `${sign}${rest.toLocaleString()}만원`;
+  if (rest === 0) return `${sign}${eok}억원`;
+  return `${sign}${eok}억 ${rest.toLocaleString()}만원`;
+}
+
+/** 거래 한 건의 가격 표시 문구(매매가 / 보증금 / 보증금+월세)를 만듭니다. */
+function listingPriceLabel(l: Listing): string {
+  if (l.priceManwon !== null) return fmtManwon(l.priceManwon);
+  if (l.monthlyRentManwon !== null) {
+    return `${fmtManwon(l.depositManwon ?? 0)} / 월 ${fmtManwon(l.monthlyRentManwon)}`;
+  }
+  if (l.depositManwon !== null) return fmtManwon(l.depositManwon);
+  return "-";
 }
 
 function timeAgo(iso: string): string {
@@ -51,46 +84,75 @@ function TrendBadge({ trendPct }: { trendPct: number | null }) {
   );
 }
 
+/** 지역의 거래 목록을 동 → 단지 순으로 묶습니다 (구 선택 → 동 선택 → 단지 선택 흐름을 위한 준비 작업). */
+function groupByDong(listings: Listing[]) {
+  const dongOrder: string[] = [];
+  const dongMap = new Map<string, Map<string, Listing[]>>();
+  for (const l of listings) {
+    if (!dongMap.has(l.dong)) {
+      dongMap.set(l.dong, new Map());
+      dongOrder.push(l.dong);
+    }
+    const complexMap = dongMap.get(l.dong)!;
+    if (!complexMap.has(l.complex)) complexMap.set(l.complex, []);
+    complexMap.get(l.complex)!.push(l);
+  }
+  return dongOrder.map((dong) => {
+    const complexMap = dongMap.get(dong)!;
+    return {
+      dong,
+      complexes: Array.from(complexMap.entries()).map(([complex, items]) => ({ complex, items })),
+    };
+  });
+}
+
 export default function Dashboard({ staticRegions }: { staticRegions: Region[] }) {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [dealType, setDealType] = useState<DealType>("sale");
   const [filter, setFilter] = useState<"전체" | "부산" | "울산">("전체");
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [openCode, setOpenCode] = useState<string | null>(null);
+  const [openComplex, setOpenComplex] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [kakaoFailed, setKakaoFailed] = useState(false);
   const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
 
-  async function load() {
+  const load = useCallback(async (type: DealType) => {
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch("/api/update");
+      const res = await fetch(`/api/update?dealType=${type}`);
       const json = (await res.json()) as ApiResponse & { error?: string };
       if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
       setData(json);
       const changed = json.regions.length;
-      setToast(`업데이트 완료 · ${changed}개 지역 반영${json.errors.length ? ` · ${json.errors.length}개 지역 실패` : ""}`);
+      setToast(
+        `업데이트 완료 · ${dealLabel(type)} ${changed}개 지역 반영${
+          json.errors.length ? ` · ${json.errors.length}개 지역 실패` : ""
+        }`
+      );
       setTimeout(() => setToast(null), 3000);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    load();
+    load(dealType);
+    setOpenComplex(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dealType]);
 
   const regions: RegionSummary[] = useMemo(() => {
     // 각 지역별로 API 결과가 있으면 그 값을, 없으면(아직 로딩 전이거나 그 지역만 실패했으면)
     // 0건짜리 뼈대를 사용합니다 — 일부/전체 지역이 실패해도 목록 자체는 항상 21개가 보이도록.
     const byCode = new Map(data?.regions.map((r) => [r.code, r]) ?? []);
     return staticRegions.map(
-      (r) => byCode.get(r.code) ?? { ...r, count: 0, trendPct: null, avgPriceManwon: null, listings: [] }
+      (r) => byCode.get(r.code) ?? { ...r, count: 0, trendPct: null, avgValueManwon: null, listings: [] }
     );
   }, [data, staticRegions]);
 
@@ -125,6 +187,20 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
           <h1>부울산 아파트 실거래</h1>
           <span className="live-badge">실시간 연동</span>
         </div>
+
+        <div className="deal-tabs">
+          {DEAL_TABS.map((t) => (
+            <button
+              key={t.key}
+              className="deal-tab"
+              aria-pressed={dealType === t.key}
+              onClick={() => setDealType(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
         <div className="controls">
           <div className="chips">
             {(["전체", "부산", "울산"] as const).map((g) => (
@@ -138,13 +214,15 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
               </button>
             ))}
           </div>
-          <button className="update-btn" disabled={loading} onClick={load}>
+          <button className="update-btn" disabled={loading} onClick={() => load(dealType)}>
             <span className={loading ? "spin" : ""}>↻</span>
             {loading ? "업데이트 중…" : "지금 업데이트"}
           </button>
         </div>
         <p className="last-updated">
-          {data ? `마지막 업데이트: ${timeAgo(data.updatedAt)} · 계약월 ${data.dealYmd}` : "아직 업데이트한 적이 없습니다"}
+          {data
+            ? `마지막 업데이트: ${timeAgo(data.updatedAt)} · ${dealLabel(dealType)} · 계약월 ${data.dealYmd}`
+            : "아직 업데이트한 적이 없습니다"}
         </p>
       </header>
 
@@ -172,7 +250,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       )}
 
       <section className="block">
-        <h2>거래 많은 지역 TOP 5</h2>
+        <h2>거래 많은 지역 TOP 5 · {dealLabel(dealType)}</h2>
         <div className="rank-scroll">
           {top5.map((r, i) => (
             <div className="rank-card" key={r.code} onClick={() => selectRegion(r.code)}>
@@ -249,52 +327,97 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       </section>
 
       <section className="block">
-        <h2>지역별 실거래 리스트</h2>
+        <h2>지역별 실거래 리스트 · {dealLabel(dealType)}</h2>
+        <p className="empty-note" style={{ padding: "0 0 10px" }}>
+          구를 눌러 펼친 뒤, 동 → 단지 순서로 눌러보면 해당 단지의 개별 거래 내역이 나옵니다.
+        </p>
         {groupSections.map(({ group, list }) => (
           <div className="group-section" key={group}>
             <h3 className="group-heading">
               {group} <span className="group-count">({list.length})</span>
             </h3>
             <div className="region-list">
-              {list.map((r) => (
-                <div
-                  key={r.code}
-                  className={`region-row${selectedCode === r.code ? " selected" : ""}${openCode === r.code ? " open" : ""}`}
-                >
-                  <button className="region-head" onClick={() => selectRegion(r.code)}>
-                    <span className="nm">{r.name}</span>
-                    <TrendBadge trendPct={r.trendPct} />
-                    <span className="cnt">{r.count}건</span>
-                    <span className="chev">▾</span>
-                  </button>
-                  <div className="listing-panel">
-                    {r.listings.length === 0 ? (
-                      <div className="empty-note">이번 달 거래 데이터가 없습니다.</div>
-                    ) : (
-                      r.listings.map((l, i) => (
-                        <div className="listing" key={i}>
-                          <div className="l-top">
-                            <span>{l.dong} · {l.complex}</span>
-                            <span className="l-price">{fmtPrice(l.priceManwon)}</span>
-                          </div>
-                          <div className="l-meta">
-                            <span>{l.areaM2.toFixed(0)}㎡</span>
-                            <span>{l.floor}층</span>
-                            <span>{l.date} 계약</span>
-                          </div>
+              {list.map((r) => {
+                const dongGroups = groupByDong(r.listings);
+                return (
+                  <div
+                    key={r.code}
+                    className={`region-row${selectedCode === r.code ? " selected" : ""}${
+                      openCode === r.code ? " open" : ""
+                    }`}
+                  >
+                    <button className="region-head" onClick={() => selectRegion(r.code)}>
+                      <span className="nm">{r.name}</span>
+                      <TrendBadge trendPct={r.trendPct} />
+                      <span className="cnt">{r.count}건</span>
+                      <span className="chev">▾</span>
+                    </button>
+                    <div className="listing-panel">
+                      {dongGroups.length === 0 ? (
+                        <div className="empty-note">
+                          이번 달 {dealLabel(dealType)} 거래 데이터가 없습니다.
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        dongGroups.map(({ dong, complexes }) => (
+                          <div className="dong-group" key={dong}>
+                            <div className="dong-heading">
+                              {dong} <span className="dong-count">단지 {complexes.length}곳</span>
+                            </div>
+                            <div className="complex-chip-row">
+                              {complexes.map(({ complex, items }) => {
+                                const key = `${r.code}::${dong}::${complex}`;
+                                const open = openComplex === key;
+                                return (
+                                  <button
+                                    key={key}
+                                    className={`complex-chip${open ? " open" : ""}`}
+                                    onClick={() =>
+                                      setOpenComplex((prev) => (prev === key ? null : key))
+                                    }
+                                  >
+                                    {complex} <span className="complex-chip-count">{items.length}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {complexes.map(({ complex, items }) => {
+                              const key = `${r.code}::${dong}::${complex}`;
+                              if (openComplex !== key) return null;
+                              return (
+                                <div className="complex-detail" key={`${key}-detail`}>
+                                  {items.map((l, i) => (
+                                    <div className="listing" key={i}>
+                                      <div className="l-top">
+                                        <span>
+                                          {l.complex} · {Math.round(l.pyeong)}평 ({l.areaM2.toFixed(0)}
+                                          ㎡)
+                                        </span>
+                                        <span className="l-price">{listingPriceLabel(l)}</span>
+                                      </div>
+                                      <div className="l-meta">
+                                        <span>{l.floor}층</span>
+                                        <span>{l.date} 계약</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}
       </section>
 
       <footer className="end">
-        데이터 출처: 국토교통부 아파트매매 실거래 상세 자료(공공데이터포털). 개념도는 실제 행정구역 경계와 다를 수 있는 단순화된 표시입니다.
+        데이터 출처: 국토교통부 아파트매매/전월세 실거래 상세 자료(공공데이터포털). 개념도는 실제
+        행정구역 경계와 다를 수 있는 단순화된 표시입니다.
       </footer>
 
       <div className={`toast${toast ? " show" : ""}`}>{toast}</div>
