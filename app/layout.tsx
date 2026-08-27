@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "우리동네 실거래",
+  title: "부울산 아파트 실거래",
   description: "부산·울산 아파트 실거래가 지도",
 };
 
