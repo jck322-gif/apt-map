@@ -56,11 +56,21 @@ export async function fetchTrades(
   const xml = await res.text();
   const json = parser.parse(xml);
   const response = json?.response;
-  const resultCode = response?.header?.resultCode;
+  const resultCodeRaw = response?.header?.resultCode;
+  // fast-xml-parser는 "0"처럼 숫자로 보이는 텍스트를 자동으로 숫자 0으로 바꿔버리므로
+  // 문자열로 통일해서 비교합니다. 국토부 API는 API마다 성공 코드가 "000"/"00"/"0"으로
+  // 제각각이라, 알려진 성공 코드이거나 resultMsg가 "OK"/"NORMAL SERVICE" 계열이면
+  // 성공으로 간주합니다.
+  const resultCode = resultCodeRaw === undefined || resultCodeRaw === null ? undefined : String(resultCodeRaw);
+  const resultMsg = response?.header?.resultMsg;
+  const SUCCESS_CODES = new Set(["0", "00", "000"]);
+  const looksSuccessful =
+    resultCode === undefined ||
+    SUCCESS_CODES.has(resultCode) ||
+    (typeof resultMsg === "string" && /^(ok|normal service\.?)$/i.test(resultMsg.trim()));
 
-  if (resultCode !== undefined && resultCode !== "000" && resultCode !== "00") {
-    const msg = response?.header?.resultMsg ?? "알 수 없는 오류";
-    throw new Error(`MOLIT API 오류 [${resultCode}] ${msg} (지역 ${lawdCd}, ${dealYmd})`);
+  if (!looksSuccessful) {
+    throw new Error(`MOLIT API 오류 [${resultCode}] ${resultMsg ?? "알 수 없는 오류"} (지역 ${lawdCd}, ${dealYmd})`);
   }
 
   const rawItems = response?.body?.items?.item;
