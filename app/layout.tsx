@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 import "./globals.css";
 
+const TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
+const DESCRIPTION =
+  "부산 16개 구·군, 울산 5개 구·군의 아파트 매매·전세·월세 실거래가를 국토교통부 자료로 매일 확인하세요. 오늘의 실거래, 단지별 가격 추이, 지역 지도를 제공합니다.";
+
 export const metadata: Metadata = {
-  title: "부울산 아파트 실거래",
-  description: "부산·울산 아파트 실거래가 지도",
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: ["부산 아파트 실거래가", "울산 아파트 실거래가", "부산 집값", "울산 집값", "아파트 시세"],
+  openGraph: {
+    title: TITLE,
+    description: "부산·울산 아파트 매매·전세·월세 실거래가를 국토교통부 자료로 매일 확인하세요.",
+    type: "website",
+    locale: "ko_KR",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
