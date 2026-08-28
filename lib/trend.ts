@@ -10,6 +10,7 @@ export type Listing = {
   pyeong: number;
   floor: number;
   date: string;
+  dealDay: number; // 계약일(1~31, 정렬용 원본 값 — date는 화면 표시용 문자열)
   priceManwon: number | null; // 매매가 (매매일 때만 값 있음)
   depositManwon: number | null; // 보증금 (전세·월세일 때 값 있음)
   monthlyRentManwon: number | null; // 월세금액 (월세일 때만 값 있음)
@@ -85,6 +86,7 @@ export function summarizeSale(
       pyeong: toPyeong(r.areaM2),
       floor: r.floor,
       date: `${currentMonth}/${r.dealDay}`,
+      dealDay: r.dealDay,
       priceManwon: r.priceManwon,
       depositManwon: null,
       monthlyRentManwon: null,
@@ -128,6 +130,7 @@ export function summarizeRent(
       pyeong: toPyeong(r.areaM2),
       floor: r.floor,
       date: `${currentMonth}/${r.dealDay}`,
+      dealDay: r.dealDay,
       priceManwon: null,
       depositManwon: r.depositManwon,
       monthlyRentManwon: dealType === "월세" ? r.monthlyRentManwon : null,
