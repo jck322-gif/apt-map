@@ -136,10 +136,12 @@ section.block { padding: 20px 16px 0; }
   border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
 }
 .recent-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 12px 14px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  padding: 12px 14px; border-bottom: 1px solid var(--line); background: transparent; border-left: none;
+  border-right: none; border-top: none; text-align: left; cursor: pointer; font: inherit; color: inherit;
 }
 .recent-row:last-child { border-bottom: none; }
+.recent-row:hover, .recent-row:active { background: var(--surface-2); }
 .recent-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .recent-loc {
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--muted);
@@ -328,11 +330,45 @@ footer.end p { margin: 0 0 12px; }
   .modal-panel { border-radius: 16px; }
 }
 .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-.modal-title { margin: 0; font-family: "Noto Serif KR", serif; font-size: 17px; color: var(--ink); }
-.modal-subtitle { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+.modal-title { margin: 0; font-family: "Noto Serif KR", serif; font-size: 18px; color: var(--ink); }
+.modal-address { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-soft); }
+.modal-subtitle { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
 .modal-close {
   flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--ink-soft); font-size: 14px; cursor: pointer;
+}
+
+/* 차트(왼쪽) + 실거래 통계 카드(오른쪽) — 좁은 화면에서는 위/아래로 쌓임 */
+.trend-top { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }
+@media (min-width: 600px) {
+  .trend-top { flex-direction: row; align-items: flex-start; }
+  .trend-top .trend-chart-wrap { flex: 1 1 44%; margin-top: 0; }
+  .trend-top .stat-card { flex: 1 1 56%; }
+}
+
+.stat-card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.stat-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 12.5px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row.main { background: var(--surface-2); }
+.stat-label { color: var(--muted); font-weight: 700; flex-shrink: 0; }
+.stat-value { color: var(--ink); text-align: right; }
+.stat-main-value {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 17px; font-weight: 800; color: var(--ink);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+}
+.stat-change {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  padding: 2px 7px; border-radius: 10px;
+}
+.stat-change.up { background: var(--rise-soft); color: var(--rise); }
+.stat-change.down { background: var(--fall-soft); color: var(--fall); }
+.stat-pill {
+  margin-left: 6px; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 700;
+  padding: 2px 7px; border-radius: 10px; background: var(--surface-2); color: var(--teal-deep);
+  white-space: nowrap;
 }
 
 /* 추이 차트 */
