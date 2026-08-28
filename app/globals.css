@@ -100,6 +100,31 @@ section.block { padding: 20px 16px 0; }
   text-transform: uppercase; color: var(--muted); margin: 0 0 10px;
 }
 
+.hero-block { padding-top: 16px; }
+.recent-feed {
+  display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+}
+.recent-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px; border-bottom: 1px solid var(--line);
+}
+.recent-row:last-child { border-bottom: none; }
+.recent-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.recent-loc {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--muted);
+}
+.recent-complex {
+  font-size: 13.5px; font-weight: 700; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.recent-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.recent-price {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700; color: var(--teal-deep);
+  white-space: nowrap;
+}
+.recent-date { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
 .rank-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
 .rank-card {
   flex: 0 0 auto; min-width: 118px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
