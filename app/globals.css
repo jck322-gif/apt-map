@@ -165,6 +165,15 @@ section.block { padding: 20px 16px 0; }
 .rank-card .rank-count { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .rank-card .rank-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
 
+/* 부산 · 울산을 각각 확대해서 나란히 보여주는 지도 2단 구성 */
+.map-grid { display: flex; flex-direction: column; gap: 16px; }
+@media (min-width: 640px) {
+  .map-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+}
+.map-col-heading {
+  font-family: "Noto Serif KR", serif; font-size: 14px; font-weight: 800; color: var(--ink);
+  margin-bottom: 8px; padding-left: 10px; border-left: 3px solid var(--teal);
+}
 .map-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
 svg.map { display: block; width: 100%; height: auto; }
 .node { cursor: pointer; }
@@ -172,7 +181,8 @@ svg.map { display: block; width: 100%; height: auto; }
 .node.selected circle { stroke: var(--ink); stroke-width: 2.5; }
 .node-label { font-family: "Noto Sans KR", sans-serif; font-size: 9px; fill: var(--ink-soft); }
 .legend {
-  display: flex; gap: 14px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line);
+  display: flex; gap: 14px; align-items: center; padding: 10px 14px; margin-top: 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
   font-size: 11px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
