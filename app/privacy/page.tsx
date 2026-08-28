@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 // TODO: 시행일자와 문의 이메일을 실제 값으로 바꿔주세요 (문의 이메일은 app/contact/page.tsx와 동일하게 맞춰주세요).
 const EFFECTIVE_DATE = "2026년 8월 28일";
-const CONTACT_EMAIL = "contact@example.com";
+const CONTACT_EMAIL = "jck322@gmail.com";
 
 export default function PrivacyPage() {
   return (
