@@ -12,13 +12,38 @@ type MonthlyPoint = {
   count: number;
 };
 
+type TxDetail = {
+  ymd: number; // YYYYMMDD
+  dateLabel: string; // "26.08.24"
+  priceManwon: number;
+  floor: number;
+  areaM2: number;
+};
+
+type Stats = {
+  latestSale: TxDetail | null;
+  previousSale: TxDetail | null;
+  saleChangeManwon: number | null;
+  saleChangePct: number | null;
+  highSale: TxDetail | null;
+  lowSale: TxDetail | null;
+  recoveryPct: number | null;
+  latestJeonse: TxDetail | null;
+  gapManwon: number | null;
+  gapPct: number | null;
+};
+
 type TrendResponse = {
   code: string;
   regionName: string;
   group: "부산" | "울산";
   complex: string;
+  dong: string | null;
+  buildYear: number | null;
+  age: number | null;
   dealType: "sale" | "jeonse" | "monthly";
   points: MonthlyPoint[];
+  stats: Stats;
   errors: { ymd: string; message: string }[];
 };
 
@@ -41,16 +66,28 @@ function buildScale(values: number[]) {
   return { min: min - pad, max: max + pad };
 }
 
+function ChangeBadge({ amount, pct }: { amount: number | null; pct: number | null }) {
+  if (amount === null || pct === null) return null;
+  const up = amount >= 0;
+  return (
+    <span className={`stat-change ${up ? "up" : "down"}`}>
+      {up ? "▲" : "▼"} {fmtManwon(Math.abs(amount))} ({Math.abs(pct).toFixed(1)}%)
+    </span>
+  );
+}
+
 export default function ComplexTrendModal({
   code,
   regionName,
   complex,
+  areaM2,
   dealType,
   onClose,
 }: {
   code: string;
   regionName: string;
   complex: string;
+  areaM2?: number;
   dealType: "sale" | "jeonse" | "monthly";
   onClose: () => void;
 }) {
@@ -65,7 +102,8 @@ export default function ComplexTrendModal({
     let cancelled = false;
     setState({ loading: true, error: null, data: null });
     setActiveIdx(null);
-    fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${dealType}`)
+    const areaQs = areaM2 !== undefined ? `&area=${areaM2}` : "";
+    fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${dealType}${areaQs}`)
       .then(async (res) => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
@@ -79,10 +117,12 @@ export default function ComplexTrendModal({
     return () => {
       cancelled = true;
     };
-  }, [code, complex, dealType]);
+  }, [code, complex, dealType, areaM2]);
 
-  const points = state.data?.points ?? [];
+  const data = state.data;
+  const points = data?.points ?? [];
   const withValue = points.filter((p) => p.avgPriceManwon !== null) as (MonthlyPoint & { avgPriceManwon: number })[];
+  const stats = data?.stats;
 
   let chart: React.ReactNode = null;
   if (withValue.length > 0) {
@@ -174,43 +214,120 @@ export default function ComplexTrendModal({
     );
   }
 
+  const infoLine = data
+    ? [
+        `${data.group}광역시 ${data.regionName}${data.dong ? " " + data.dong : ""}`,
+        data.buildYear ? `${data.buildYear}년 준공 (${data.age}년차)` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : "";
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <h3 className="modal-title">
-              {regionName} · {complex}
-            </h3>
-            <p className="modal-subtitle">
-              {VALUE_LABEL[dealType]} 추이 · 최근 6개월 (월별 평균)
-            </p>
+            <h3 className="modal-title">{complex}</h3>
+            {data && <p className="modal-address">{infoLine}</p>}
+            {areaM2 !== undefined && <p className="modal-subtitle">전용 {areaM2}㎡ 기준</p>}
           </div>
           <button className="modal-close" onClick={onClose} aria-label="닫기">
             ✕
           </button>
         </div>
 
-        {state.loading && <div className="empty-note">불러오는 중…</div>}
+        {state.loading && (
+          <div className="empty-note">
+            최근 3년치 매매 이력을 불러오는 중이에요 — 데이터가 많아 몇 초 걸릴 수 있어요…
+          </div>
+        )}
         {state.error && (
           <div className="banner error">
             <strong>불러오기 실패</strong> — {state.error}
           </div>
         )}
 
-        {!state.loading && !state.error && withValue.length === 0 && (
-          <div className="empty-note">최근 6개월 안에 이 단지의 실거래 데이터가 없습니다.</div>
-        )}
-
-        {!state.loading && !state.error && withValue.length > 0 && (
+        {!state.loading && !state.error && data && stats && (
           <>
-            <div className="trend-chart-wrap">{chart}</div>
-            {activeIdx !== null && points[activeIdx]?.avgPriceManwon !== null && (
-              <div className="trend-tooltip">
-                {points[activeIdx].label} · 평균 {fmtManwon(points[activeIdx].avgPriceManwon as number)} ·{" "}
-                {points[activeIdx].count}건
+            <div className="trend-top">
+              <div className="trend-chart-wrap">
+                {withValue.length > 0 ? (
+                  chart
+                ) : (
+                  <div className="empty-note">
+                    최근 6개월 안에 {VALUE_LABEL[dealType]} 실거래 데이터가 없습니다.
+                  </div>
+                )}
+                {activeIdx !== null && points[activeIdx]?.avgPriceManwon !== null && (
+                  <div className="trend-tooltip">
+                    {points[activeIdx].label} · 평균 {fmtManwon(points[activeIdx].avgPriceManwon as number)} ·{" "}
+                    {points[activeIdx].count}건
+                  </div>
+                )}
               </div>
-            )}
+
+              <div className="stat-card">
+                <div className="stat-row main">
+                  <span className="stat-label">매매 실거래가</span>
+                  <span className="stat-main-value">
+                    {stats.latestSale ? fmtManwon(stats.latestSale.priceManwon) : "데이터 없음"}
+                    <ChangeBadge amount={stats.saleChangeManwon} pct={stats.saleChangePct} />
+                  </span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">직전거래</span>
+                  <span className="stat-value">
+                    {stats.previousSale
+                      ? `${fmtManwon(stats.previousSale.priceManwon)} · ${stats.previousSale.floor}층 · ${stats.previousSale.dateLabel}`
+                      : "-"}
+                  </span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">3년 최고</span>
+                  <span className="stat-value">
+                    {stats.highSale ? (
+                      <>
+                        {fmtManwon(stats.highSale.priceManwon)} · {stats.highSale.floor}층 ·{" "}
+                        {stats.highSale.dateLabel}
+                        {stats.recoveryPct !== null && (
+                          <span className="stat-pill">회복율 {stats.recoveryPct.toFixed(0)}%</span>
+                        )}
+                      </>
+                    ) : (
+                      "-"
+                    )}
+                  </span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">3년 최저</span>
+                  <span className="stat-value">
+                    {stats.lowSale
+                      ? `${fmtManwon(stats.lowSale.priceManwon)} · ${stats.lowSale.floor}층 · ${stats.lowSale.dateLabel}`
+                      : "-"}
+                  </span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">전세</span>
+                  <span className="stat-value">
+                    {stats.latestJeonse ? (
+                      <>
+                        {fmtManwon(stats.latestJeonse.priceManwon)} · {stats.latestJeonse.floor}층 ·{" "}
+                        {stats.latestJeonse.dateLabel}
+                        {stats.gapManwon !== null && stats.gapPct !== null && (
+                          <span className="stat-pill">
+                            갭 {fmtManwon(stats.gapManwon)} ({stats.gapPct.toFixed(0)}%)
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      "최근 6개월 전세 실거래 없음"
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div className="trend-table">
               {points.map((p) => (
                 <div className="trend-table-row" key={p.ymd}>
@@ -226,8 +343,9 @@ export default function ComplexTrendModal({
         )}
 
         <p className="empty-note" style={{ padding: "10px 0 0", fontSize: 12 }}>
-          국토부에는 계약 후 최대 30일까지 신고할 수 있어, 최근 1~2개월 수치는 이후 거래가 더 추가될
-          수 있습니다.
+          매매 3년 최고/최저·직전거래·전세는 이 단지의 실거래 신고 자료를 기준으로 계산했어요.
+          국토부에는 계약 후 최대 30일까지 신고할 수 있어, 최근 거래는 이후에도 추가될 수 있습니다.
+          세대수 정보는 국토부 실거래가 API에 포함되어 있지 않아 표시하지 않았어요.
         </p>
       </div>
     </div>
