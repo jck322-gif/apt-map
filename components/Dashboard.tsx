@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import type { Region } from "@/lib/regions";
 import { fmtManwon } from "@/lib/format";
@@ -260,10 +260,23 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
     return cols;
   }, [filter, recentBusan, recentUlsan]);
 
-  const selectRegion = useCallback((code: string) => {
-    setSelectedCode(code);
-    setOpenCode((prev) => (prev === code ? null : code));
-  }, []);
+  // 지도(또는 TOP5 카드)에서 지역을 누르면 아래 "지역별 실거래 리스트"의 해당 구를 펼치고
+  // 그 위치로 화면을 부드럽게 스크롤해 바로 내용을 볼 수 있게 합니다.
+  const regionRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const selectRegion = useCallback(
+    (code: string) => {
+      const willOpen = openCode !== code; // 같은 구를 다시 누르면 접히고, 다른 구를 누르면 펼쳐짐
+      setSelectedCode(code);
+      setOpenCode(willOpen ? code : null);
+      if (!willOpen) return; // 접는 경우엔 스크롤하지 않음
+      // 펼쳐진 뒤(=DOM이 갱신된 뒤)에 위치를 계산하도록 다음 프레임에 스크롤합니다.
+      requestAnimationFrame(() => {
+        regionRowRefs.current[code]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    },
+    [openCode]
+  );
 
   return (
     <div className="wrap">
@@ -576,6 +589,9 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
                 return (
                   <div
                     key={r.code}
+                    ref={(el) => {
+                      regionRowRefs.current[r.code] = el;
+                    }}
                     className={`region-row${selectedCode === r.code ? " selected" : ""}${
                       openCode === r.code ? " open" : ""
                     }`}
