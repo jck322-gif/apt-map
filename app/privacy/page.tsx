@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE_NAME, CONTACT_EMAIL, PRIVACY_EFFECTIVE_DATE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "개인정보처리방침 | 부울산 아파트 실거래",
-  description: "부울산 아파트 실거래 서비스의 개인정보처리방침 및 쿠키·광고 이용 안내.",
+  title: `개인정보처리방침 | ${SITE_NAME}`,
+  description: `${SITE_NAME} 서비스의 개인정보처리방침 및 쿠키·광고 이용 안내.`,
 };
-
-// TODO: 시행일자와 문의 이메일을 실제 값으로 바꿔주세요 (문의 이메일은 app/contact/page.tsx와 동일하게 맞춰주세요).
-const EFFECTIVE_DATE = "2026년 8월 28일";
-const CONTACT_EMAIL = "jck322@gmail.com";
 
 export default function PrivacyPage() {
   return (
@@ -18,16 +15,16 @@ export default function PrivacyPage() {
       </Link>
       <h1>개인정보처리방침</h1>
       <p className="empty-note" style={{ padding: "0 0 8px" }}>
-        시행일자: {EFFECTIVE_DATE}
+        시행일자: {PRIVACY_EFFECTIVE_DATE}
       </p>
 
       <section>
         <h2>1. 수집하는 개인정보 항목 및 목적</h2>
         <p>
-          부울산 아파트 실거래(이하 &quot;사이트&quot;)는 회원가입이나 로그인 기능을 운영하지
-          않으며, 이용자가 별도로 이름·연락처 등을 입력하는 절차가 없습니다. 다만 이용자가 문의
-          페이지의 이메일 주소로 직접 연락하는 경우, 그 과정에서 이용자가 자발적으로 제공한 이메일
-          주소와 문의 내용이 문의 응대 목적으로만 수집·이용됩니다.
+          {SITE_NAME}(이하 &quot;사이트&quot;)는 회원가입이나 로그인 기능을 운영하지 않으며, 이용자가
+          별도로 이름·연락처 등을 입력하는 절차가 없습니다. 다만 이용자가 문의 페이지의 이메일
+          주소로 직접 연락하는 경우, 그 과정에서 이용자가 자발적으로 제공한 이메일 주소와 문의
+          내용이 문의 응대 목적으로만 수집·이용됩니다.
         </p>
       </section>
 
