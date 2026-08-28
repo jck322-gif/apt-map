@@ -149,7 +149,9 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   // 단지/동 이름으로 바로 찾는 검색창
   const [searchQuery, setSearchQuery] = useState("");
   // 검색 결과 또는 단지 상세에서 "추이 보기"를 눌렀을 때 열리는 모달 대상
-  const [trendTarget, setTrendTarget] = useState<{ code: string; regionName: string; complex: string } | null>(
+  const [trendTarget, setTrendTarget] = useState<
+    { code: string; regionName: string; complex: string; areaM2?: number } | null
+  >(
     null
   );
   const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
@@ -376,7 +378,13 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
               ) : (
                 <div className="recent-feed">
                   {list.map((l, i) => (
-                    <div className="recent-row" key={`${l.regionName}-${l.complex}-${l.dealYmd}-${i}`}>
+                    <button
+                      className="recent-row"
+                      key={`${l.regionName}-${l.complex}-${l.dealYmd}-${i}`}
+                      onClick={() =>
+                        setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex, areaM2: l.areaM2 })
+                      }
+                    >
                       <div className="recent-main">
                         <span className="recent-loc">
                           {l.regionName} · {l.dong}
@@ -389,7 +397,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
                         <span className="recent-price">{listingPriceLabel(l)}</span>
                         <span className="recent-date">{l.date} 계약</span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -491,7 +499,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
                   key={`${l.regionCode}-${l.complex}-${l.dealYmd}-${i}`}
                   className="search-result-row"
                   onClick={() =>
-                    setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex })
+                    setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex, areaM2: l.areaM2 })
                   }
                 >
                   <div className="recent-main">
@@ -668,6 +676,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
           code={trendTarget.code}
           regionName={trendTarget.regionName}
           complex={trendTarget.complex}
+          areaM2={trendTarget.areaM2}
           dealType={dealType}
           onClose={() => setTrendTarget(null)}
         />
