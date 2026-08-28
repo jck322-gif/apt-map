@@ -6,6 +6,8 @@ import type { Region } from "@/lib/regions";
 import { fmtManwon } from "@/lib/format";
 import KakaoMap from "@/components/KakaoMap";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
+import Logo from "@/components/Logo";
+import { SITE_NAME } from "@/lib/site";
 
 type Listing = {
   dong: string;
@@ -281,8 +283,14 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   return (
     <div className="wrap">
       <header className="app-header">
-        <div className="title-row">
-          <h1>부울산 아파트 실거래</h1>
+        <div className="brand-row">
+          <div className="brand">
+            <Logo size={34} />
+            <h1>{SITE_NAME}</h1>
+          </div>
+          <p className="brand-tagline">
+            부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
+          </p>
           <span className="live-badge">실시간 연동</span>
         </div>
 
