@@ -96,6 +96,19 @@ function TrendBadge({ trendPct }: { trendPct: number | null }) {
   );
 }
 
+/** 개념도(SVG) 폴백에서, 주어진 지역 목록의 좌표 범위에 딱 맞춰 확대된 viewBox를 계산합니다. */
+function svgViewBoxFor(list: { x: number; y: number }[]): string {
+  if (list.length === 0) return "0 0 400 300";
+  const pad = 46;
+  const xs = list.map((r) => r.x);
+  const ys = list.map((r) => r.y);
+  const minX = Math.min(...xs) - pad;
+  const minY = Math.min(...ys) - pad;
+  const w = Math.max(...xs) - Math.min(...xs) + pad * 2;
+  const h = Math.max(...ys) - Math.min(...ys) + pad * 2;
+  return `${minX} ${minY} ${w} ${h}`;
+}
+
 /** 지역의 거래 목록을 동 → 단지 순으로 묶습니다 (구 선택 → 동 선택 → 단지 선택 흐름을 위한 준비 작업). */
 function groupByDong(listings: Listing[]) {
   const dongOrder: string[] = [];
@@ -387,53 +400,68 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
 
       <section className="block">
         <h2>지역 지도</h2>
-        <div className="map-card">
-          {kakaoKey && !kakaoFailed ? (
-            <KakaoMap
-              regions={regions}
-              selectedCode={selectedCode}
-              filter={filter}
-              onSelect={selectRegion}
-              onError={() => setKakaoFailed(true)}
-            />
-          ) : (
-            <svg className="map" viewBox="0 0 760 480" role="img" aria-label="부산·울산 지역 개념도">
-              {regions.map((r) => {
-                const dimmed = filter !== "전체" && r.group !== filter;
-                const radius = 9 + (r.count / maxCount) * 17;
-                const color =
-                  r.trendPct === null ? "var(--muted)" : r.trendPct >= 0 ? "var(--rise)" : "var(--fall)";
-                return (
-                  <g
-                    key={r.code}
-                    className={`node${dimmed ? " dim" : ""}${selectedCode === r.code ? " selected" : ""}`}
-                    onClick={() => selectRegion(r.code)}
+        <div className="map-grid">
+          {groupSections.map(({ group, list }) => (
+            <div className="map-col" key={group}>
+              <div className="map-col-heading">{group}</div>
+              <div className="map-card">
+                {kakaoKey && !kakaoFailed ? (
+                  <KakaoMap
+                    regions={list}
+                    selectedCode={selectedCode}
+                    filter={filter}
+                    onSelect={selectRegion}
+                    onError={() => setKakaoFailed(true)}
+                  />
+                ) : (
+                  <svg
+                    className="map"
+                    viewBox={svgViewBoxFor(list)}
+                    role="img"
+                    aria-label={`${group} 지역 개념도`}
                   >
-                    <circle cx={r.x} cy={r.y} r={radius} fill={color} opacity={0.85} />
-                    <text
-                      x={r.x}
-                      y={r.y + 3.5}
-                      textAnchor="middle"
-                      fontFamily="IBM Plex Mono, monospace"
-                      fontSize={Math.max(9, radius * 0.55)}
-                      fontWeight={700}
-                      fill="#fff"
-                    >
-                      {r.count}
-                    </text>
-                    <text className="node-label" x={r.x} y={r.y + radius + 12} textAnchor="middle">
-                      {r.name}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          )}
-          <div className="legend">
-            <span><span className="dot" style={{ background: "var(--rise)" }} />상승</span>
-            <span><span className="dot" style={{ background: "var(--fall)" }} />하락</span>
-            <span>원 크기 = 거래량</span>
-          </div>
+                    {list.map((r) => {
+                      const radius = 9 + (r.count / maxCount) * 17;
+                      const color =
+                        r.trendPct === null
+                          ? "var(--muted)"
+                          : r.trendPct >= 0
+                          ? "var(--rise)"
+                          : "var(--fall)";
+                      return (
+                        <g
+                          key={r.code}
+                          className={`node${selectedCode === r.code ? " selected" : ""}`}
+                          onClick={() => selectRegion(r.code)}
+                        >
+                          <circle cx={r.x} cy={r.y} r={radius} fill={color} opacity={0.85} />
+                          <text
+                            x={r.x}
+                            y={r.y + 3.5}
+                            textAnchor="middle"
+                            fontFamily="IBM Plex Mono, monospace"
+                            fontSize={Math.max(9, radius * 0.55)}
+                            fontWeight={700}
+                            fill="#fff"
+                          >
+                            {r.count}
+                          </text>
+                          <text className="node-label" x={r.x} y={r.y + radius + 12} textAnchor="middle">
+                            {r.name}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="legend">
+          <span><span className="dot" style={{ background: "var(--rise)" }} />상승</span>
+          <span><span className="dot" style={{ background: "var(--fall)" }} />하락</span>
+          <span>원 크기 = 거래량</span>
         </div>
         {kakaoKey && (
           <p className="empty-note" style={{ padding: "8px 2px 0" }}>
