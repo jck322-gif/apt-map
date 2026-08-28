@@ -68,6 +68,19 @@ function listingPriceLabel(l: Listing): string {
   return "-";
 }
 
+/** 정렬용 금액값 — 매매는 매매가, 전세는 보증금, 월세는 월세금액 기준으로 높은순 정렬합니다. */
+function listingSortValue(l: Listing): number {
+  return l.priceManwon ?? l.monthlyRentManwon ?? l.depositManwon ?? 0;
+}
+
+/** "202608" → "2026년 8월 계약분" */
+function fmtYmd(ymd: string): string {
+  if (!/^\d{6}$/.test(ymd)) return ymd;
+  const y = ymd.slice(0, 4);
+  const m = Number(ymd.slice(4, 6));
+  return `${y}년 ${m}월 계약분`;
+}
+
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60000);
@@ -178,21 +191,23 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   const top5 = useMemo(() => regions.slice().sort((a, b) => b.count - a.count).slice(0, 5), [regions]);
   const maxCount = useMemo(() => Math.max(1, ...regions.map((r) => r.count)), [regions]);
 
-  // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 전체 지역의 개별 거래를 계약일(dealDay) 기준
-  // 최신순으로 모아서 상위 N건만 보여줍니다. 부산/울산 칩으로 필터링하면 이 피드도 같이 걸러집니다.
-  // 참고: 국토부 실거래가는 계약 후 최대 30일 이내에 신고하면 되는 제도라, "오늘 신고된" 것이
-  // 반드시 "오늘 계약된" 것은 아닐 수 있습니다 — 그래도 이번 달 데이터 중 가장 최근 계약일 순입니다.
-  const RECENT_FEED_LIMIT = 30;
-  const recentSourceRegions = useMemo(
-    () => (filter === "전체" ? regions : regions.filter((r) => r.group === filter)),
-    [regions, filter]
-  );
-  const recentListings = useMemo(() => {
-    const flat: RecentListing[] = recentSourceRegions.flatMap((r) =>
+  // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 부산/울산 각각 개별 거래를 가격 높은순으로
+  // 모아서 상위 N건만 두 열로 보여줍니다. 부산/울산 칩으로 필터링하면 해당 열만 남습니다.
+  const RECENT_FEED_LIMIT = 15;
+  const toRecentListings = useCallback((list: RegionSummary[]): RecentListing[] => {
+    const flat: RecentListing[] = list.flatMap((r) =>
       r.listings.map((l) => ({ ...l, regionName: r.name, group: r.group }))
     );
-    return flat.sort((a, b) => b.dealDay - a.dealDay).slice(0, RECENT_FEED_LIMIT);
-  }, [recentSourceRegions]);
+    return flat.sort((a, b) => listingSortValue(b) - listingSortValue(a)).slice(0, RECENT_FEED_LIMIT);
+  }, []);
+  const recentBusan = useMemo(() => toRecentListings(busanList), [busanList, toRecentListings]);
+  const recentUlsan = useMemo(() => toRecentListings(ulsanList), [ulsanList, toRecentListings]);
+  const recentColumns = useMemo(() => {
+    const cols: { group: "부산" | "울산"; list: RecentListing[] }[] = [];
+    if (filter === "전체" || filter === "부산") cols.push({ group: "부산", list: recentBusan });
+    if (filter === "전체" || filter === "울산") cols.push({ group: "울산", list: recentUlsan });
+    return cols;
+  }, [filter, recentBusan, recentUlsan]);
 
   const selectRegion = useCallback((code: string) => {
     setSelectedCode(code);
@@ -269,32 +284,42 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       )}
 
       <section className="block hero-block">
-        <h2>오늘의 실거래 · {dealLabel(dealType)}</h2>
+        <div className="hero-heading">
+          <h2>오늘의 실거래 · {dealLabel(dealType)}</h2>
+          {data && <span className="hero-date">{fmtYmd(data.dealYmd)}</span>}
+        </div>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
-          이번 달 계약 중 최근 계약일 순으로 모았어요 (국토부 신고 기준 최대 30일 지연될 수 있어요).
+          가격 높은순으로 모았어요 — 부산 · 울산을 나란히 비교해보세요.
         </p>
-        {recentListings.length === 0 ? (
-          <div className="empty-note">표시할 거래가 없습니다. 지금 업데이트를 눌러보세요.</div>
-        ) : (
-          <div className="recent-feed">
-            {recentListings.map((l, i) => (
-              <div className="recent-row" key={`${l.regionName}-${l.complex}-${l.dealDay}-${i}`}>
-                <div className="recent-main">
-                  <span className="recent-loc">
-                    {l.group} · {l.regionName} · {l.dong}
-                  </span>
-                  <span className="recent-complex">
-                    {l.complex} · {Math.round(l.pyeong)}평 · {l.floor}층
-                  </span>
+        <div className="recent-table">
+          {recentColumns.map(({ group, list }) => (
+            <div className="recent-col" key={group}>
+              <div className="recent-col-heading">{group}</div>
+              {list.length === 0 ? (
+                <div className="empty-note">표시할 거래가 없습니다. 지금 업데이트를 눌러보세요.</div>
+              ) : (
+                <div className="recent-feed">
+                  {list.map((l, i) => (
+                    <div className="recent-row" key={`${l.regionName}-${l.complex}-${l.dealDay}-${i}`}>
+                      <div className="recent-main">
+                        <span className="recent-loc">
+                          {l.regionName} · {l.dong}
+                        </span>
+                        <span className="recent-complex">
+                          {l.complex} · {Math.round(l.pyeong)}평 · {l.floor}층
+                        </span>
+                      </div>
+                      <div className="recent-side">
+                        <span className="recent-price">{listingPriceLabel(l)}</span>
+                        <span className="recent-date">{l.date} 계약</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="recent-side">
-                  <span className="recent-price">{listingPriceLabel(l)}</span>
-                  <span className="recent-date">{l.date} 계약</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              )}
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="block">
