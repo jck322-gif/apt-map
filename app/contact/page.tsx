@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 // TODO: 아래 CONTACT_EMAIL을 실제로 사용하실 문의용 이메일 주소로 바꿔주세요.
-const CONTACT_EMAIL = "contact@example.com";
+const CONTACT_EMAIL = "jck322@gmail.com";
 
 export default function ContactPage() {
   return (
