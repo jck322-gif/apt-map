@@ -65,8 +65,23 @@ header.app-header {
   background: var(--surface); border-bottom: 1px solid var(--line);
   padding: 14px 16px 12px;
 }
-.title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-h1 { font-family: "Noto Serif KR", serif; font-size: 18px; margin: 0; font-weight: 700; }
+/* 로고 · 사이트명 · 가운데 문구 · 실시간 배지가 한 줄에 놓이는 상단 브랜드 영역.
+   좁은 화면에서는 가운데 문구가 아래 줄로 자연스럽게 내려갑니다. */
+.brand-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.brand { display: flex; align-items: center; gap: 9px; order: 1; flex: 1 1 auto; min-width: 0; }
+h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+.live-badge { order: 2; }
+.brand-tagline {
+  order: 3; flex: 1 0 100%; margin: 2px 0 0; text-align: center;
+  font-size: 13px; font-weight: 700; color: var(--ink-soft);
+}
+.brand-tagline .accent { color: var(--teal); }
+@media (min-width: 720px) {
+  .brand-tagline { order: 2; flex: 1 1 auto; margin: 0; font-size: 14.5px; }
+  .live-badge { order: 3; }
+}
 .live-badge {
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.04em;
   padding: 3px 8px; border-radius: 20px; background: var(--teal); color: #fff; font-weight: 700; flex-shrink: 0;
