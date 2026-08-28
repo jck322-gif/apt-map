@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import Link from "next/link";
 import type { Region } from "@/lib/regions";
+import { fmtManwon } from "@/lib/format";
 import KakaoMap from "@/components/KakaoMap";
+import ComplexTrendModal from "@/components/ComplexTrendModal";
 
 type Listing = {
   dong: string;
@@ -11,13 +14,13 @@ type Listing = {
   pyeong: number;
   floor: number;
   date: string;
-  dealDay: number;
+  dealYmd: number; // YYYYMMDD 정수 — 정확한 날짜 비교용 (월 경계를 넘어도 안전)
   priceManwon: number | null;
   depositManwon: number | null;
   monthlyRentManwon: number | null;
 };
 
-type RecentListing = Listing & { regionName: string; group: "부산" | "울산" };
+type RecentListing = Listing & { regionName: string; regionCode: string; group: "부산" | "울산" };
 
 type RegionSummary = Region & {
   count: number;
@@ -47,17 +50,6 @@ function dealLabel(dealType: DealType): string {
   return DEAL_TABS.find((t) => t.key === dealType)?.label ?? "매매";
 }
 
-/** 만원 단위 금액을 "5억 1,400만원" 같은 한국식 표기로 바꿉니다. */
-function fmtManwon(manwon: number): string {
-  const sign = manwon < 0 ? "-" : "";
-  const abs = Math.abs(Math.round(manwon));
-  const eok = Math.floor(abs / 10000);
-  const rest = abs % 10000;
-  if (eok === 0) return `${sign}${rest.toLocaleString()}만원`;
-  if (rest === 0) return `${sign}${eok}억원`;
-  return `${sign}${eok}억 ${rest.toLocaleString()}만원`;
-}
-
 /** 거래 한 건의 가격 표시 문구(매매가 / 보증금 / 보증금+월세)를 만듭니다. */
 function listingPriceLabel(l: Listing): string {
   if (l.priceManwon !== null) return fmtManwon(l.priceManwon);
@@ -76,6 +68,13 @@ function listingSortValue(l: Listing): number {
 /** 오늘 날짜를 "8월 28일" 형태로 표시합니다. */
 function todayLabel(now = new Date()): string {
   return `${now.getMonth() + 1}월 ${now.getDate()}일`;
+}
+
+/** YYYYMMDD 정수를 "8월 22일" 형태로 표시합니다. */
+function ymdIntToLabel(ymd: number): string {
+  const m = Math.floor((ymd % 10000) / 100);
+  const d = ymd % 100;
+  return `${m}월 ${d}일`;
 }
 
 function timeAgo(iso: string): string {
@@ -130,6 +129,16 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   const [openComplex, setOpenComplex] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [kakaoFailed, setKakaoFailed] = useState(false);
+  // "오늘의 실거래" 조회 범위 — 기본은 오늘 하루, 버튼을 눌렀을 때만 최근 7일까지 넓혀서 봅니다.
+  const [recentRange, setRecentRange] = useState<"today" | "week">("today");
+  // "지역별 실거래 리스트" 정렬 기준 — 기본은 최신순(이미 이 순서로 내려옴), 가격순으로도 볼 수 있음
+  const [listSort, setListSort] = useState<"recent" | "price">("recent");
+  // 단지/동 이름으로 바로 찾는 검색창
+  const [searchQuery, setSearchQuery] = useState("");
+  // 검색 결과 또는 단지 상세에서 "추이 보기"를 눌렀을 때 열리는 모달 대상
+  const [trendTarget, setTrendTarget] = useState<{ code: string; regionName: string; complex: string } | null>(
+    null
+  );
   const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
 
   const load = useCallback(async (type: DealType) => {
@@ -188,28 +197,44 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   const top5 = useMemo(() => regions.slice().sort((a, b) => b.count - a.count).slice(0, 5), [regions]);
   const maxCount = useMemo(() => Math.max(1, ...regions.map((r) => r.count)), [regions]);
 
-  // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 오늘 날짜(계약일 기준)에 해당하는 거래만
-  // 부산/울산 각각 가격 높은순으로 모아서 두 열로 보여줍니다. 부산/울산 칩으로 필터링하면
-  // 해당 열만 남습니다. (국토부 API는 "계약일"만 제공하고 별도의 "등록일"은 주지 않기 때문에,
-  // 오늘 날짜와 계약일이 같은 건만 골라냅니다.)
+  // 단지/동 이름 검색 — 구 단위로 펼치지 않아도 이름으로 바로 찾을 수 있게 전체 지역 데이터를 훑습니다.
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return [];
+    const flat: RecentListing[] = regions.flatMap((r) =>
+      r.listings
+        .filter((l) => l.dong.includes(q) || l.complex.includes(q))
+        .map((l) => ({ ...l, regionName: r.name, regionCode: r.code, group: r.group }))
+    );
+    return flat.sort((a, b) => b.dealYmd - a.dealYmd).slice(0, 30);
+  }, [regions, searchQuery]);
+
+  // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 기본은 오늘 계약일 거래만, "지난 7일" 버튼을
+  // 누르면 오늘부터 6일 전까지(총 7일) 계약일 거래까지 넓혀서 보여줍니다. 부산/울산 각각
+  // 가격 높은순으로 모아서 두 열로 보여주고, 부산/울산 칩으로 필터링하면 해당 열만 남습니다.
+  // (국토부 API는 "계약일"만 제공하고 별도의 "등록일"은 주지 않기 때문에, 여기서 말하는
+  // 날짜는 계약일 기준입니다.)
   const RECENT_FEED_LIMIT = 30;
-  const now = new Date();
-  const todayYmd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const todayDay = now.getDate();
-  // data.dealYmd가 오늘이 속한 달과 다르면(=아직 업데이트를 안 눌러 지난 데이터가 남아있으면)
-  // 날짜가 우연히 겹쳐도 오늘 거래로 잘못 표시되지 않도록 전부 걸러냅니다.
-  const isCurrentMonth = data?.dealYmd === todayYmd;
+  const todayYmdInt = useMemo(() => {
+    const n = new Date();
+    return n.getFullYear() * 10000 + (n.getMonth() + 1) * 100 + n.getDate();
+  }, []);
+  const rangeStartYmdInt = useMemo(() => {
+    if (recentRange === "today") return todayYmdInt;
+    const n = new Date();
+    n.setDate(n.getDate() - 6); // 오늘 포함 7일 전 (오늘 + 지난 6일 = 총 7일)
+    return n.getFullYear() * 10000 + (n.getMonth() + 1) * 100 + n.getDate();
+  }, [recentRange, todayYmdInt]);
   const toRecentListings = useCallback(
     (list: RegionSummary[]): RecentListing[] => {
-      if (!isCurrentMonth) return [];
       const flat: RecentListing[] = list.flatMap((r) =>
         r.listings
-          .filter((l) => l.dealDay === todayDay)
-          .map((l) => ({ ...l, regionName: r.name, group: r.group }))
+          .filter((l) => l.dealYmd >= rangeStartYmdInt && l.dealYmd <= todayYmdInt)
+          .map((l) => ({ ...l, regionName: r.name, regionCode: r.code, group: r.group }))
       );
       return flat.sort((a, b) => listingSortValue(b) - listingSortValue(a)).slice(0, RECENT_FEED_LIMIT);
     },
-    [isCurrentMonth, todayDay]
+    [rangeStartYmdInt, todayYmdInt]
   );
   const recentBusan = useMemo(() => toRecentListings(busanList), [busanList, toRecentListings]);
   const recentUlsan = useMemo(() => toRecentListings(ulsanList), [ulsanList, toRecentListings]);
@@ -297,11 +322,33 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       <section className="block hero-block">
         <div className="hero-heading">
           <h2>오늘의 실거래 · {dealLabel(dealType)}</h2>
-          <span className="hero-date">{todayLabel(now)} 계약분</span>
+          <span className="hero-date">
+            {recentRange === "today"
+              ? `${todayLabel()} 계약분`
+              : `${ymdIntToLabel(rangeStartYmdInt)} ~ ${todayLabel()} 계약분`}
+          </span>
+        </div>
+        <div className="hero-range-tabs">
+          <button
+            className="hero-range-tab"
+            aria-pressed={recentRange === "today"}
+            onClick={() => setRecentRange("today")}
+          >
+            오늘
+          </button>
+          <button
+            className="hero-range-tab"
+            aria-pressed={recentRange === "week"}
+            onClick={() => setRecentRange("week")}
+          >
+            지난 7일
+          </button>
         </div>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
-          오늘({todayLabel(now)}) 계약일로 신고된 거래만 모았어요 — 가격 높은순, 부산 · 울산 나란히
-          비교해보세요.
+          {recentRange === "today"
+            ? `오늘(${todayLabel()}) 계약일로 신고된 거래만 모았어요`
+            : `최근 7일(${ymdIntToLabel(rangeStartYmdInt)}~${todayLabel()}) 계약일로 신고된 거래를 모았어요`}{" "}
+          — 가격 높은순, 부산 · 울산 나란히 비교해보세요.
         </p>
         <div className="recent-table">
           {recentColumns.map(({ group, list }) => (
@@ -309,13 +356,14 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
               <div className="recent-col-heading">{group}</div>
               {list.length === 0 ? (
                 <div className="empty-note">
-                  오늘 계약일로 신고된 거래가 아직 없습니다. 국토부에는 계약 후 최대 30일까지 신고할
-                  수 있어 당일 거래가 늦게 올라올 수 있어요 — 지금 업데이트를 눌러 다시 확인해보세요.
+                  {recentRange === "today" ? "오늘" : "최근 7일간"} 계약일로 신고된 거래가 아직
+                  없습니다. 국토부에는 계약 후 최대 30일까지 신고할 수 있어 당일 거래가 늦게 올라올 수
+                  있어요 — 지금 업데이트를 눌러 다시 확인해보세요.
                 </div>
               ) : (
                 <div className="recent-feed">
                   {list.map((l, i) => (
-                    <div className="recent-row" key={`${l.regionName}-${l.complex}-${l.dealDay}-${i}`}>
+                    <div className="recent-row" key={`${l.regionName}-${l.complex}-${l.dealYmd}-${i}`}>
                       <div className="recent-main">
                         <span className="recent-loc">
                           {l.regionName} · {l.dong}
@@ -396,6 +444,48 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       </section>
 
       <section className="block">
+        <h2>단지 · 동 검색</h2>
+        <input
+          className="search-input"
+          type="text"
+          inputMode="search"
+          placeholder="동 이름이나 아파트 단지명을 입력하세요 (예: 우동, 해운대자이)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery.trim() && (
+          <div className="search-results">
+            {searchResults.length === 0 ? (
+              <div className="empty-note">&quot;{searchQuery}&quot; 검색 결과가 없습니다.</div>
+            ) : (
+              searchResults.map((l, i) => (
+                <button
+                  key={`${l.regionCode}-${l.complex}-${l.dealYmd}-${i}`}
+                  className="search-result-row"
+                  onClick={() =>
+                    setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex })
+                  }
+                >
+                  <div className="recent-main">
+                    <span className="recent-loc">
+                      {l.group} {l.regionName} · {l.dong}
+                    </span>
+                    <span className="recent-complex">
+                      {l.complex} · {Math.round(l.pyeong)}평 · {l.floor}층
+                    </span>
+                  </div>
+                  <div className="recent-side">
+                    <span className="recent-price">{listingPriceLabel(l)}</span>
+                    <span className="recent-date">{l.date} 계약 · 추이 보기</span>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </section>
+
+      <section className="block">
         <h2>거래 많은 지역 TOP 5 · {dealLabel(dealType)}</h2>
         <div className="rank-scroll">
           {top5.map((r, i) => (
@@ -419,6 +509,22 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
           구를 눌러 펼친 뒤, 동 → 단지 순서로 눌러보면 해당 단지의 개별 거래 내역이 나옵니다.
         </p>
+        <div className="hero-range-tabs" style={{ marginBottom: 14 }}>
+          <button
+            className="hero-range-tab"
+            aria-pressed={listSort === "recent"}
+            onClick={() => setListSort("recent")}
+          >
+            최신순
+          </button>
+          <button
+            className="hero-range-tab"
+            aria-pressed={listSort === "price"}
+            onClick={() => setListSort("price")}
+          >
+            가격순
+          </button>
+        </div>
         {groupSections.map(({ group, list }) => (
           <div className="group-section" key={group}>
             <h3 className="group-heading">
@@ -426,7 +532,11 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
             </h3>
             <div className="region-list">
               {list.map((r) => {
-                const dongGroups = groupByDong(r.listings);
+                const sortedListings =
+                  listSort === "price"
+                    ? [...r.listings].sort((a, b) => listingSortValue(b) - listingSortValue(a))
+                    : r.listings; // 이미 최신순으로 내려옴
+                const dongGroups = groupByDong(sortedListings);
                 return (
                   <div
                     key={r.code}
@@ -473,6 +583,14 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
                               if (openComplex !== key) return null;
                               return (
                                 <div className="complex-detail" key={`${key}-detail`}>
+                                  <button
+                                    className="trend-open-btn"
+                                    onClick={() =>
+                                      setTrendTarget({ code: r.code, regionName: r.name, complex })
+                                    }
+                                  >
+                                    {complex} 가격 추이 보기 (최근 6개월)
+                                  </button>
                                   {items.map((l, i) => (
                                     <div className="listing" key={i}>
                                       <div className="l-top">
@@ -504,11 +622,28 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       </section>
 
       <footer className="end">
-        데이터 출처: 국토교통부 아파트매매/전월세 실거래 상세 자료(공공데이터포털). 개념도는 실제
-        행정구역 경계와 다를 수 있는 단순화된 표시입니다.
+        <p>
+          데이터 출처: 국토교통부 아파트매매/전월세 실거래 상세 자료(공공데이터포털). 개념도는 실제
+          행정구역 경계와 다를 수 있는 단순화된 표시입니다.
+        </p>
+        <nav className="footer-links">
+          <Link href="/about">사이트 소개</Link>
+          <Link href="/privacy">개인정보처리방침</Link>
+          <Link href="/contact">문의</Link>
+        </nav>
       </footer>
 
       <div className={`toast${toast ? " show" : ""}`}>{toast}</div>
+
+      {trendTarget && (
+        <ComplexTrendModal
+          code={trendTarget.code}
+          regionName={trendTarget.regionName}
+          complex={trendTarget.complex}
+          dealType={dealType}
+          onClose={() => setTrendTarget(null)}
+        />
+      )}
     </div>
   );
 }
