@@ -73,12 +73,9 @@ function listingSortValue(l: Listing): number {
   return l.priceManwon ?? l.monthlyRentManwon ?? l.depositManwon ?? 0;
 }
 
-/** "202608" → "2026년 8월 계약분" */
-function fmtYmd(ymd: string): string {
-  if (!/^\d{6}$/.test(ymd)) return ymd;
-  const y = ymd.slice(0, 4);
-  const m = Number(ymd.slice(4, 6));
-  return `${y}년 ${m}월 계약분`;
+/** 오늘 날짜를 "8월 28일" 형태로 표시합니다. */
+function todayLabel(now = new Date()): string {
+  return `${now.getMonth() + 1}월 ${now.getDate()}일`;
 }
 
 function timeAgo(iso: string): string {
@@ -191,15 +188,29 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   const top5 = useMemo(() => regions.slice().sort((a, b) => b.count - a.count).slice(0, 5), [regions]);
   const maxCount = useMemo(() => Math.max(1, ...regions.map((r) => r.count)), [regions]);
 
-  // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 부산/울산 각각 개별 거래를 가격 높은순으로
-  // 모아서 상위 N건만 두 열로 보여줍니다. 부산/울산 칩으로 필터링하면 해당 열만 남습니다.
-  const RECENT_FEED_LIMIT = 15;
-  const toRecentListings = useCallback((list: RegionSummary[]): RecentListing[] => {
-    const flat: RecentListing[] = list.flatMap((r) =>
-      r.listings.map((l) => ({ ...l, regionName: r.name, group: r.group }))
-    );
-    return flat.sort((a, b) => listingSortValue(b) - listingSortValue(a)).slice(0, RECENT_FEED_LIMIT);
-  }, []);
+  // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 오늘 날짜(계약일 기준)에 해당하는 거래만
+  // 부산/울산 각각 가격 높은순으로 모아서 두 열로 보여줍니다. 부산/울산 칩으로 필터링하면
+  // 해당 열만 남습니다. (국토부 API는 "계약일"만 제공하고 별도의 "등록일"은 주지 않기 때문에,
+  // 오늘 날짜와 계약일이 같은 건만 골라냅니다.)
+  const RECENT_FEED_LIMIT = 30;
+  const now = new Date();
+  const todayYmd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const todayDay = now.getDate();
+  // data.dealYmd가 오늘이 속한 달과 다르면(=아직 업데이트를 안 눌러 지난 데이터가 남아있으면)
+  // 날짜가 우연히 겹쳐도 오늘 거래로 잘못 표시되지 않도록 전부 걸러냅니다.
+  const isCurrentMonth = data?.dealYmd === todayYmd;
+  const toRecentListings = useCallback(
+    (list: RegionSummary[]): RecentListing[] => {
+      if (!isCurrentMonth) return [];
+      const flat: RecentListing[] = list.flatMap((r) =>
+        r.listings
+          .filter((l) => l.dealDay === todayDay)
+          .map((l) => ({ ...l, regionName: r.name, group: r.group }))
+      );
+      return flat.sort((a, b) => listingSortValue(b) - listingSortValue(a)).slice(0, RECENT_FEED_LIMIT);
+    },
+    [isCurrentMonth, todayDay]
+  );
   const recentBusan = useMemo(() => toRecentListings(busanList), [busanList, toRecentListings]);
   const recentUlsan = useMemo(() => toRecentListings(ulsanList), [ulsanList, toRecentListings]);
   const recentColumns = useMemo(() => {
@@ -286,17 +297,21 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
       <section className="block hero-block">
         <div className="hero-heading">
           <h2>오늘의 실거래 · {dealLabel(dealType)}</h2>
-          {data && <span className="hero-date">{fmtYmd(data.dealYmd)}</span>}
+          <span className="hero-date">{todayLabel(now)} 계약분</span>
         </div>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
-          가격 높은순으로 모았어요 — 부산 · 울산을 나란히 비교해보세요.
+          오늘({todayLabel(now)}) 계약일로 신고된 거래만 모았어요 — 가격 높은순, 부산 · 울산 나란히
+          비교해보세요.
         </p>
         <div className="recent-table">
           {recentColumns.map(({ group, list }) => (
             <div className="recent-col" key={group}>
               <div className="recent-col-heading">{group}</div>
               {list.length === 0 ? (
-                <div className="empty-note">표시할 거래가 없습니다. 지금 업데이트를 눌러보세요.</div>
+                <div className="empty-note">
+                  오늘 계약일로 신고된 거래가 아직 없습니다. 국토부에는 계약 후 최대 30일까지 신고할
+                  수 있어 당일 거래가 늦게 올라올 수 있어요 — 지금 업데이트를 눌러 다시 확인해보세요.
+                </div>
               ) : (
                 <div className="recent-feed">
                   {list.map((l, i) => (
