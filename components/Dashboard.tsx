@@ -492,12 +492,6 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
           <span><span className="dot" style={{ background: "var(--fall)" }} />하락</span>
           <span>원 크기 = 거래량</span>
         </div>
-        {kakaoKey && (
-          <p className="empty-note" style={{ padding: "8px 2px 0" }}>
-            지도가 비어 보이면 카카오 개발자센터 → 앱 설정 → 플랫폼에서 이 사이트 도메인이
-            등록되어 있는지 확인하세요 (로컬 테스트 시 http://localhost:3000 추가).
-          </p>
-        )}
       </section>
 
       <section className="block">
