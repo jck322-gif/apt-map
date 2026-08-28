@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE_NAME, CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "문의 | 부울산 아파트 실거래",
-  description: "부울산 아파트 실거래 서비스 문의 및 광고 제휴 안내.",
+  title: `문의 | ${SITE_NAME}`,
+  description: `${SITE_NAME} 서비스 문의 및 광고 제휴 안내.`,
 };
-
-// TODO: 아래 CONTACT_EMAIL을 실제로 사용하실 문의용 이메일 주소로 바꿔주세요.
-const CONTACT_EMAIL = "jck322@gmail.com";
 
 export default function ContactPage() {
   return (
@@ -23,7 +21,7 @@ export default function ContactPage() {
           데이터 오류 신고, 기능 제안, 기타 궁금한 점이 있으시면 아래 이메일로 편하게 연락주세요.
           가능한 빠르게 확인 후 답변드리겠습니다.
         </p>
-        <p className="contact-email">
+        <p className="jck322@gmail.com">
           <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         </p>
       </section>
