@@ -21,6 +21,39 @@ type Props = {
 
 const SDK_ID = "kakao-map-sdk";
 
+// 지도를 부산/울산 두 칸으로 나눠 보여주면서 KakaoMap 인스턴스가 동시에 여러 개 마운트되므로,
+// SDK 스크립트는 페이지 전체에서 딱 한 번만 추가하고 모든 인스턴스가 같은 로딩 완료를
+// 기다리도록 모듈 스코프에서 공유합니다 (그렇지 않으면 두 번째 지도가 초기화되지 않는 문제가 생김).
+let kakaoSdkPromise: Promise<void> | null = null;
+
+function loadKakaoSdk(appkey: string): Promise<void> {
+  if (typeof window !== "undefined" && window.kakao?.maps) return Promise.resolve();
+  if (kakaoSdkPromise) return kakaoSdkPromise;
+
+  const promise = new Promise<void>((resolve, reject) => {
+    const existing = document.getElementById(SDK_ID) as HTMLScriptElement | null;
+    if (existing) {
+      existing.addEventListener("load", () => resolve());
+      existing.addEventListener("error", () => reject(new Error("Kakao SDK 로드 실패")));
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = SDK_ID;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appkey}&autoload=false`;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Kakao SDK 로드 실패"));
+    document.head.appendChild(script);
+  });
+
+  kakaoSdkPromise = promise;
+  // 실패했으면 다음 시도에서 다시 로드할 수 있도록 캐시를 초기화 (반환하는 promise 자체는 그대로 reject됨)
+  promise.catch(() => {
+    kakaoSdkPromise = null;
+  });
+
+  return promise;
+}
+
 export default function KakaoMap({ regions, selectedCode, filter, onSelect, onError }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -34,8 +67,10 @@ export default function KakaoMap({ regions, selectedCode, filter, onSelect, onEr
       return;
     }
 
+    let cancelled = false;
+
     function initMap() {
-      if (!containerRef.current || !window.kakao?.maps) return;
+      if (cancelled || !containerRef.current || !window.kakao?.maps) return;
       const bounds = new window.kakao.maps.LatLngBounds();
       regions.forEach((r) => bounds.extend(new window.kakao.maps.LatLng(r.lat, r.lng)));
       const map = new window.kakao.maps.Map(containerRef.current, {
@@ -46,19 +81,18 @@ export default function KakaoMap({ regions, selectedCode, filter, onSelect, onEr
       mapRef.current = map;
     }
 
-    if (window.kakao?.maps) {
-      window.kakao.maps.load(initMap);
-      return;
-    }
+    loadKakaoSdk(appkey)
+      .then(() => {
+        if (cancelled) return;
+        window.kakao.maps.load(initMap);
+      })
+      .catch(() => {
+        if (!cancelled) onError();
+      });
 
-    if (document.getElementById(SDK_ID)) return; // 이미 로딩 중
-
-    const script = document.createElement("script");
-    script.id = SDK_ID;
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appkey}&autoload=false`;
-    script.onload = () => window.kakao.maps.load(initMap);
-    script.onerror = () => onError();
-    document.head.appendChild(script);
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
