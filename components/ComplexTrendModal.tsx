@@ -50,9 +50,10 @@ type TrendResponse = {
 const VALUE_LABEL: Record<string, string> = { sale: "매매가", jeonse: "보증금", monthly: "월세" };
 
 // 차트 도형 계산용 상수 (viewBox 좌표계, CSS로 반응형 확대/축소됨)
-const W = 600;
-const H = 220;
-const PAD = { top: 20, right: 16, bottom: 30, left: 54 };
+// viewBox를 실제 표시 크기(약 350~400px)와 비슷하게 잡아야 축 글자가 작아 보이지 않습니다.
+const W = 380;
+const H = 250;
+const PAD = { top: 20, right: 16, bottom: 36, left: 62 };
 
 function buildScale(values: number[]) {
   const min = Math.min(...values);
@@ -186,7 +187,7 @@ export default function ComplexTrendModal({
               <circle
                 cx={xOf(i)}
                 cy={yOf(p.avgPriceManwon)}
-                r={16}
+                r={18}
                 fill="transparent"
                 onClick={() => setActiveIdx((prev) => (prev === i ? null : i))}
                 style={{ cursor: "pointer" }}
@@ -194,7 +195,7 @@ export default function ComplexTrendModal({
               <circle
                 cx={xOf(i)}
                 cy={yOf(p.avgPriceManwon)}
-                r={activeIdx === i ? 6 : 4}
+                r={activeIdx === i ? 7 : 5}
                 className={`trend-dot${activeIdx === i ? " active" : ""}`}
               />
             </g>
@@ -271,7 +272,9 @@ export default function ComplexTrendModal({
                 <div className="stat-row main">
                   <span className="stat-label">매매 실거래가</span>
                   <span className="stat-main-value">
-                    {stats.latestSale ? fmtManwon(stats.latestSale.priceManwon) : "데이터 없음"}
+                    <span className="stat-main-price">
+                      {stats.latestSale ? fmtManwon(stats.latestSale.priceManwon) : "데이터 없음"}
+                    </span>
                     <ChangeBadge amount={stats.saleChangeManwon} pct={stats.saleChangePct} />
                   </span>
                 </div>
