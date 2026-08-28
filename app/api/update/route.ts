@@ -46,13 +46,12 @@ export async function GET(request: Request) {
   const now = new Date();
   const currentYmd = yyyymm(0, now);
   const prevYmd = yyyymm(-1, now);
-  const currentMonth = now.getMonth() + 1;
 
   const errors: { region: string; message: string }[] = [];
 
   const regionResults: (RegionSummary | null)[] = await mapWithConcurrency(
     REGIONS,
-    5,
+    3,
     async (region) => {
       try {
         if (dealTypeParam === "sale") {
@@ -60,7 +59,7 @@ export async function GET(request: Request) {
             fetchTrades(region.code, currentYmd, serviceKey),
             fetchTrades(region.code, prevYmd, serviceKey),
           ]);
-          return summarizeSale(region, currentRows, prevRows, currentMonth);
+          return summarizeSale(region, currentRows, prevRows);
         }
 
         const dealType = dealTypeParam === "jeonse" ? "전세" : "월세";
@@ -68,7 +67,7 @@ export async function GET(request: Request) {
           fetchRents(region.code, currentYmd, serviceKey),
           fetchRents(region.code, prevYmd, serviceKey),
         ]);
-        return summarizeRent(region, currentRows, prevRows, currentMonth, dealType);
+        return summarizeRent(region, currentRows, prevRows, dealType);
       } catch (err) {
         errors.push({
           region: `${region.group} ${region.name}`,
