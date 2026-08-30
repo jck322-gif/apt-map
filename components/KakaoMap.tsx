@@ -21,6 +21,11 @@ type Props = {
 
 const SDK_ID = "kakao-map-sdk";
 
+// 카카오 지도 축척 레벨 — 9 = 축척 막대 4km. 숫자를 키우면 더 넓게, 줄이면 더 크게 보입니다.
+const MAP_LEVEL = 9;
+// 지도 높이(px). 축척을 고정했으므로 높이를 넉넉히 줘야 지역이 잘리지 않습니다.
+const MAP_HEIGHT = 380;
+
 // 지도를 부산/울산 두 칸으로 나눠 보여주면서 KakaoMap 인스턴스가 동시에 여러 개 마운트되므로,
 // SDK 스크립트는 페이지 전체에서 딱 한 번만 추가하고 모든 인스턴스가 같은 로딩 완료를
 // 기다리도록 모듈 스코프에서 공유합니다 (그렇지 않으면 두 번째 지도가 초기화되지 않는 문제가 생김).
@@ -71,13 +76,17 @@ export default function KakaoMap({ regions, selectedCode, filter, onSelect, onEr
 
     function initMap() {
       if (cancelled || !containerRef.current || !window.kakao?.maps) return;
+
+      // 부산·울산 지도의 축척을 똑같이 맞춥니다 (자동 맞춤을 쓰면 두 지도의 배율이 달라져
+      // 원 크기를 서로 비교하기 어렵습니다). MAP_LEVEL 9 = 축척 막대 4km.
       const bounds = new window.kakao.maps.LatLngBounds();
       regions.forEach((r) => bounds.extend(new window.kakao.maps.LatLng(r.lat, r.lng)));
+
       const map = new window.kakao.maps.Map(containerRef.current, {
-        center: new window.kakao.maps.LatLng(35.35, 129.15),
-        level: 9,
+        center: bounds.getCenter(),
+        level: MAP_LEVEL,
       });
-      map.setBounds(bounds);
+      map.setLevel(MAP_LEVEL);
       mapRef.current = map;
     }
 
@@ -157,5 +166,5 @@ export default function KakaoMap({ regions, selectedCode, filter, onSelect, onEr
     });
   }, [regions, selectedCode, filter, onSelect]);
 
-  return <div ref={containerRef} style={{ width: "100%", height: 320 }} />;
+  return <div ref={containerRef} style={{ width: "100%", height: MAP_HEIGHT }} />;
 }
