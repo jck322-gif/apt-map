@@ -76,18 +76,24 @@ export default function KakaoMap({ regions, selectedCode, filter, onSelect, onEr
 
     function initMap() {
       if (cancelled || !containerRef.current || !window.kakao?.maps) return;
+      try {
+        // 부산·울산 지도의 축척을 똑같이 맞춥니다 (자동 맞춤을 쓰면 두 지도의 배율이 달라져
+        // 원 크기를 서로 비교하기 어렵습니다). MAP_LEVEL 9 = 축척 막대 4km.
+        // 카카오 지도의 LatLngBounds에는 getCenter()가 없으므로 중심을 직접 계산합니다.
+        const lats = regions.map((r) => r.lat);
+        const lngs = regions.map((r) => r.lng);
+        const centerLat = lats.length ? (Math.min(...lats) + Math.max(...lats)) / 2 : 35.35;
+        const centerLng = lngs.length ? (Math.min(...lngs) + Math.max(...lngs)) / 2 : 129.15;
 
-      // 부산·울산 지도의 축척을 똑같이 맞춥니다 (자동 맞춤을 쓰면 두 지도의 배율이 달라져
-      // 원 크기를 서로 비교하기 어렵습니다). MAP_LEVEL 9 = 축척 막대 4km.
-      const bounds = new window.kakao.maps.LatLngBounds();
-      regions.forEach((r) => bounds.extend(new window.kakao.maps.LatLng(r.lat, r.lng)));
-
-      const map = new window.kakao.maps.Map(containerRef.current, {
-        center: bounds.getCenter(),
-        level: MAP_LEVEL,
-      });
-      map.setLevel(MAP_LEVEL);
-      mapRef.current = map;
+        const map = new window.kakao.maps.Map(containerRef.current, {
+          center: new window.kakao.maps.LatLng(centerLat, centerLng),
+          level: MAP_LEVEL,
+        });
+        mapRef.current = map;
+      } catch {
+        // 지도를 못 만들면 빈 상자 대신 개념도(SVG)가 나오도록 알립니다.
+        if (!cancelled) onError();
+      }
     }
 
     loadKakaoSdk(appkey)
