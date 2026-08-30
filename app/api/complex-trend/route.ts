@@ -99,13 +99,27 @@ export async function GET(request: Request) {
     query = query.gte("area_m2", targetArea - 0.5).lte("area_m2", targetArea + 0.5);
   }
  
-  const { data, error } = await query.order("deal_date", { ascending: false }).limit(1000);
+  // 이 단지가 가진 평형(타입) 목록 — 팝업에서 타입을 바꿔가며 볼 수 있도록 항상 함께 내려줍니다.
+  const typesQuery = db
+    .from("complex_types")
+    .select("area_m2")
+    .eq("region_code", region.code)
+    .eq("complex", complex)
+    .eq("deal_type", dealType);
+ 
+  const [{ data, error }, typesRes] = await Promise.all([
+    query.order("deal_date", { ascending: false }).limit(1000),
+    typesQuery,
+  ]);
  
   if (error) {
     return NextResponse.json({ error: `데이터베이스 조회 실패: ${error.message}` }, { status: 500 });
   }
  
   const rows = (data ?? []) as DealRow[];
+  const types = Array.from(
+    new Set((typesRes.data ?? []).map((t: { area_m2: number | string }) => Number(t.area_m2)))
+  ).sort((a, b) => a - b);
  
   const allSales = rows
     .filter((r) => r.deal_type === "sale" && r.price_manwon !== null)
@@ -180,6 +194,9 @@ export async function GET(request: Request) {
     buildYear,
     age,
     dealType,
+    types,
+    // 선택한 타입의 개별 실거래 이력 (최근순)
+    history: source.slice(0, 200),
     points,
     stats: {
       latestSale,
