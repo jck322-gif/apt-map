@@ -476,12 +476,58 @@ footer.end p { margin: 0 0 12px; }
   margin: 8px 4px 2px; padding: 9px 12px; border-radius: 8px; background: var(--surface-2); color: var(--ink);
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700; text-align: center;
 }
-.trend-table { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.trend-table-row {
-  display: flex; align-items: center; gap: 12px; padding: 0 14px; min-height: 46px;
-  border-bottom: 1px solid var(--line); font-size: 13.5px;
+/* 단지가 가진 타입(평형) 선택 줄 */
+.type-picker {
+  display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap;
+  margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--surface-2);
 }
+.type-picker-label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  color: var(--muted); padding-top: 6px; flex-shrink: 0;
+}
+.type-picker-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.type-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
+  padding: 5px 11px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
+}
+.type-chip:hover { border-color: var(--teal); }
+.type-chip[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.type-chip-sub { font-size: 10px; font-weight: 400; opacity: 0.75; }
+
+.trend-table { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.trend-table-head {
+  padding: 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line);
+  font-size: 11.5px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.trend-table-row {
+  display: flex; align-items: center; gap: 12px; padding: 0 14px; min-height: 46px; width: 100%;
+  border: none; border-bottom: 1px solid var(--line); font-size: 13.5px;
+  background: transparent; color: inherit; font-family: inherit; text-align: left; cursor: pointer;
+}
+.trend-table-row:disabled { cursor: default; opacity: 0.7; }
+.trend-table-row:not(:disabled):hover { background: var(--surface-2); }
+.trend-table-row.open { background: var(--surface-2); }
 .trend-table-row:last-child { border-bottom: none; }
+.trend-chev { margin-left: 6px; color: var(--teal); }
+
+/* 월별 표를 펼쳤을 때 나오는 개별 거래 내역 */
+.month-deals { background: var(--paper); border-bottom: 1px solid var(--line); }
+.month-deal-row {
+  display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 26px;
+  border-bottom: 1px dashed var(--line); font-size: 12.5px;
+}
+.month-deal-row:last-child { border-bottom: none; }
+.month-deal-date {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
+  width: 66px; flex-shrink: 0;
+}
+.month-deal-price {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; color: var(--ink); flex: 1;
+}
+.month-deal-meta { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
 .trend-table-month { width: 50px; flex-shrink: 0; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; }
 .trend-table-value { flex: 1; font-weight: 700; color: var(--ink); }
 .trend-table-count { color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
