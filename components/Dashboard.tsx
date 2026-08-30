@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Region } from "@/lib/regions";
 import { fmtManwon, typeLabel, areaDetail } from "@/lib/format";
 import KakaoMap from "@/components/KakaoMap";
@@ -177,6 +178,7 @@ export default function Dashboard({
   const isHome = mode === "home";
   // 홈에서도 "오늘의 실거래"와 지도는 매매 기준으로 보여줍니다.
   const dealType: DealType = isHome ? "sale" : mode;
+  const router = useRouter();
 
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -331,6 +333,12 @@ export default function Dashboard({
 
   const selectRegion = useCallback(
     (code: string) => {
+      // 홈 화면에는 지역별 목록이 없습니다. 그래서 지도에서 구를 누르면
+      // 매매 페이지의 그 구로 이동시켜, 바로 거래 내역을 볼 수 있게 합니다.
+      if (isHome) {
+        router.push(`/sale?region=${code}`);
+        return;
+      }
       const willOpen = openCode !== code; // 같은 구를 다시 누르면 접히고, 다른 구를 누르면 펼쳐짐
       setSelectedCode(code);
       setOpenCode(willOpen ? code : null);
@@ -340,8 +348,27 @@ export default function Dashboard({
         regionRowRefs.current[code]?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     },
-    [openCode]
+    [openCode, isHome, router]
   );
+
+  // 홈 지도에서 넘어온 경우(/sale?region=26350) 그 구를 자동으로 펼치고 그 위치로 스크롤합니다.
+  // 주소창의 값은 한 번만 쓰고 지워, 새로고침해도 계속 끌려다니지 않게 합니다.
+  const jumpedRef = useRef(false);
+  useEffect(() => {
+    if (isHome || jumpedRef.current || !data) return;
+    const code = new URLSearchParams(window.location.search).get("region");
+    if (!code) return;
+    jumpedRef.current = true;
+    setSelectedCode(code);
+    setOpenCode(code);
+    window.history.replaceState(null, "", window.location.pathname);
+    // 목록이 그려진 뒤에 위치를 계산하도록 두 프레임 뒤에 스크롤합니다.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        regionRowRefs.current[code]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      })
+    );
+  }, [data, isHome]);
 
   return (
     <div className="wrap">
@@ -498,6 +525,11 @@ export default function Dashboard({
 
       <section className="block">
         <h2>지역 지도</h2>
+        <p className="section-note">
+          지도의 숫자는 <strong>이번 달 {dealLabel(dealType)} 거래 건수</strong>입니다. 색은 지난달 평균
+          가격과 비교한 등락이에요.
+          {isHome && " 구를 누르면 그 지역의 매매 내역으로 이동합니다."}
+        </p>
         <div className="map-grid">
           {groupSections.map(({ group, list }) => (
             <div className="map-col" key={group}>
@@ -557,9 +589,9 @@ export default function Dashboard({
           ))}
         </div>
         <div className="legend">
-          <span><span className="dot" style={{ background: "var(--rise)" }} />상승</span>
-          <span><span className="dot" style={{ background: "var(--fall)" }} />하락</span>
-          <span>원 크기 = 거래량</span>
+          <span><span className="dot" style={{ background: "var(--rise)" }} />평균가 상승</span>
+          <span><span className="dot" style={{ background: "var(--fall)" }} />평균가 하락</span>
+          <span>숫자 · 원 크기 = 이번 달 {dealLabel(dealType)} 건수</span>
         </div>
       </section>
 
