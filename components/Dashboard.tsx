@@ -96,15 +96,6 @@ function ymdIntToLabel(ymd: number): string {
   return `${m}월 ${d}일`;
 }
 
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "방금 전";
-  if (mins < 60) return `${mins}분 전`;
-  const hrs = Math.floor(mins / 60);
-  return `${hrs}시간 전`;
-}
-
 function TrendBadge({ trendPct }: { trendPct: number | null }) {
   if (trendPct === null) return <span className="trend flat">데이터 부족</span>;
   const up = trendPct >= 0;
@@ -172,7 +163,6 @@ export default function Dashboard({
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [openCode, setOpenCode] = useState<string | null>(null);
   const [openComplex, setOpenComplex] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [kakaoFailed, setKakaoFailed] = useState(false);
   // "오늘의 실거래" 조회 범위 — 기본은 오늘 하루, 버튼을 눌렀을 때만 최근 7일까지 넓혀서 봅니다.
   const [recentRange, setRecentRange] = useState<"today" | "week">("today");
@@ -198,13 +188,6 @@ export default function Dashboard({
       const json = (await res.json()) as ApiResponse & { error?: string };
       if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
       setData(json);
-      const changed = json.regions.length;
-      setToast(
-        `업데이트 완료 · ${dealLabel(type)} ${changed}개 지역 반영${
-          json.errors.length ? ` · ${json.errors.length}개 지역 실패` : ""
-        }`
-      );
-      setTimeout(() => setToast(null), 3000);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -376,15 +359,13 @@ export default function Dashboard({
               </button>
             ))}
           </div>
-          <button className="update-btn" disabled={loading} onClick={() => load(dealType)}>
-            <span className={loading ? "spin" : ""}>↻</span>
-            {loading ? "업데이트 중…" : "지금 업데이트"}
-          </button>
         </div>
         <p className="last-updated">
-          {data
-            ? `마지막 업데이트: ${timeAgo(data.updatedAt)} · ${dealLabel(dealType)} · 계약월 ${data.dealYmd}`
-            : "아직 업데이트한 적이 없습니다"}
+          {loading
+            ? "불러오는 중…"
+            : data
+            ? `국토교통부 자료 기준 · ${dealLabel(dealType)} · 계약월 ${data.dealYmd} · 매일 새벽 자동 갱신`
+            : "데이터를 불러오지 못했습니다"}
         </p>
       </header>
 
@@ -449,8 +430,8 @@ export default function Dashboard({
               {list.length === 0 ? (
                 <div className="empty-note">
                   {recentRange === "today" ? "오늘" : "최근 7일간"} 계약일로 신고된 거래가 아직
-                  없습니다. 국토부에는 계약 후 최대 30일까지 신고할 수 있어 당일 거래가 늦게 올라올 수
-                  있어요 — 지금 업데이트를 눌러 다시 확인해보세요.
+                  없습니다. 국토부에는 계약 후 최대 30일까지 신고할 수 있어 당일 거래는 며칠 뒤에
+                  올라오는 경우가 많아요 — &quot;지난 7일&quot;로 넓혀서 보세요.
                 </div>
               ) : (
                 <div className="recent-feed">
@@ -482,21 +463,6 @@ export default function Dashboard({
           ))}
         </div>
       </section>
-
-      {isHome && (
-        <section className="block">
-          <h2>어떤 거래를 볼까요?</h2>
-          <div className="entry-cards">
-            {DEAL_TABS.map((t) => (
-              <Link key={t.key} href={t.href} className="entry-card">
-                <span className="entry-card-label">{t.label}</span>
-                <span className="entry-card-desc">{t.desc}</span>
-                <span className="entry-card-go">지역별로 보기 →</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       <section className="block">
         <h2>지역 지도</h2>
@@ -776,8 +742,6 @@ export default function Dashboard({
           <Link href="/contact">문의</Link>
         </nav>
       </footer>
-
-      <div className={`toast${toast ? " show" : ""}`}>{toast}</div>
 
       {trendTarget && (
         <ComplexTrendModal
