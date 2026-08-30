@@ -59,10 +59,10 @@ type ApiResponse = {
   errors: { region: string; message: string }[];
 };
 
-const DEAL_TABS: { key: DealType; label: string }[] = [
-  { key: "sale", label: "매매" },
-  { key: "jeonse", label: "전세" },
-  { key: "monthly", label: "월세" },
+const DEAL_TABS: { key: DealType; label: string; href: string; desc: string }[] = [
+  { key: "sale", label: "매매", href: "/sale", desc: "아파트를 사고판 실거래가" },
+  { key: "jeonse", label: "전세", href: "/jeonse", desc: "보증금만 내는 전세 실거래가" },
+  { key: "monthly", label: "월세", href: "/monthly", desc: "보증금 + 매달 내는 월세" },
 ];
 
 function dealLabel(dealType: DealType): string {
@@ -150,11 +150,24 @@ function groupByDong(listings: Listing[]) {
   });
 }
 
-export default function Dashboard({ staticRegions }: { staticRegions: Region[] }) {
+/**
+ * mode="home"  → 홈 화면 (오늘의 실거래 + 진입 카드 + 지도 + 검색)
+ * mode="sale" | "jeonse" | "monthly" → 해당 거래유형 전용 페이지 (지역별 목록·TOP5까지 전부)
+ */
+export default function Dashboard({
+  staticRegions,
+  mode,
+}: {
+  staticRegions: Region[];
+  mode: "home" | DealType;
+}) {
+  const isHome = mode === "home";
+  // 홈에서도 "오늘의 실거래"와 지도는 매매 기준으로 보여줍니다.
+  const dealType: DealType = isHome ? "sale" : mode;
+
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [dealType, setDealType] = useState<DealType>("sale");
   const [filter, setFilter] = useState<"전체" | "부산" | "울산">("전체");
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [openCode, setOpenCode] = useState<string | null>(null);
@@ -324,28 +337,31 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
     <div className="wrap">
       <header className="app-header">
         <div className="brand-row">
-          <div className="brand">
+          <Link href="/" className="brand" aria-label={`${SITE_NAME} 홈으로`}>
             <Logo size={34} />
             <h1>{SITE_NAME}</h1>
-          </div>
+          </Link>
           <p className="brand-tagline">
             부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
           </p>
           <span className="live-badge">실시간 연동</span>
         </div>
 
-        <div className="deal-tabs">
+        <nav className="deal-tabs">
+          <Link href="/" className="deal-tab" aria-current={isHome ? "page" : undefined}>
+            홈
+          </Link>
           {DEAL_TABS.map((t) => (
-            <button
+            <Link
               key={t.key}
+              href={t.href}
               className="deal-tab"
-              aria-pressed={dealType === t.key}
-              onClick={() => setDealType(t.key)}
+              aria-current={!isHome && dealType === t.key ? "page" : undefined}
             >
               {t.label}
-            </button>
+            </Link>
           ))}
-        </div>
+        </nav>
 
         <div className="controls">
           <div className="chips">
@@ -466,6 +482,21 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
           ))}
         </div>
       </section>
+
+      {isHome && (
+        <section className="block">
+          <h2>어떤 거래를 볼까요?</h2>
+          <div className="entry-cards">
+            {DEAL_TABS.map((t) => (
+              <Link key={t.key} href={t.href} className="entry-card">
+                <span className="entry-card-label">{t.label}</span>
+                <span className="entry-card-desc">{t.desc}</span>
+                <span className="entry-card-go">지역별로 보기 →</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="block">
         <h2>지역 지도</h2>
@@ -592,7 +623,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
         )}
       </section>
 
-      <section className="block">
+      <section className="block" hidden={isHome}>
         <h2>거래 많은 지역 TOP 5 · {dealLabel(dealType)}</h2>
         <div className="rank-scroll">
           {top5.map((r, i) => (
@@ -611,7 +642,7 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
         </div>
       </section>
 
-      <section className="block">
+      <section className="block" hidden={isHome}>
         <h2>지역별 실거래 리스트 · {dealLabel(dealType)}</h2>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
           구를 눌러 펼친 뒤, 동 → 단지 순서로 눌러보면 해당 단지의 개별 거래 내역이 나옵니다.
