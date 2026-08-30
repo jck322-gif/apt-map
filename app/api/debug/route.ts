@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { yyyymm } from "@/lib/molit";
 import { getDb } from "@/lib/db";
@@ -54,6 +55,20 @@ export async function GET(request: Request) {
   // 4) 동기화 기록
   const syncRes = await db.from("sync_log").select("*").order("ran_at", { ascending: false }).limit(1);
  
+  // 5) 함수가 실제로 어떤 인자를 받는지 그대로 되돌려받기
+  const echoRes = await db.rpc("echo_params", {
+    p_deal_type: "sale",
+    p_current_ym: currentYm,
+    p_prev_ym: prevYm,
+  });
+ 
+  // 6) 같은 조건을 함수 없이 테이블에서 직접 세어보기 (함수 문제인지 구분용)
+  const directRes = await db
+    .from("deals")
+    .select("id", { count: "exact", head: true })
+    .eq("deal_type", "sale")
+    .in("deal_ym", [currentYm, prevYm]);
+ 
   return NextResponse.json({
     env,
     params: { currentYm, prevYm, serverTime: now.toISOString() },
@@ -66,5 +81,7 @@ export async function GET(request: Request) {
       error: statsRes.error?.message ?? null,
     },
     syncLog: { rows: syncRes.data, error: syncRes.error?.message ?? null },
+    echoParams: { data: echoRes.data, error: echoRes.error?.message ?? null },
+    directCount: { count: directRes.count, error: directRes.error?.message ?? null },
   });
 }
