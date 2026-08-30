@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import type { Region } from "@/lib/regions";
-import { fmtManwon } from "@/lib/format";
+import { fmtManwon, typeLabel, areaDetail } from "@/lib/format";
 import KakaoMap from "@/components/KakaoMap";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
@@ -448,7 +448,7 @@ export default function Dashboard({
                           {l.regionName} · {l.dong}
                         </span>
                         <span className="recent-complex">
-                          {l.complex} · {Math.round(l.pyeong)}평 · {l.floor}층
+                          {l.complex} · {typeLabel(l.areaM2)} · {l.floor}층
                         </span>
                       </div>
                       <div className="recent-side">
@@ -574,7 +574,8 @@ export default function Dashboard({
                       </span>
                       <span className="recent-complex">{l.complex}</span>
                       <span className="search-type">
-                        전용 {l.areaM2}㎡ · {Math.round(l.pyeong)}평 · {l.floor}층
+                        <span className="type-badge">{typeLabel(l.areaM2)}</span>
+                        {areaDetail(l.areaM2)} · {l.floor}층
                       </span>
                     </div>
                     <div className="recent-side">
@@ -705,12 +706,13 @@ export default function Dashboard({
                                     <div className="listing" key={i}>
                                       <div className="l-top">
                                         <span>
-                                          {l.complex} · {Math.round(l.pyeong)}평 ({l.areaM2.toFixed(0)}
-                                          ㎡)
+                                          <span className="type-badge">{typeLabel(l.areaM2)}</span>
+                                          {l.complex}
                                         </span>
                                         <span className="l-price">{listingPriceLabel(l)}</span>
                                       </div>
                                       <div className="l-meta">
+                                        <span>{areaDetail(l.areaM2)}</span>
                                         <span>{l.floor}층</span>
                                         <span>{l.date} 계약</span>
                                       </div>
