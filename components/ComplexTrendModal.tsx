@@ -18,6 +18,11 @@ type TxDetail = {
   priceManwon: number;
   floor: number;
   areaM2: number;
+  isRecordHigh?: boolean; // 신고가 (우리가 가진 3년치 기준)
+  cancelDate?: string | null; // 해제(거래취소)일
+  isDirect?: boolean; // 직거래
+  registerDate?: string | null; // 등기일자
+  aptDong?: string | null; // 동
 };
 
 type Stats = {
@@ -380,6 +385,11 @@ export default function ComplexTrendModal({
             <div className="trend-table">
               <div className="trend-table-head">
                 월별 평균 · 건수를 누르면 그 달의 거래 내역이 모두 펼쳐집니다
+                <span className="table-legend">
+                  <span className="flag high">신고가</span>3년 내 최고가
+                  <span className="flag direct">직거래</span>중개사 없이 거래
+                  <span className="flag cancel">취소</span>계약 해제
+                </span>
               </div>
               {points.map((p) => {
                 const monthDeals = (data.history ?? []).filter(
@@ -409,9 +419,15 @@ export default function ComplexTrendModal({
                           monthDeals.map((tx, i) => (
                             <div className="month-deal-row" key={`${tx.ymd}-${tx.floor}-${i}`}>
                               <span className="month-deal-date">{tx.dateLabel}</span>
-                              <span className="month-deal-price">{fmtManwon(tx.priceManwon)}</span>
+                              <span className={`month-deal-price${tx.cancelDate ? " struck" : ""}`}>
+                                {tx.isRecordHigh && !tx.cancelDate && <span className="flag high">신고가</span>}
+                                {tx.isDirect && <span className="flag direct">직거래</span>}
+                                {tx.cancelDate && <span className="flag cancel">취소</span>}
+                                {fmtManwon(tx.priceManwon)}
+                              </span>
                               <span className="month-deal-meta">
                                 {tx.floor}층 · {tx.areaM2}㎡
+                                {tx.aptDong ? ` · ${tx.aptDong}동` : ""}
                               </span>
                             </div>
                           ))
