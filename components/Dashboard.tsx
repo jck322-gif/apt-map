@@ -24,6 +24,23 @@ type Listing = {
 
 type RecentListing = Listing & { regionName: string; regionCode: string; group: "부산" | "울산" };
 
+// /api/search 응답 — 단지 × 평형(타입)별 최신 거래 1건
+type SearchResult = {
+  regionCode: string;
+  regionName: string;
+  group: "부산" | "울산";
+  dong: string;
+  complex: string;
+  areaM2: number;
+  pyeong: number;
+  floor: number;
+  date: string;
+  dealYmd: number;
+  priceManwon: number | null;
+  depositManwon: number | null;
+  monthlyRentManwon: number | null;
+};
+
 type RegionSummary = Region & {
   count: number;
   trendPct: number | null;
@@ -148,8 +165,10 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   const [recentRange, setRecentRange] = useState<"today" | "week">("today");
   // "지역별 실거래 리스트" 정렬 기준 — 기본은 최신순(이미 이 순서로 내려옴), 가격순으로도 볼 수 있음
   const [listSort, setListSort] = useState<"recent" | "price">("recent");
-  // 단지/동 이름으로 바로 찾는 검색창
+  // 단지/동 이름으로 바로 찾는 검색창 (DB 전체 검색)
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   // 검색 결과 또는 단지 상세에서 "추이 보기"를 눌렀을 때 열리는 모달 대상
   const [trendTarget, setTrendTarget] = useState<
     { code: string; regionName: string; complex: string; areaM2?: number } | null
@@ -214,17 +233,38 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
   const top5 = useMemo(() => regions.slice().sort((a, b) => b.count - a.count).slice(0, 5), [regions]);
   const maxCount = useMemo(() => Math.max(1, ...regions.map((r) => r.count)), [regions]);
 
-  // 단지/동 이름 검색 — 구 단위로 펼치지 않아도 이름으로 바로 찾을 수 있게 전체 지역 데이터를 훑습니다.
-  const searchResults = useMemo(() => {
+  // 단지/동 이름 검색 — 화면에 불러온 최근 목록이 아니라 DB 전체를 찾습니다.
+  // 같은 단지라도 평형(타입)이 다르면 따로 보여줘서, 29평·33평 같은 타입을 모두 확인할 수 있습니다.
+  useEffect(() => {
     const q = searchQuery.trim();
-    if (!q) return [];
-    const flat: RecentListing[] = regions.flatMap((r) =>
-      r.listings
-        .filter((l) => l.dong.includes(q) || l.complex.includes(q))
-        .map((l) => ({ ...l, regionName: r.name, regionCode: r.code, group: r.group }))
-    );
-    return flat.sort((a, b) => b.dealYmd - a.dealYmd).slice(0, 30);
-  }, [regions, searchQuery]);
+    if (!q) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    // 글자를 칠 때마다 요청하지 않도록 잠깐 기다렸다가 보냅니다.
+    const timer = setTimeout(() => {
+      let cancelled = false;
+      fetch(`/api/search?q=${encodeURIComponent(q)}&dealType=${dealType}`)
+        .then(async (res) => {
+          const json = await res.json();
+          if (cancelled) return;
+          setSearchResults(res.ok ? (json.results ?? []) : []);
+          setSearchLoading(false);
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setSearchResults([]);
+            setSearchLoading(false);
+          }
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, dealType]);
 
   // 첫 화면 맨 위에 보여줄 "오늘의 실거래" 피드 — 기본은 오늘 계약일 거래만, "지난 7일" 버튼을
   // 누르면 오늘부터 6일 전까지(총 7일) 계약일 거래까지 넓혀서 보여줍니다. 부산/울산 각각
@@ -506,31 +546,47 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
         />
         {searchQuery.trim() && (
           <div className="search-results">
-            {searchResults.length === 0 ? (
-              <div className="empty-note">&quot;{searchQuery}&quot; 검색 결과가 없습니다.</div>
+            {searchLoading ? (
+              <div className="empty-note">찾는 중…</div>
+            ) : searchResults.length === 0 ? (
+              <div className="empty-note">
+                &quot;{searchQuery}&quot; {dealLabel(dealType)} 거래를 찾지 못했습니다. 다른 거래 유형
+                탭에는 있을 수 있어요.
+              </div>
             ) : (
-              searchResults.map((l, i) => (
-                <button
-                  key={`${l.regionCode}-${l.complex}-${l.dealYmd}-${i}`}
-                  className="search-result-row"
-                  onClick={() =>
-                    setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex, areaM2: l.areaM2 })
-                  }
-                >
-                  <div className="recent-main">
-                    <span className="recent-loc">
-                      {l.group} {l.regionName} · {l.dong}
-                    </span>
-                    <span className="recent-complex">
-                      {l.complex} · {Math.round(l.pyeong)}평 · {l.floor}층
-                    </span>
-                  </div>
-                  <div className="recent-side">
-                    <span className="recent-price">{listingPriceLabel(l)}</span>
-                    <span className="recent-date">{l.date} 계약 · 추이 보기</span>
-                  </div>
-                </button>
-              ))
+              <>
+                <div className="search-count">
+                  {searchResults.length}개 평형(타입) · 각 평형의 가장 최근 {dealLabel(dealType)} 거래예요
+                </div>
+                {searchResults.map((l, i) => (
+                  <button
+                    key={`${l.regionCode}-${l.complex}-${l.areaM2}-${i}`}
+                    className="search-result-row"
+                    onClick={() =>
+                      setTrendTarget({
+                        code: l.regionCode,
+                        regionName: l.regionName,
+                        complex: l.complex,
+                        areaM2: l.areaM2,
+                      })
+                    }
+                  >
+                    <div className="recent-main">
+                      <span className="recent-loc">
+                        {l.group} {l.regionName} · {l.dong}
+                      </span>
+                      <span className="recent-complex">{l.complex}</span>
+                      <span className="search-type">
+                        전용 {l.areaM2}㎡ · {Math.round(l.pyeong)}평 · {l.floor}층
+                      </span>
+                    </div>
+                    <div className="recent-side">
+                      <span className="recent-price">{listingPriceLabel(l)}</span>
+                      <span className="recent-date">{l.date} 계약 · 추이 보기</span>
+                    </div>
+                  </button>
+                ))}
+              </>
             )}
           </div>
         )}
@@ -599,7 +655,10 @@ export default function Dashboard({ staticRegions }: { staticRegions: Region[] }
                     }`}
                   >
                     <button className="region-head" onClick={() => selectRegion(r.code)}>
-                      <span className="nm">{r.name}</span>
+                      <span className="region-name-wrap">
+                        <span className="nm">{r.name}</span>
+                        {selectedCode === r.code && <span className="picked-badge">선택한 지역</span>}
+                      </span>
                       <TrendBadge trendPct={r.trendPct} />
                       <span className="cnt">{r.count}건</span>
                       <span className="chev">▾</span>
