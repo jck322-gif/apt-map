@@ -108,24 +108,48 @@ export default function KakaoMap({ regions, selectedCode, filter, onSelect, onEr
 
     regions.forEach((r) => {
       const dimmed = filter !== "전체" && r.group !== filter;
+      const selected = selectedCode === r.code;
       const size = Math.round(26 + (r.count / maxCount) * 26);
       const color = r.trendPct === null ? "#5b6b66" : r.trendPct >= 0 ? "#c23b30" : "#2f6f9e";
-      const el = document.createElement("div");
-      el.style.cssText = `
+
+      // 동그라미(거래 건수) + 그 아래 지역명 라벨을 세로로 묶습니다.
+      const wrap = document.createElement("div");
+      wrap.style.cssText = `
+        display:flex;flex-direction:column;align-items:center;gap:3px;
+        cursor:pointer;opacity:${dimmed ? 0.3 : 1};
+        ${selected ? "z-index:5;" : ""}
+      `;
+
+      const bubble = document.createElement("div");
+      bubble.style.cssText = `
         width:${size}px;height:${size}px;border-radius:50%;
-        background:${color};opacity:${dimmed ? 0.28 : 0.92};
+        background:${color};
         display:flex;align-items:center;justify-content:center;
         color:#fff;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:700;
-        font-size:${Math.max(10, size * 0.36)}px;cursor:pointer;
-        border:${selectedCode === r.code ? "2.5px solid #1b2430" : "none"};
-        box-shadow:0 1px 4px rgba(0,0,0,0.25);
+        font-size:${Math.max(10, size * 0.36)}px;
+        border:${selected ? "3px solid #1b2430" : "2px solid rgba(255,255,255,0.85)"};
+        box-shadow:${selected ? "0 0 0 4px rgba(217,102,63,0.55), 0 2px 6px rgba(0,0,0,0.3)" : "0 1px 4px rgba(0,0,0,0.25)"};
+        transform:${selected ? "scale(1.12)" : "none"};
       `;
-      el.textContent = String(r.count);
-      el.onclick = () => onSelect(r.code);
+      bubble.textContent = String(r.count);
+
+      const label = document.createElement("div");
+      label.textContent = r.name;
+      label.style.cssText = `
+        font-family:'Noto Sans KR',sans-serif;font-size:10.5px;font-weight:700;
+        padding:1px 6px;border-radius:6px;white-space:nowrap;line-height:1.5;
+        background:${selected ? "#1b2430" : "rgba(255,255,255,0.94)"};
+        color:${selected ? "#fff" : "#1b2430"};
+        box-shadow:0 1px 3px rgba(0,0,0,0.25);
+      `;
+
+      wrap.appendChild(bubble);
+      wrap.appendChild(label);
+      wrap.onclick = () => onSelect(r.code);
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(r.lat, r.lng),
-        content: el,
+        content: wrap,
         yAnchor: 0.5,
       });
       overlay.setMap(map);
