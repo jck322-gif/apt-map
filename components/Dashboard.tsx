@@ -16,7 +16,10 @@ type Listing = {
   pyeong: number;
   floor: number;
   date: string;
-  dealYmd: number; // YYYYMMDD 정수 — 정확한 날짜 비교용 (월 경계를 넘어도 안전)
+  dealYmd: number; // YYYYMMDD 정수 — 계약일
+  registeredYmd: number | null; // 국토부에 신고(등록)된 날 — 우리가 처음 받아온 날 기준
+  isCancelled: boolean; // 거래 취소(해제)된 건
+  isDirect: boolean; // 직거래
   priceManwon: number | null;
   depositManwon: number | null;
   monthlyRentManwon: number | null;
@@ -69,8 +72,15 @@ function dealLabel(dealType: DealType): string {
   return DEAL_TABS.find((t) => t.key === dealType)?.label ?? "매매";
 }
 
+/** 가격 계산에 필요한 최소 정보 (검색 결과처럼 일부 항목만 있는 데이터에도 쓸 수 있게) */
+type PriceLike = {
+  priceManwon: number | null;
+  depositManwon: number | null;
+  monthlyRentManwon: number | null;
+};
+
 /** 거래 한 건의 가격 표시 문구(매매가 / 보증금 / 보증금+월세)를 만듭니다. */
-function listingPriceLabel(l: Listing): string {
+function listingPriceLabel(l: PriceLike): string {
   if (l.priceManwon !== null) return fmtManwon(l.priceManwon);
   if (l.monthlyRentManwon !== null) {
     return `${fmtManwon(l.depositManwon ?? 0)} / 월 ${fmtManwon(l.monthlyRentManwon)}`;
@@ -80,13 +90,25 @@ function listingPriceLabel(l: Listing): string {
 }
 
 /** 정렬용 금액값 — 매매는 매매가, 전세는 보증금, 월세는 월세금액 기준으로 높은순 정렬합니다. */
-function listingSortValue(l: Listing): number {
+function listingSortValue(l: PriceLike): number {
   return l.priceManwon ?? l.monthlyRentManwon ?? l.depositManwon ?? 0;
 }
 
 /** 오늘 날짜를 "8월 28일" 형태로 표시합니다. */
 function todayLabel(now = new Date()): string {
   return `${now.getMonth() + 1}월 ${now.getDate()}일`;
+}
+
+/** 계약일과 신고일의 차이를 "· 3일 후 등록" 형태로 만듭니다. */
+function regDelayLabel(l: { dealYmd: number; registeredYmd: number | null }): string {
+  if (!l.registeredYmd) return "";
+  const toDate = (n: number) =>
+    new Date(Math.floor(n / 10000), Math.floor((n % 10000) / 100) - 1, n % 100);
+  const days = Math.round(
+    (toDate(l.registeredYmd).getTime() - toDate(l.dealYmd).getTime()) / 86400000
+  );
+  if (!Number.isFinite(days) || days < 0) return "";
+  return days === 0 ? " · 당일 등록" : ` · ${days}일 후 등록`;
 }
 
 /** YYYYMMDD 정수를 "8월 22일" 형태로 표시합니다. */
@@ -282,7 +304,12 @@ export default function Dashboard({
     (list: RegionSummary[]): RecentListing[] => {
       const flat: RecentListing[] = list.flatMap((r) =>
         r.listings
-          .filter((l) => l.dealYmd >= rangeStartYmdInt && l.dealYmd <= todayYmdInt)
+          // 계약일이 아니라 "국토부에 신고된 날" 기준입니다.
+          // 계약 후 최대 30일까지 신고할 수 있어, 계약일로 거르면 목록이 거의 항상 비어요.
+          .filter((l) => {
+            const reg = l.registeredYmd;
+            return reg !== null && reg >= rangeStartYmdInt && reg <= todayYmdInt;
+          })
           .map((l) => ({ ...l, regionName: r.name, regionCode: r.code, group: r.group }))
       );
       return flat.sort((a, b) => listingSortValue(b) - listingSortValue(a)).slice(0, RECENT_FEED_LIMIT);
@@ -419,9 +446,9 @@ export default function Dashboard({
         </div>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
           {recentRange === "today"
-            ? `오늘(${todayLabel()}) 계약일로 신고된 거래만 모았어요`
-            : `최근 7일(${ymdIntToLabel(rangeStartYmdInt)}~${todayLabel()}) 계약일로 신고된 거래를 모았어요`}{" "}
-          — 가격 높은순, 부산 · 울산 나란히 비교해보세요.
+            ? `오늘(${todayLabel()}) 국토부에 새로 신고된 거래예요`
+            : `최근 7일(${ymdIntToLabel(rangeStartYmdInt)}~${todayLabel()}) 국토부에 신고된 거래예요`}{" "}
+          — 계약일과 신고일은 다릅니다 (계약 후 최대 30일까지 신고). 가격 높은순으로 정렬했어요.
         </p>
         <div className="recent-table">
           {recentColumns.map(({ group, list }) => (
@@ -429,9 +456,8 @@ export default function Dashboard({
               <div className="recent-col-heading">{group}</div>
               {list.length === 0 ? (
                 <div className="empty-note">
-                  {recentRange === "today" ? "오늘" : "최근 7일간"} 계약일로 신고된 거래가 아직
-                  없습니다. 국토부에는 계약 후 최대 30일까지 신고할 수 있어 당일 거래는 며칠 뒤에
-                  올라오는 경우가 많아요 — &quot;지난 7일&quot;로 넓혀서 보세요.
+                  {recentRange === "today" ? "오늘" : "최근 7일간"} 새로 신고된 거래가 없습니다.
+                  신고는 보통 평일에 올라와요 — &quot;지난 7일&quot;로 넓혀서 보세요.
                 </div>
               ) : (
                 <div className="recent-feed">
@@ -448,12 +474,18 @@ export default function Dashboard({
                           {l.regionName} · {l.dong}
                         </span>
                         <span className="recent-complex">
+                          {l.isCancelled && <span className="flag cancel">취소</span>}
+                          {l.isDirect && <span className="flag direct">직거래</span>}
                           {l.complex} · {typeLabel(l.areaM2)} · {l.floor}층
                         </span>
                       </div>
                       <div className="recent-side">
-                        <span className="recent-price">{listingPriceLabel(l)}</span>
-                        <span className="recent-date">{l.date} 계약</span>
+                        <span className={`recent-price${l.isCancelled ? " struck" : ""}`}>
+                          {listingPriceLabel(l)}
+                        </span>
+                        <span className="recent-date">
+                          {l.date} 계약{regDelayLabel(l)}
+                        </span>
                       </div>
                     </button>
                   ))}
