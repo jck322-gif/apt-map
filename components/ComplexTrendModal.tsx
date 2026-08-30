@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fmtManwon, fmtManwonShort } from "@/lib/format";
+import { fmtManwon, fmtManwonShort, typeLabel, areaDetail } from "@/lib/format";
 
 type MonthlyPoint = {
   ymd: string;
@@ -49,11 +49,6 @@ type TrendResponse = {
 
 const VALUE_LABEL: Record<string, string> = { sale: "매매가", jeonse: "보증금", monthly: "월세" };
 const DEAL_LABEL: Record<string, string> = { sale: "매매", jeonse: "전세", monthly: "월세" };
-
-/** ㎡ → 평 (1평 = 3.305785㎡) */
-function pyeongOf(areaM2: number): number {
-  return Math.round(areaM2 / 3.305785);
-}
 
 // 차트 도형 계산용 상수 (viewBox 좌표계, CSS로 반응형 확대/축소됨)
 // viewBox를 실제 표시 크기(약 350~400px)와 비슷하게 잡아야 축 글자가 작아 보이지 않습니다.
@@ -239,11 +234,14 @@ export default function ComplexTrendModal({
             {data && <p className="modal-address">{infoLine}</p>}
             <div className="modal-chips">
               <span className="modal-chip deal">{DEAL_LABEL[dealType]}</span>
-              <span className="modal-chip">
-                {areaM2 !== undefined
-                  ? `전용 ${areaM2.toFixed(2)}㎡ · ${pyeongOf(areaM2)}평`
-                  : "전체 평형 합산"}
-              </span>
+              {areaM2 !== undefined ? (
+                <>
+                  <span className="modal-chip type">{typeLabel(areaM2)}</span>
+                  <span className="modal-chip">{areaDetail(areaM2)}</span>
+                </>
+              ) : (
+                <span className="modal-chip">전체 타입 합산</span>
+              )}
             </div>
           </div>
           <button className="modal-close" onClick={onClose} aria-label="닫기">
