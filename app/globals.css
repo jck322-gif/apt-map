@@ -217,7 +217,26 @@ svg.map { display: block; width: 100%; height: auto; }
 
 .region-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .region-row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.region-row.selected { border-color: var(--teal); }
+
+/* 지도에서 누른 지역을 아래 목록에서도 한눈에 알아볼 수 있게 강조합니다. */
+.region-row.selected {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px var(--rise-soft);
+  animation: pickedFlash 1.1s ease-out 1;
+}
+.region-row.selected .region-head { background: var(--rise-soft); }
+.region-row.selected .region-head .nm { color: var(--coral); }
+@keyframes pickedFlash {
+  0%   { box-shadow: 0 0 0 0 var(--rise-soft); }
+  35%  { box-shadow: 0 0 0 9px var(--rise-soft); }
+  100% { box-shadow: 0 0 0 3px var(--rise-soft); }
+}
+.picked-badge {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px; background: var(--coral); color: #fff;
+  flex-shrink: 0; white-space: nowrap;
+}
+
 .region-head {
   width: 100%; display: flex; align-items: center; gap: 10px; padding: 13px 14px; background: none; border: none;
   text-align: left; cursor: pointer; color: var(--ink); font-family: inherit;
@@ -226,7 +245,8 @@ svg.map { display: block; width: 100%; height: auto; }
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; color: var(--muted);
   background: var(--surface-2); padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
 }
-.region-head .nm { font-size: 14.5px; font-weight: 700; flex: 1; }
+.region-name-wrap { flex: 1; display: flex; align-items: center; gap: 7px; min-width: 0; }
+.region-head .nm { font-size: 14.5px; font-weight: 700; }
 .region-head .cnt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .trend {
   display: inline-flex; align-items: center; gap: 2px; font-family: "IBM Plex Mono", ui-monospace, monospace;
@@ -318,6 +338,14 @@ footer.end p { margin: 0 0 12px; }
   border-right: none; border-top: none; text-align: left; cursor: pointer; font: inherit; color: inherit;
 }
 .search-result-row:last-child { border-bottom: none; }
+.search-count {
+  padding: 9px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2);
+  font-size: 11.5px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.search-type {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--teal-deep);
+  font-weight: 700;
+}
 .search-result-row:hover, .search-result-row:active { background: var(--surface-2); }
 
 /* 단지 가격 추이 보기 버튼 */
@@ -348,6 +376,13 @@ footer.end p { margin: 0 0 12px; }
 .modal-title { margin: 0; font-family: "Noto Serif KR", serif; font-size: 21px; color: var(--ink); }
 .modal-address { margin: 5px 0 0; font-size: 13.5px; color: var(--ink-soft); }
 .modal-subtitle { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); }
+.modal-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.modal-chip {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px; background: var(--surface-2); color: var(--ink-soft);
+  white-space: nowrap;
+}
+.modal-chip.deal { background: var(--teal); color: #fff; }
 .modal-close {
   flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--ink-soft); font-size: 15px; cursor: pointer;
