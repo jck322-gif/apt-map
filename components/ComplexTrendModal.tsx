@@ -42,6 +42,8 @@ type TrendResponse = {
   buildYear: number | null;
   age: number | null;
   dealType: "sale" | "jeonse" | "monthly";
+  types: number[]; // 이 단지가 가진 전용면적(타입) 목록
+  history: TxDetail[]; // 선택한 타입의 개별 실거래 이력
   points: MonthlyPoint[];
   stats: Stats;
   errors: { ymd: string; message: string }[];
@@ -99,12 +101,23 @@ export default function ComplexTrendModal({
     data: TrendResponse | null;
   }>({ loading: true, error: null, data: null });
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  // 팝업 안에서 타입(평형)을 바꿔가며 볼 수 있게, 선택한 타입을 따로 들고 있습니다.
+  // undefined = 전체 타입 합산
+  const [selectedArea, setSelectedArea] = useState<number | undefined>(areaM2);
+  // 월별 표에서 펼쳐 놓은 달 ("202608")
+  const [openMonth, setOpenMonth] = useState<string | null>(null);
+
+  // 다른 단지를 열면 선택 타입을 새로 받은 값으로 되돌립니다.
+  useEffect(() => {
+    setSelectedArea(areaM2);
+  }, [areaM2, complex, code]);
 
   useEffect(() => {
     let cancelled = false;
     setState({ loading: true, error: null, data: null });
     setActiveIdx(null);
-    const areaQs = areaM2 !== undefined ? `&area=${areaM2}` : "";
+    setOpenMonth(null);
+    const areaQs = selectedArea !== undefined ? `&area=${selectedArea}` : "";
     fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${dealType}${areaQs}`)
       .then(async (res) => {
         const json = await res.json();
@@ -119,7 +132,7 @@ export default function ComplexTrendModal({
     return () => {
       cancelled = true;
     };
-  }, [code, complex, dealType, areaM2]);
+  }, [code, complex, dealType, selectedArea]);
 
   const data = state.data;
   const points = data?.points ?? [];
@@ -234,13 +247,8 @@ export default function ComplexTrendModal({
             {data && <p className="modal-address">{infoLine}</p>}
             <div className="modal-chips">
               <span className="modal-chip deal">{DEAL_LABEL[dealType]}</span>
-              {areaM2 !== undefined ? (
-                <>
-                  <span className="modal-chip type">{typeLabel(areaM2)}</span>
-                  <span className="modal-chip">{areaDetail(areaM2)}</span>
-                </>
-              ) : (
-                <span className="modal-chip">전체 타입 합산</span>
+              {selectedArea !== undefined && (
+                <span className="modal-chip">{areaDetail(selectedArea)}</span>
               )}
             </div>
           </div>
@@ -248,6 +256,33 @@ export default function ComplexTrendModal({
             ✕
           </button>
         </div>
+
+        {/* 이 단지가 가진 타입(평형) 목록 — 누르면 그 타입 기준으로 다시 보여줍니다. */}
+        {data && data.types.length > 0 && (
+          <div className="type-picker">
+            <span className="type-picker-label">타입 선택</span>
+            <div className="type-picker-chips">
+              {data.types.map((a) => (
+                <button
+                  key={a}
+                  className="type-chip"
+                  aria-pressed={selectedArea === a}
+                  onClick={() => setSelectedArea(a)}
+                >
+                  {typeLabel(a)}
+                  <span className="type-chip-sub">{a}㎡</span>
+                </button>
+              ))}
+              <button
+                className="type-chip"
+                aria-pressed={selectedArea === undefined}
+                onClick={() => setSelectedArea(undefined)}
+              >
+                전체
+              </button>
+            </div>
+          </div>
+        )}
 
         {state.loading && (
           <div className="empty-note">
@@ -343,15 +378,49 @@ export default function ComplexTrendModal({
             </div>
 
             <div className="trend-table">
-              {points.map((p) => (
-                <div className="trend-table-row" key={p.ymd}>
-                  <span className="trend-table-month">{p.label}</span>
-                  <span className="trend-table-value">
-                    {p.avgPriceManwon === null ? "거래 없음" : fmtManwon(p.avgPriceManwon)}
-                  </span>
-                  <span className="trend-table-count">{p.count}건</span>
-                </div>
-              ))}
+              <div className="trend-table-head">
+                월별 평균 · 건수를 누르면 그 달의 거래 내역이 모두 펼쳐집니다
+              </div>
+              {points.map((p) => {
+                const monthDeals = (data.history ?? []).filter(
+                  (tx) => String(tx.ymd).slice(0, 6) === p.ymd
+                );
+                const open = openMonth === p.ymd;
+                return (
+                  <div key={p.ymd}>
+                    <button
+                      className={`trend-table-row${open ? " open" : ""}`}
+                      disabled={p.count === 0}
+                      onClick={() => setOpenMonth(open ? null : p.ymd)}
+                    >
+                      <span className="trend-table-month">{p.label}</span>
+                      <span className="trend-table-value">
+                        {p.avgPriceManwon === null ? "거래 없음" : fmtManwon(p.avgPriceManwon)}
+                      </span>
+                      <span className="trend-table-count">
+                        {p.count}건{p.count > 0 && <span className="trend-chev">{open ? "▴" : "▾"}</span>}
+                      </span>
+                    </button>
+                    {open && (
+                      <div className="month-deals">
+                        {monthDeals.length === 0 ? (
+                          <div className="empty-note">이 달의 개별 내역을 불러오지 못했습니다.</div>
+                        ) : (
+                          monthDeals.map((tx, i) => (
+                            <div className="month-deal-row" key={`${tx.ymd}-${tx.floor}-${i}`}>
+                              <span className="month-deal-date">{tx.dateLabel}</span>
+                              <span className="month-deal-price">{fmtManwon(tx.priceManwon)}</span>
+                              <span className="month-deal-meta">
+                                {tx.floor}층 · {tx.areaM2}㎡
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
