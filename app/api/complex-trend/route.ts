@@ -8,7 +8,9 @@ export const dynamic = "force-dynamic";
 type DealTypeParam = "sale" | "jeonse" | "monthly";
 
 const YEARS_BACK = 3; // 3년 최고/최저 계산 범위
-const CHART_MONTHS = 6; // 화면 그래프에 표시할 개월 수
+// 화면 그래프에 표시할 개월 수.
+// 전세·월세는 단지·평형별로 거래가 드물어 6개월로 자르면 그래프가 자주 비어서, 1년으로 넓게 봅니다.
+const CHART_MONTHS = 12;
 
 export type MonthlyPoint = {
   ymd: string;
