@@ -114,6 +114,16 @@ function regDelayLabel(l: { dealYmd: number; registeredYmd: number | null }): st
 }
 
 /** YYYYMMDD 정수를 "8월 22일" 형태로 표시합니다. */
+/** "오늘의 실거래"에서 볼 수 있는 기간 */
+type RecentRange = "today" | "week" | "month";
+/** 각 기간이 오늘로부터 며칠 전까지인지 (오늘 포함) */
+const RANGE_DAYS_BACK: Record<Exclude<RecentRange, "today">, number> = { week: 6, month: 29 };
+/** 버튼과 안내 문구에 쓰는 기간 이름 */
+function rangeName(r: RecentRange): string {
+  if (r === "today") return "오늘";
+  return r === "week" ? "지난 7일" : "지난 1개월";
+}
+
 function ymdIntToLabel(ymd: number): string {
   const m = Math.floor((ymd % 10000) / 100);
   const d = ymd % 100;
@@ -190,7 +200,7 @@ export default function Dashboard({
   const [openComplex, setOpenComplex] = useState<string | null>(null);
   const [kakaoFailed, setKakaoFailed] = useState(false);
   // "오늘의 실거래" 조회 범위 — 기본은 오늘 하루, 버튼을 눌렀을 때만 최근 7일까지 넓혀서 봅니다.
-  const [recentRange, setRecentRange] = useState<"today" | "week">("today");
+  const [recentRange, setRecentRange] = useState<RecentRange>("today");
   // "지역별 실거래 리스트" 정렬 기준 — 기본은 최신순(이미 이 순서로 내려옴), 가격순으로도 볼 수 있음
   const [listSort, setListSort] = useState<"recent" | "price">("recent");
   // 단지/동 이름으로 바로 찾는 검색창 (DB 전체 검색)
@@ -316,7 +326,7 @@ export default function Dashboard({
 
   const rangeStartYmdInt = useMemo(() => {
     if (recentRange === "today") return feedDayYmd;
-    return kstYmdIntAgo(6); // 오늘 포함 7일 (오늘 + 지난 6일)
+    return kstYmdIntAgo(RANGE_DAYS_BACK[recentRange]); // 오늘 포함 7일 / 30일
   }, [recentRange, feedDayYmd]);
   const rangeEndYmdInt = recentRange === "today" ? feedDayYmd : todayYmdInt;
 
@@ -474,20 +484,16 @@ export default function Dashboard({
           </span>
         </div>
         <div className="hero-range-tabs">
-          <button
-            className="hero-range-tab"
-            aria-pressed={recentRange === "today"}
-            onClick={() => setRecentRange("today")}
-          >
-            오늘
-          </button>
-          <button
-            className="hero-range-tab"
-            aria-pressed={recentRange === "week"}
-            onClick={() => setRecentRange("week")}
-          >
-            지난 7일
-          </button>
+          {(["today", "week", "month"] as const).map((r) => (
+            <button
+              key={r}
+              className="hero-range-tab"
+              aria-pressed={recentRange === r}
+              onClick={() => setRecentRange(r)}
+            >
+              {rangeName(r)}
+            </button>
+          ))}
         </div>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
           {recentRange === "today"
@@ -496,8 +502,11 @@ export default function Dashboard({
                   feedDayYmd
                 )} 신고분을 보여드려요`
               : `오늘(${todayLabel()}) 국토부에 새로 신고된 거래예요`
-            : `최근 7일(${ymdIntToLabel(rangeStartYmdInt)}~${todayLabel()}) 국토부에 신고된 거래예요`}{" "}
-          — 계약일과 신고일은 다릅니다 (계약 후 최대 30일까지 신고). 가격 높은순으로 정렬했어요.
+            : `최근 ${rangeName(recentRange).replace("지난 ", "")}(${ymdIntToLabel(
+                rangeStartYmdInt
+              )}~${todayLabel()}) 국토부에 신고된 거래예요`}{" "}
+          — 계약일과 신고일은 다릅니다 (계약 후 최대 30일까지 신고). 가격 높은순
+          {recentRange === "today" ? "" : " 상위 30건씩"}으로 정렬했어요.
         </p>
         <div className="recent-table">
           {recentColumns.map(({ group, list }) => (
@@ -505,9 +514,11 @@ export default function Dashboard({
               <div className="recent-col-heading">{group}</div>
               {list.length === 0 ? (
                 <div className="empty-note">
-                  {recentRange === "today" ? `${ymdIntToKoLabel(feedDayYmd)}에는` : "최근 7일간"} 이
-                  지역에 새로 신고된 거래가 없습니다. 신고는 보통 평일에 올라와요 —
-                  &quot;지난 7일&quot;로 넓혀서 보세요.
+                  {recentRange === "today"
+                    ? `${ymdIntToKoLabel(feedDayYmd)}에는`
+                    : `최근 ${rangeName(recentRange).replace("지난 ", "")}간`}{" "}
+                  이 지역에 새로 신고된 거래가 없습니다.
+                  {recentRange !== "month" && " 신고는 보통 평일에 올라와요 — 기간을 넓혀서 보세요."}
                 </div>
               ) : (
                 <div className="recent-feed">
@@ -724,10 +735,11 @@ export default function Dashboard({
             </h3>
             <div className="region-list">
               {list.map((r) => {
+                // 서버에서 계약일 순 목록과 신고일 순 목록을 합쳐 내려주므로 여기서 다시 정렬합니다.
                 const sortedListings =
                   listSort === "price"
                     ? [...r.listings].sort((a, b) => listingSortValue(b) - listingSortValue(a))
-                    : r.listings; // 이미 최신순으로 내려옴
+                    : [...r.listings].sort((a, b) => b.dealYmd - a.dealYmd);
                 const dongGroups = groupByDong(sortedListings);
                 return (
                   <div
