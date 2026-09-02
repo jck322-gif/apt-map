@@ -75,9 +75,13 @@ type Item = {
   data: TrendResponse | null;
 };
 
+// 가로로 넓고 낮은 비율. 화면이 넓어져도 그래프가 세로로 길어지지 않도록
+// 감싸는 상자의 최대 너비를 CSS에서 함께 제한합니다.
 const W = 620;
-const H = 300;
-const PAD = { top: 20, right: 18, bottom: 34, left: 64 };
+const H = 250;
+const PAD = { top: 16, right: 16, bottom: 28, left: 56 };
+/** 클릭했을 때 그래프 위에 띄우는 값 라벨의 최소 세로 간격 */
+const LABEL_GAP = 17;
 
 function smoothPath(pts: { x: number; y: number }[]): string {
   if (pts.length === 0) return "";
@@ -231,6 +235,37 @@ export default function ComparePanel() {
     const yOf = (v: number) => PAD.top + innerH - ((v - lo) / (hi - lo)) * innerH;
     const grid = [0, 0.5, 1].map((t) => lo + (hi - lo) * t);
 
+    // 클릭한 달의 값을 그래프 위에 바로 띄웁니다.
+    // 값이 비슷하면 라벨이 겹치므로, 위에서부터 훑으며 최소 간격만큼 밀어냅니다.
+    let activeLabels: { y: number; text: string; color: string; count: number }[] = [];
+    let labelsOnLeft = false;
+    if (activeIdx !== null) {
+      labelsOnLeft = xOf(activeIdx) > PAD.left + innerW * 0.62;
+      activeLabels = ready
+        .map((it, si) => {
+          const p = it.data!.points[activeIdx];
+          if (!p || p.avgPriceManwon === null) return null;
+          return {
+            y: yOf(p.avgPriceManwon),
+            text: fmtManwonShort(p.avgPriceManwon),
+            color: SERIES[si % SERIES.length].color,
+            count: p.count,
+          };
+        })
+        .filter((x): x is NonNullable<typeof x> => x !== null)
+        .sort((a, b) => a.y - b.y);
+      for (let i = 1; i < activeLabels.length; i++) {
+        const prev = activeLabels[i - 1];
+        if (activeLabels[i].y - prev.y < LABEL_GAP) activeLabels[i].y = prev.y + LABEL_GAP;
+      }
+      // 아래로 밀려 그래프 밖으로 나가면 전체를 위로 당깁니다
+      const last = activeLabels[activeLabels.length - 1];
+      if (last && last.y > H - PAD.bottom - 4) {
+        const shift = last.y - (H - PAD.bottom - 4);
+        for (const l of activeLabels) l.y -= shift;
+      }
+    }
+
     chart = (
       <svg className="cmp-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="단지별 가격 추이 비교">
         {grid.map((v, i) => (
@@ -245,7 +280,7 @@ export default function ComparePanel() {
               strokeDasharray="3 4"
               opacity={0.8}
             />
-            <text x={PAD.left - 10} y={yOf(v) + 4} textAnchor="end" className="trend-axis-label">
+            <text x={PAD.left - 10} y={yOf(v) + 4} textAnchor="end" className="cmp-axis-label">
               {fmtManwonShort(v)}
             </text>
           </g>
@@ -253,7 +288,7 @@ export default function ComparePanel() {
 
         {monthLabels.map((label, i) =>
           i % 2 === 0 || i === monthCount - 1 ? (
-            <text key={i} x={xOf(i)} y={H - 10} textAnchor="middle" className="trend-axis-label">
+            <text key={i} x={xOf(i)} y={H - 10} textAnchor="middle" className="cmp-axis-label">
               {label}
             </text>
           ) : null
@@ -314,6 +349,48 @@ export default function ComparePanel() {
             strokeWidth={1.2}
             strokeDasharray="3 3"
           />
+        )}
+
+        {/* 클릭한 달의 가격을 그래프 위에 직접 표시 */}
+        {activeIdx !== null &&
+          activeLabels.map((l, i) => {
+            const w = l.text.length * 7.6 + 14;
+            const x = labelsOnLeft ? xOf(activeIdx) - 9 - w : xOf(activeIdx) + 9;
+            return (
+              <g key={i}>
+                <rect
+                  x={x}
+                  y={l.y - 9}
+                  width={w}
+                  height={18}
+                  rx={5}
+                  fill="var(--surface)"
+                  stroke={l.color}
+                  strokeWidth={1.3}
+                  opacity={0.97}
+                />
+                <text
+                  x={x + w / 2}
+                  y={l.y + 4}
+                  textAnchor="middle"
+                  className="cmp-value-label"
+                  fill={l.color}
+                >
+                  {l.text}
+                </text>
+              </g>
+            );
+          })}
+        {activeIdx !== null && (
+          <text
+            x={xOf(activeIdx)}
+            y={PAD.top - 4}
+            textAnchor="middle"
+            className="cmp-axis-label"
+            fontWeight={700}
+          >
+            {monthLabels[activeIdx]}
+          </text>
         )}
       </svg>
     );
@@ -471,29 +548,6 @@ export default function ComparePanel() {
           {chart ? (
             <div className="cmp-chart-wrap">
               {chart}
-              {activeIdx !== null && (
-                <div className="cmp-tooltip">
-                  <strong>{monthLabels[activeIdx]}</strong>
-                  {ready.map((it, si) => {
-                    const p = it.data!.points[activeIdx];
-                    return (
-                      <span className="cmp-tooltip-row" key={it.id}>
-                        <span
-                          className="cmp-swatch"
-                          style={{
-                            borderTopColor: SERIES[si % SERIES.length].color,
-                            borderTopStyle: SERIES[si % SERIES.length].dash ? "dashed" : "solid",
-                          }}
-                        />
-                        {it.complex} {Math.round(it.areaM2)}㎡ ·{" "}
-                        {p?.avgPriceManwon !== null && p?.avgPriceManwon !== undefined
-                          ? `${fmtManwon(p.avgPriceManwon)} (${p.count}건)`
-                          : "거래 없음"}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           ) : (
             !items.some((it) => it.loading) && (
