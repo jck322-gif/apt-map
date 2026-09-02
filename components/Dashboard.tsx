@@ -592,6 +592,15 @@ export default function Dashboard({
             <div className="map-col" key={group}>
               <div className="map-col-heading">{group}</div>
               <div className="map-card">
+                {/* 새 창에서 동 단위 실거래 지도를 크게 보여줍니다 */}
+                <a
+                  className="map-expand"
+                  href={`/map?area=${encodeURIComponent(group)}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  실거래 지도 크게 보기 ↗
+                </a>
                 {kakaoKey && !kakaoFailed ? (
                   <KakaoMap
                     regions={list}

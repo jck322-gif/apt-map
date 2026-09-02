@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Region } from "@/lib/regions";
+import { loadKakaoSdk } from "@/lib/kakaoSdk";
 
 declare global {
   interface Window {
@@ -19,45 +20,10 @@ type Props = {
   onError: () => void;
 };
 
-const SDK_ID = "kakao-map-sdk";
-
 // 카카오 지도 축척 레벨 — 9 = 축척 막대 4km. 숫자를 키우면 더 넓게, 줄이면 더 크게 보입니다.
 const MAP_LEVEL = 9;
 // 지도 높이(px). 축척을 고정했으므로 높이를 넉넉히 줘야 지역이 잘리지 않습니다.
 const MAP_HEIGHT = 380;
-
-// 지도를 부산/울산 두 칸으로 나눠 보여주면서 KakaoMap 인스턴스가 동시에 여러 개 마운트되므로,
-// SDK 스크립트는 페이지 전체에서 딱 한 번만 추가하고 모든 인스턴스가 같은 로딩 완료를
-// 기다리도록 모듈 스코프에서 공유합니다 (그렇지 않으면 두 번째 지도가 초기화되지 않는 문제가 생김).
-let kakaoSdkPromise: Promise<void> | null = null;
-
-function loadKakaoSdk(appkey: string): Promise<void> {
-  if (typeof window !== "undefined" && window.kakao?.maps) return Promise.resolve();
-  if (kakaoSdkPromise) return kakaoSdkPromise;
-
-  const promise = new Promise<void>((resolve, reject) => {
-    const existing = document.getElementById(SDK_ID) as HTMLScriptElement | null;
-    if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("Kakao SDK 로드 실패")));
-      return;
-    }
-    const script = document.createElement("script");
-    script.id = SDK_ID;
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appkey}&autoload=false`;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Kakao SDK 로드 실패"));
-    document.head.appendChild(script);
-  });
-
-  kakaoSdkPromise = promise;
-  // 실패했으면 다음 시도에서 다시 로드할 수 있도록 캐시를 초기화 (반환하는 promise 자체는 그대로 reject됨)
-  promise.catch(() => {
-    kakaoSdkPromise = null;
-  });
-
-  return promise;
-}
 
 export default function KakaoMap({ regions, selectedCode, filter, onSelect, onError }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
