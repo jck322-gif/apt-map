@@ -242,8 +242,8 @@ export default function ComplexTrendModal({
         <defs>
           {/* 선 아래를 옅게 채워 흐름이 한눈에 들어오게 합니다 */}
           <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" className="trend-fill-top" />
-            <stop offset="100%" className="trend-fill-bottom" />
+            <stop offset="0%" style={{ stopColor: "var(--teal)", stopOpacity: 0.22 }} />
+            <stop offset="100%" style={{ stopColor: "var(--teal)", stopOpacity: 0 }} />
           </linearGradient>
         </defs>
 
@@ -266,7 +266,7 @@ export default function ComplexTrendModal({
         )}
 
         {/* 면(채움) → 선 → 점 순서로 그려야 서로 가리지 않습니다 */}
-        <path d={areaPath(linePts, baseY)} className="trend-area" />
+        <path d={areaPath(linePts, baseY)} className="trend-area" style={{ fill: "url(#trendFill)" }} />
         <path d={smoothPath(linePts)} className="trend-line" />
         {overlayOn && <path d={smoothPath(jeonseLinePts)} className="trend-line jeonse" />}
         {overlayOn &&
@@ -310,8 +310,15 @@ export default function ComplexTrendModal({
               height={22}
               rx={6}
               className="trend-last-plate"
+              style={{ fill: "var(--surface)", stroke: "var(--teal)", strokeWidth: 1.2 }}
             />
-            <text x={lastPt.x - 17} y={labelCY + 5} textAnchor="end" className="trend-last-label">
+            <text
+              x={lastPt.x - 17}
+              y={labelCY + 5}
+              textAnchor="end"
+              className="trend-last-label"
+              style={{ fill: "var(--teal-deep)" }}
+            >
               {lastText}
             </text>
           </>
