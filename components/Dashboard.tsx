@@ -113,7 +113,6 @@ function regDelayLabel(l: { dealYmd: number; registeredYmd: number | null }): st
   return days === 0 ? " · 당일 등록" : ` · ${days}일 후 등록`;
 }
 
-/** YYYYMMDD 정수를 "8월 22일" 형태로 표시합니다. */
 /** "오늘의 실거래"에서 볼 수 있는 기간 */
 type RecentRange = "today" | "week" | "month";
 /** 각 기간이 오늘로부터 며칠 전까지인지 (오늘 포함) */
@@ -124,6 +123,7 @@ function rangeName(r: RecentRange): string {
   return r === "week" ? "지난 7일" : "지난 1개월";
 }
 
+/** YYYYMMDD 정수를 "8월 22일" 형태로 표시합니다. */
 function ymdIntToLabel(ymd: number): string {
   const m = Math.floor((ymd % 10000) / 100);
   const d = ymd % 100;
@@ -446,7 +446,7 @@ export default function Dashboard({
           {loading
             ? "불러오는 중…"
             : data
-            ? `국토교통부 자료 기준 · ${dealLabel(dealType)} · 계약월 ${data.dealYmd} · 매일 새벽 자동 갱신`
+            ? `국토교통부 자료 기준 · ${dealLabel(dealType)} · 최근 30일 집계 · 매일 새벽 자동 갱신`
             : "데이터를 불러오지 못했습니다"}
         </p>
       </header>
@@ -560,8 +560,8 @@ export default function Dashboard({
       <section className="block">
         <h2>지역 지도</h2>
         <p className="section-note">
-          지도의 숫자는 <strong>이번 달 {dealLabel(dealType)} 거래 건수</strong>입니다. 색은 지난달 평균
-          가격과 비교한 등락이에요.
+          지도의 숫자는 <strong>최근 30일 {dealLabel(dealType)} 거래 건수</strong>입니다. 색은 그 이전
+          30일 평균 가격과 비교한 등락이에요.
           {isHome && " 구를 누르면 그 지역의 매매 내역으로 이동합니다."}
         </p>
         <div className="map-grid">
@@ -625,7 +625,7 @@ export default function Dashboard({
         <div className="legend">
           <span><span className="dot" style={{ background: "var(--rise)" }} />평균가 상승</span>
           <span><span className="dot" style={{ background: "var(--fall)" }} />평균가 하락</span>
-          <span>숫자 · 원 크기 = 이번 달 {dealLabel(dealType)} 건수</span>
+          <span>숫자 · 원 크기 = 최근 30일 {dealLabel(dealType)} 건수</span>
         </div>
       </section>
 
