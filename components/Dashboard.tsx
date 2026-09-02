@@ -10,6 +10,7 @@ import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
+import { GUIDES } from "@/lib/guides";
 
 type Listing = {
   dong: string;
@@ -65,7 +66,7 @@ type ApiResponse = {
 };
 
 const DEAL_TABS: { key: DealType; label: string; href: string; desc: string }[] = [
-  { key: "sale", label: "매매", href: "/sale", desc: "아파트를 사고판 실거래가" },
+  { key: "sale", label: "매매", href: "/", desc: "아파트를 사고판 실거래가" },
   { key: "jeonse", label: "전세", href: "/jeonse", desc: "보증금만 내는 전세 실거래가" },
   { key: "monthly", label: "월세", href: "/monthly", desc: "보증금 + 매달 내는 월세" },
 ];
@@ -384,7 +385,7 @@ export default function Dashboard({
       // 홈 화면에는 지역별 목록이 없습니다. 그래서 지도에서 구를 누르면
       // 매매 페이지의 그 구로 이동시켜, 바로 거래 내역을 볼 수 있게 합니다.
       if (isHome) {
-        router.push(`/sale?region=${code}`);
+        router.push(`/?region=${code}`);
         return;
       }
       const willOpen = openCode !== code; // 같은 구를 다시 누르면 접히고, 다른 구를 누르면 펼쳐짐
@@ -433,9 +434,6 @@ export default function Dashboard({
         </div>
 
         <nav className="deal-tabs">
-          <Link href="/" className="deal-tab" aria-current={isHome ? "page" : undefined}>
-            홈
-          </Link>
           {DEAL_TABS.map((t) => (
             <Link
               key={t.key}
@@ -662,6 +660,27 @@ export default function Dashboard({
           <span><span className="dot" style={{ background: "var(--fall)" }} />평균가 하락</span>
           <span>숫자 · 원 크기 = 최근 30일 {dealLabel(dealType)} 건수</span>
         </div>
+      </section>
+
+      {/* 첫 화면에서 정보글로 들어갈 수 있게 최근 글 몇 개를 걸어둡니다 */}
+      <section className="block">
+        <h2>부동산 상식</h2>
+        <p className="section-note">
+          실거래가 자료를 다루면서 정리한 글입니다. 숫자를 읽는 법부터 계약 절차까지.
+        </p>
+        <div className="guide-list">
+          {GUIDES.slice(0, 3).map((g) => (
+            <Link className="guide-card" href={`/guide/${g.slug}`} key={g.slug}>
+              <span className="guide-card-title">{g.title}</span>
+              <span className="guide-card-summary">{g.summary}</span>
+            </Link>
+          ))}
+        </div>
+        <p style={{ marginTop: 12 }}>
+          <Link href="/guide" className="entry-card-go">
+            부동산 상식 글 전체 보기 →
+          </Link>
+        </p>
       </section>
 
       <section className="block">

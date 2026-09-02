@@ -10,11 +10,10 @@ import { SITE_NAME } from "@/lib/site";
 export default function SiteHeader({
   current,
 }: {
-  current?: "home" | "sale" | "jeonse" | "monthly" | "compare" | "guide";
+  current?: "sale" | "jeonse" | "monthly" | "compare" | "guide";
 }) {
   const tabs: { key: string; label: string; href: string }[] = [
-    { key: "home", label: "홈", href: "/" },
-    { key: "sale", label: "매매", href: "/sale" },
+    { key: "sale", label: "매매", href: "/" },
     { key: "jeonse", label: "전세", href: "/jeonse" },
     { key: "monthly", label: "월세", href: "/monthly" },
     { key: "compare", label: "비교", href: "/compare" },
