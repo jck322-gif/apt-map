@@ -423,6 +423,28 @@ footer.end p { margin: 0 0 12px; }
   white-space: nowrap;
 }
 .modal-chip.deal { background: var(--teal); color: #fff; }
+
+/* 팝업 안에서 매매 / 전세 / 월세를 눌러 바꾸는 버튼 */
+.modal-chip.deal-btn {
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
+  cursor: pointer; transition: background .12s, color .12s, border-color .12s;
+}
+.modal-chip.deal-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal-deep); }
+.modal-chip.deal-btn[aria-pressed="true"] {
+  background: var(--teal); border-color: var(--teal); color: #fff;
+}
+.modal-chip.deal-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* 매매 그래프 위에 전세선을 겹쳐 보는 버튼 */
+.compare-toggle {
+  display: inline-flex; align-items: center; gap: 6px; margin: 8px 4px 0;
+  padding: 5px 11px; border-radius: 20px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink-soft); font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.compare-toggle[aria-pressed="true"] { border-color: var(--coral); color: var(--coral); }
+.compare-swatch {
+  width: 16px; height: 0; border-top: 2.5px dashed var(--coral); display: inline-block;
+}
 .modal-close {
   flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--ink-soft); font-size: 15px; cursor: pointer;
@@ -478,6 +500,9 @@ footer.end p { margin: 0 0 12px; }
 .trend-line { fill: none; stroke: var(--teal); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .trend-dot { fill: var(--teal); stroke: var(--surface); stroke-width: 1.8; }
 .trend-dot.active { fill: var(--coral); }
+/* 겹쳐 그리는 전세선 — 매매선(실선)과 구분되도록 점선 + 다른 색 */
+.trend-line.jeonse { stroke: var(--coral); stroke-width: 2.2; stroke-dasharray: 6 4; }
+.trend-dot.jeonse { fill: var(--coral); stroke: var(--surface); stroke-width: 1.4; }
 .trend-crosshair { stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .trend-tooltip {
   margin: 8px 4px 2px; padding: 9px 12px; border-radius: 8px; background: var(--surface-2); color: var(--ink);
