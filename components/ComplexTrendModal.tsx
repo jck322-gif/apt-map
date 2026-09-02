@@ -50,6 +50,10 @@ type TrendResponse = {
   types: number[]; // 이 단지가 가진 전용면적(타입) 목록
   history: TxDetail[]; // 선택한 타입의 개별 실거래 이력
   points: MonthlyPoint[];
+  // 거래유형별 자료 건수 — 매매/전세/월세 버튼을 켜고 끄는 데 씁니다.
+  counts?: { sale: number; jeonse: number; monthly: number };
+  // 매매·전세를 한 그래프에 겹쳐 보기 위한 월별 평균
+  comparePoints?: { sale: MonthlyPoint[]; jeonse: MonthlyPoint[] };
   stats: Stats;
   errors: { ymd: string; message: string }[];
 };
@@ -111,11 +115,17 @@ export default function ComplexTrendModal({
   const [selectedArea, setSelectedArea] = useState<number | undefined>(areaM2);
   // 월별 표에서 펼쳐 놓은 달 ("202608")
   const [openMonth, setOpenMonth] = useState<string | null>(null);
+  // 팝업 안에서 매매/전세/월세를 바꿔볼 수 있게, 보고 있는 유형을 따로 들고 있습니다.
+  const [viewType, setViewType] = useState<"sale" | "jeonse" | "monthly">(dealType);
+  // 매매 그래프 위에 전세선을 겹쳐 보여줄지
+  const [showJeonse, setShowJeonse] = useState(false);
 
-  // 다른 단지를 열면 선택 타입을 새로 받은 값으로 되돌립니다.
+  // 다른 단지를 열면 선택 타입과 거래유형을 새로 받은 값으로 되돌립니다.
   useEffect(() => {
     setSelectedArea(areaM2);
-  }, [areaM2, complex, code]);
+    setViewType(dealType);
+    setShowJeonse(false);
+  }, [areaM2, complex, code, dealType]);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,7 +133,7 @@ export default function ComplexTrendModal({
     setActiveIdx(null);
     setOpenMonth(null);
     const areaQs = selectedArea !== undefined ? `&area=${selectedArea}` : "";
-    fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${dealType}${areaQs}`)
+    fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${viewType}${areaQs}`)
       .then(async (res) => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
@@ -137,16 +147,28 @@ export default function ComplexTrendModal({
     return () => {
       cancelled = true;
     };
-  }, [code, complex, dealType, selectedArea]);
+  }, [code, complex, viewType, selectedArea]);
 
   const data = state.data;
   const points = data?.points ?? [];
   const withValue = points.filter((p) => p.avgPriceManwon !== null) as (MonthlyPoint & { avgPriceManwon: number })[];
   const stats = data?.stats;
 
+  // 매매 화면에서 전세선을 겹쳐 볼 수 있게 준비합니다.
+  const jeonsePoints = data?.comparePoints?.jeonse ?? [];
+  const canCompare = viewType === "sale" && (data?.counts?.jeonse ?? 0) > 0 && jeonsePoints.length > 0;
+  const overlayOn = canCompare && showJeonse;
+  const overlayWithValue = overlayOn
+    ? (jeonsePoints.filter((p) => p.avgPriceManwon !== null) as (MonthlyPoint & { avgPriceManwon: number })[])
+    : [];
+
   let chart: React.ReactNode = null;
   if (withValue.length > 0) {
-    const scale = buildScale(withValue.map((p) => p.avgPriceManwon));
+    // 두 선이 모두 화면 안에 들어오도록 눈금 범위를 함께 계산합니다.
+    const scale = buildScale([
+      ...withValue.map((p) => p.avgPriceManwon),
+      ...overlayWithValue.map((p) => p.avgPriceManwon),
+    ]);
     const innerW = W - PAD.left - PAD.right;
     const innerH = H - PAD.top - PAD.bottom;
     const xOf = (i: number) => PAD.left + (points.length === 1 ? innerW / 2 : (innerW * i) / (points.length - 1));
@@ -165,6 +187,21 @@ export default function ComplexTrendModal({
     });
     if (cur.length) segments.push(cur);
 
+    // 전세선도 같은 방식으로 구간을 나눠 그립니다 (데이터 없는 달에서 끊기도록).
+    const jeonseSegments: { x: number; y: number }[][] = [];
+    if (overlayOn) {
+      let jcur: { x: number; y: number }[] = [];
+      jeonsePoints.forEach((p, i) => {
+        if (p.avgPriceManwon === null) {
+          if (jcur.length) jeonseSegments.push(jcur);
+          jcur = [];
+          return;
+        }
+        jcur.push({ x: xOf(i), y: yOf(p.avgPriceManwon) });
+      });
+      if (jcur.length) jeonseSegments.push(jcur);
+    }
+
     const gridLines = [0, 0.5, 1].map((t) => scale.min + (scale.max - scale.min) * t);
     const active = activeIdx !== null ? points[activeIdx] : null;
     const activeHasValue = active && active.avgPriceManwon !== null;
@@ -174,7 +211,7 @@ export default function ComplexTrendModal({
         className="trend-chart-svg"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`${complex} ${VALUE_LABEL[dealType]} 최근 6개월 추이`}
+        aria-label={`${complex} ${VALUE_LABEL[viewType]} 최근 6개월 추이`}
       >
         {gridLines.map((v, idx) => (
           <g key={idx}>
@@ -198,6 +235,20 @@ export default function ComplexTrendModal({
             className="trend-line"
           />
         ))}
+
+        {jeonseSegments.map((seg, idx) => (
+          <path
+            key={`j${idx}`}
+            d={seg.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ")}
+            className="trend-line jeonse"
+          />
+        ))}
+        {overlayOn &&
+          jeonsePoints.map((p, i) =>
+            p.avgPriceManwon === null ? null : (
+              <circle key={`jd${p.ymd}`} cx={xOf(i)} cy={yOf(p.avgPriceManwon)} r={3.5} className="trend-dot jeonse" />
+            )
+          )}
 
         {points.map((p, i) =>
           p.avgPriceManwon === null ? null : (
@@ -251,7 +302,25 @@ export default function ComplexTrendModal({
             <h3 className="modal-title">{complex}</h3>
             {data && <p className="modal-address">{infoLine}</p>}
             <div className="modal-chips">
-              <span className="modal-chip deal">{DEAL_LABEL[dealType]}</span>
+              {(["sale", "jeonse", "monthly"] as const).map((t) => {
+                // 자료가 아직 안 왔을 때는(counts 없음) 일단 다 누를 수 있게 둡니다.
+                const n = data?.counts?.[t];
+                const empty = n === 0;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    className="modal-chip deal-btn"
+                    aria-pressed={viewType === t}
+                    disabled={empty}
+                    title={empty ? `${DEAL_LABEL[t]} 거래 자료가 없습니다` : undefined}
+                    onClick={() => setViewType(t)}
+                  >
+                    {DEAL_LABEL[t]}
+                    {n !== undefined && n > 0 ? ` ${n}` : ""}
+                  </button>
+                );
+              })}
               {selectedArea !== undefined && (
                 <span className="modal-chip">{areaDetail(selectedArea)}</span>
               )}
@@ -308,14 +377,32 @@ export default function ComplexTrendModal({
                   chart
                 ) : (
                   <div className="empty-note">
-                    최근 6개월 안에 {VALUE_LABEL[dealType]} 실거래 데이터가 없습니다.
+                    최근 6개월 안에 {VALUE_LABEL[viewType]} 실거래 데이터가 없습니다.
                   </div>
                 )}
                 {activeIdx !== null && points[activeIdx]?.avgPriceManwon !== null && (
                   <div className="trend-tooltip">
                     {points[activeIdx].label} · 평균 {fmtManwon(points[activeIdx].avgPriceManwon as number)} ·{" "}
                     {points[activeIdx].count}건
+                    {overlayOn && jeonsePoints[activeIdx]?.avgPriceManwon !== null && (
+                      <>
+                        {" · 전세 "}
+                        {fmtManwon(jeonsePoints[activeIdx].avgPriceManwon as number)}
+                      </>
+                    )}
                   </div>
+                )}
+                {/* 매매를 보고 있을 때는 전세선을 겹쳐 볼 수 있습니다 (전세 자료가 있을 때만) */}
+                {canCompare && (
+                  <button
+                    type="button"
+                    className="compare-toggle"
+                    aria-pressed={showJeonse}
+                    onClick={() => setShowJeonse((v) => !v)}
+                  >
+                    <span className="compare-swatch" />
+                    전세 함께 보기
+                  </button>
                 )}
               </div>
 
