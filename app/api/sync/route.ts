@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { REGIONS } from "@/lib/regions";
 import { fetchTrades, fetchRents } from "@/lib/molit";
 import { getDb, type DealRow } from "@/lib/db";
+import { kstToday, kstYyyymm } from "@/lib/kst";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // Vercel 함수 최대 실행 시간(초)
@@ -14,9 +15,9 @@ const CHUNK = 500;
 // 국토부는 계약 후 최대 30일까지 신고할 수 있어, 지난달까지 함께 다시 받아야 뒤늦은 신고가 반영됩니다.
 const DEFAULT_MONTHS = 2;
 
+// 서버는 UTC로 돌아가므로 "몇 월인지"도 한국 시간 기준으로 계산합니다.
 function yyyymmOf(offset: number, base = new Date()): string {
-  const d = new Date(base.getFullYear(), base.getMonth() + offset, 1);
-  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}`;
+  return kstYyyymm(offset, base);
 }
 
 /** "202601"~"202603" 같은 범위를 ["202601","202602","202603"] 로 펼칩니다. */
@@ -212,7 +213,9 @@ export async function GET(request: Request) {
     }
 
     // 새로 보는 거래는 오늘 날짜를, 이미 있던 거래는 원래 날짜를 그대로 유지합니다.
-    const todayStr = dateStr(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    // 반드시 한국 시간 기준이어야 합니다 — 자동 갱신은 새벽 5시(KST)에 도는데,
+    // UTC로는 아직 "어제 20시"라서 서버 시각을 그대로 쓰면 날짜가 하루 밀립니다.
+    const todayStr = kstToday(now);
     for (const r of rows) {
       r.first_seen_at = seenBefore.get(rowKey(r)) ?? todayStr;
     }
