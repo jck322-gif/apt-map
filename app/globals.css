@@ -447,6 +447,19 @@ footer.end p { margin: 0 0 12px; }
 .compare-swatch {
   width: 16px; height: 0; border-top: 2.5px dashed var(--coral); display: inline-block;
 }
+.chart-legend-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  flex-wrap: wrap; margin: 8px 4px 0;
+}
+.chart-legend { display: flex; gap: 12px; align-items: center; }
+.legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; color: var(--ink-soft);
+}
+.legend-swatch { width: 16px; height: 0; display: inline-block; }
+.legend-swatch.sale { border-top: 3px solid var(--teal); }
+.legend-swatch.jeonse { border-top: 3px dashed var(--coral); }
+.chart-legend-row .compare-toggle { margin: 0; }
 .modal-close {
   flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--ink-soft); font-size: 15px; cursor: pointer;
@@ -495,11 +508,25 @@ footer.end p { margin: 0 0 12px; }
   padding: 10px 6px 6px;
 }
 .trend-chart-svg { width: 100%; height: auto; display: block; }
-.trend-grid-line { stroke: var(--line); stroke-width: 1; }
+/* 눈금선은 데이터보다 뒤로 물러나 있어야 합니다 (점선 + 옅게) */
+.trend-grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; opacity: .8; }
 .trend-axis-label {
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 600; fill: var(--muted);
 }
 .trend-line { fill: none; stroke: var(--teal); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+/* 곡선 아래 옅은 채움 — 값의 흐름이 한눈에 들어오게 합니다 */
+.trend-area { fill: url(#trendFill); stroke: none; }
+.trend-fill-top { stop-color: var(--teal); stop-opacity: .22; }
+.trend-fill-bottom { stop-color: var(--teal); stop-opacity: 0; }
+/* 가장 최근 달 강조 — 흰 테두리 링 + 금액 직접 표기 */
+.trend-dot.last-halo { fill: var(--surface); stroke: var(--teal); stroke-width: 2; }
+.trend-dot.last { fill: var(--teal); stroke: none; }
+/* 최근 값 라벨 — 흰 판 위에 글자를 올려 선·격자와 겹쳐도 읽히게 합니다 */
+.trend-last-plate { fill: var(--surface); stroke: var(--teal); stroke-width: 1.2; opacity: .96; }
+.trend-last-label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700;
+  fill: var(--teal-deep);
+}
 .trend-dot { fill: var(--teal); stroke: var(--surface); stroke-width: 1.8; }
 .trend-dot.active { fill: var(--coral); }
 /* 겹쳐 그리는 전세선 — 매매선(실선)과 구분되도록 점선 + 다른 색 */
