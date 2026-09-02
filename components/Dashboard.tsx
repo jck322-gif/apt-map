@@ -10,7 +10,6 @@ import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
-import { GUIDES } from "@/lib/guides";
 
 type Listing = {
   dong: string;
@@ -660,27 +659,6 @@ export default function Dashboard({
           <span><span className="dot" style={{ background: "var(--fall)" }} />평균가 하락</span>
           <span>숫자 · 원 크기 = 최근 30일 {dealLabel(dealType)} 건수</span>
         </div>
-      </section>
-
-      {/* 첫 화면에서 정보글로 들어갈 수 있게 최근 글 몇 개를 걸어둡니다 */}
-      <section className="block">
-        <h2>부동산 상식</h2>
-        <p className="section-note">
-          실거래가 자료를 다루면서 정리한 글입니다. 숫자를 읽는 법부터 계약 절차까지.
-        </p>
-        <div className="guide-list">
-          {GUIDES.slice(0, 3).map((g) => (
-            <Link className="guide-card" href={`/guide/${g.slug}`} key={g.slug}>
-              <span className="guide-card-title">{g.title}</span>
-              <span className="guide-card-summary">{g.summary}</span>
-            </Link>
-          ))}
-        </div>
-        <p style={{ marginTop: 12 }}>
-          <Link href="/guide" className="entry-card-go">
-            부동산 상식 글 전체 보기 →
-          </Link>
-        </p>
       </section>
 
       <section className="block">

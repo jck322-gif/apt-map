@@ -8,3 +8,6 @@ export const CONTACT_EMAIL = "jck322@gmail.com";
 
 // 개인정보처리방침에 표시되는 시행일자
 export const PRIVACY_EFFECTIVE_DATE = "2026년 8월 28일";
+
+// 사이트 정식 주소 — 사이트맵과 검색엔진 안내에 씁니다 (끝에 / 를 붙이지 않습니다).
+export const SITE_URL = "https://buulapt.com";

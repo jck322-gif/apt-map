@@ -21,7 +21,7 @@ export default function ContactPage() {
           데이터 오류 신고, 기능 제안, 기타 궁금한 점이 있으시면 아래 이메일로 편하게 연락주세요.
           가능한 빠르게 확인 후 답변드리겠습니다.
         </p>
-        <p className="jck322@gmail.com">
+        <p className="contact-email">
           <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         </p>
       </section>
