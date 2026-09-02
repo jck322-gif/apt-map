@@ -20,8 +20,10 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: SITE_NAME,
   },
-  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
+  // Google Search Console 소유권 확인용 값입니다. 비밀번호가 아니라 공개되어도 되는 값이며,
+  // 이 값이 사라지면 소유권 확인이 풀리므로 지우지 마세요.
+  verification: { google: "3pKYt4r2Bf7NyDUswSzEzhIWCh3ypFsvABPzRau8WCA" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
