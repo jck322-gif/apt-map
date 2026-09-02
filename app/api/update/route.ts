@@ -11,6 +11,10 @@ type DealTypeParam = "sale" | "jeonse" | "monthly";
 // 지역당 화면에 내려보낼 최근 거래 수.
 // 부산 16개 × 60 = 960건으로, 한 번에 받아올 수 있는 한도(1000행) 안에 들어옵니다.
 const LISTINGS_PER_REGION = 60;
+// "오늘의 실거래"는 신고(등록)일 기준이라, 계약일 순으로 자르면 오래 전 계약인데
+// 최근 신고된 거래가 빠집니다. 그래서 신고일 순으로도 따로 받아 와서 합칩니다.
+// 부산 16개 × 40 = 640건으로 한도(1000행) 안에 들어옵니다.
+const LISTINGS_BY_REGISTERED = 40;
 // 추세(전월 대비)를 계산하려면 두 달 모두 이 건수 이상이어야 합니다.
 const MIN_SAMPLE_FOR_TREND = 3;
 
@@ -70,7 +74,21 @@ export async function GET(request: Request) {
 
   // 국토부 API를 직접 부르지 않고 DB에서 읽습니다 (데이터는 /api/sync가 매일 채워둡니다).
   // 최근 거래 목록은 한 번에 받을 수 있는 행 수 제한이 있어 부산 / 울산으로 나눠 요청합니다.
-  const [monthlyRes, busanRes, ulsanRes, syncRes] = await Promise.all([
+  const RECENT_COLUMNS =
+    "region_code, deal_date, first_seen_at, cancel_date, dealing_type, dong, complex, area_m2, floor, price_manwon, deposit_manwon, monthly_rent_manwon";
+
+  /** 신고일 순으로 상위 N건 (계약일 순 목록에서 빠진 "최근 신고분"을 보완합니다) */
+  const byRegistered = (codes: string[]) =>
+    db
+      .from("deals_recent")
+      .select(RECENT_COLUMNS)
+      .eq("deal_type", dealType)
+      .in("region_code", codes)
+      .lte("rn_reg", LISTINGS_BY_REGISTERED)
+      .order("region_code")
+      .order("first_seen_at", { ascending: false });
+
+  const [monthlyRes, busanRes, ulsanRes, busanRegRes, ulsanRegRes, syncRes] = await Promise.all([
     db
       .from("region_monthly")
       .select("region_code, deal_type, deal_ym, cnt, avg_value")
@@ -96,16 +114,37 @@ export async function GET(request: Request) {
       .lte("rn", LISTINGS_PER_REGION)
       .order("region_code")
       .order("deal_date", { ascending: false }),
+    byRegistered(BUSAN_CODES),
+    byRegistered(ULSAN_CODES),
     db.from("sync_log").select("ran_at").order("ran_at", { ascending: false }).limit(1),
   ]);
 
-  const firstError = monthlyRes.error ?? busanRes.error ?? ulsanRes.error;
+  const firstError =
+    monthlyRes.error ?? busanRes.error ?? ulsanRes.error ?? busanRegRes.error ?? ulsanRegRes.error;
   if (firstError) {
     return NextResponse.json({ error: `데이터베이스 조회 실패: ${firstError.message}` }, { status: 500 });
   }
 
   const monthly = (monthlyRes.data ?? []) as MonthlyRow[];
-  const recent = [...((busanRes.data ?? []) as RecentRow[]), ...((ulsanRes.data ?? []) as RecentRow[])];
+
+  // 계약일 순 목록과 신고일 순 목록을 합치고, 같은 거래가 두 번 들어가지 않게 걸러냅니다.
+  const dedupeKey = (r: RecentRow) =>
+    [r.region_code, r.deal_date, r.complex, Number(r.area_m2).toFixed(2), r.floor, r.price_manwon, r.deposit_manwon, r.monthly_rent_manwon].join(
+      "|"
+    );
+  const seen = new Set<string>();
+  const recent: RecentRow[] = [];
+  for (const row of [
+    ...((busanRes.data ?? []) as RecentRow[]),
+    ...((ulsanRes.data ?? []) as RecentRow[]),
+    ...((busanRegRes.data ?? []) as RecentRow[]),
+    ...((ulsanRegRes.data ?? []) as RecentRow[]),
+  ]) {
+    const k = dedupeKey(row);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    recent.push(row);
+  }
 
   // 지역별로 이번 달 / 지난 달 집계를 찾아 쓰기 좋게 정리
   const statsByCode = new Map<string, { cnt: number; avg: number | null; cntPrev: number; avgPrev: number | null }>();
