@@ -211,7 +211,7 @@ export default function ComplexTrendModal({
         className="trend-chart-svg"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`${complex} ${VALUE_LABEL[viewType]} 최근 6개월 추이`}
+        aria-label={`${complex} ${VALUE_LABEL[viewType]} 최근 12개월 추이`}
       >
         {gridLines.map((v, idx) => (
           <g key={idx}>
@@ -222,11 +222,14 @@ export default function ComplexTrendModal({
           </g>
         ))}
 
-        {points.map((p, i) => (
-          <text key={p.ymd} x={xOf(i)} y={H - 8} textAnchor="middle" className="trend-axis-label">
-            {p.label}
-          </text>
-        ))}
+        {points.map((p, i) =>
+          // 12개월치라 라벨이 빽빽해집니다 — 두 달에 하나씩만, 마지막 달은 항상 표시합니다.
+          i % 2 === 0 || i === points.length - 1 ? (
+            <text key={p.ymd} x={xOf(i)} y={H - 8} textAnchor="middle" className="trend-axis-label">
+              {p.label}
+            </text>
+          ) : null
+        )}
 
         {segments.map((seg, idx) => (
           <path
@@ -377,7 +380,10 @@ export default function ComplexTrendModal({
                   chart
                 ) : (
                   <div className="empty-note">
-                    최근 6개월 안에 {VALUE_LABEL[viewType]} 실거래 데이터가 없습니다.
+                    최근 12개월 안에 {DEAL_LABEL[viewType]} 실거래가 없습니다.
+                    {data.history.length > 0
+                      ? ` 이 단지의 가장 최근 ${DEAL_LABEL[viewType]} 거래는 ${data.history[0].dateLabel}입니다.`
+                      : " 국토교통부에 신고된 자료가 아직 없어요."}
                   </div>
                 )}
                 {activeIdx !== null && points[activeIdx]?.avgPriceManwon !== null && (
@@ -478,7 +484,8 @@ export default function ComplexTrendModal({
                   <span className="flag cancel">취소</span>계약 해제
                 </span>
               </div>
-              {points.map((p) => {
+              {/* 12개월치라 최근 달이 위로 오게 뒤집어 보여줍니다 (그래프는 왼→오른쪽 시간순 그대로) */}
+              {[...points].reverse().map((p) => {
                 const monthDeals = (data.history ?? []).filter(
                   (tx) => String(tx.ymd).slice(0, 6) === p.ymd
                 );
