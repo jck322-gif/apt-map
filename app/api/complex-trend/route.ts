@@ -53,6 +53,22 @@ function average(nums: number[]): number | null {
   return nums.reduce((a, b) => a + b, 0) / nums.length;
 }
 
+/** 거래 목록을 월별 평균·최저·최고·건수로 묶습니다 (그래프용). */
+function monthlySeries(list: TxDetail[], ymds: string[]): MonthlyPoint[] {
+  return ymds.map((ym) => {
+    const values = list.filter((tx) => String(tx.ymd).slice(0, 6) === ym).map((tx) => tx.priceManwon);
+    const m = Number(ym.slice(4, 6));
+    return {
+      ymd: ym,
+      label: `${m}월`,
+      avgPriceManwon: average(values),
+      minPriceManwon: values.length ? Math.min(...values) : null,
+      maxPriceManwon: values.length ? Math.max(...values) : null,
+      count: values.length,
+    };
+  });
+}
+
 function toTx(r: DealRow, value: number): TxDetail {
   const [y, m, d] = r.deal_date.split("-").map(Number);
   return {
@@ -133,12 +149,12 @@ export async function GET(request: Request) {
   }
 
   // 이 단지가 가진 평형(타입) 목록 — 팝업에서 타입을 바꿔가며 볼 수 있도록 항상 함께 내려줍니다.
+  // 거래유형(매매/전세/월세)을 바꿔도 타입 목록이 흔들리지 않도록 유형 구분 없이 모읍니다.
   const typesQuery = db
     .from("complex_types")
     .select("area_m2")
     .eq("region_code", region.code)
-    .eq("complex", complex)
-    .eq("deal_type", dealType);
+    .eq("complex", complex);
 
   const [{ data, error }, typesRes] = await Promise.all([
     query.order("deal_date", { ascending: false }).limit(1000),
@@ -205,18 +221,7 @@ export async function GET(request: Request) {
   // 그래프용 월별 집계 — 현재 보고 있는 거래유형 기준, 최근 6개월
   const chartYmds = Array.from({ length: CHART_MONTHS }, (_, i) => yyyymm(-(CHART_MONTHS - 1) + i, now));
   const source = markRecordHighs(dealType === "sale" ? allSales : dealType === "jeonse" ? allJeonse : allMonthly);
-  const points: MonthlyPoint[] = chartYmds.map((ym) => {
-    const values = source.filter((tx) => String(tx.ymd).slice(0, 6) === ym).map((tx) => tx.priceManwon);
-    const m = Number(ym.slice(4, 6));
-    return {
-      ymd: ym,
-      label: `${m}월`,
-      avgPriceManwon: average(values),
-      minPriceManwon: values.length ? Math.min(...values) : null,
-      maxPriceManwon: values.length ? Math.max(...values) : null,
-      count: values.length,
-    };
-  });
+  const points: MonthlyPoint[] = monthlySeries(source, chartYmds);
 
   return NextResponse.json({
     code: region.code,
@@ -228,6 +233,14 @@ export async function GET(request: Request) {
     age,
     dealType,
     types,
+    // 이 단지(선택한 평형)에 거래유형별로 자료가 몇 건씩 있는지 —
+    // 팝업에서 매매/전세/월세 버튼을 켜고 끄는 데 씁니다.
+    counts: { sale: allSales.length, jeonse: allJeonse.length, monthly: allMonthly.length },
+    // 매매·전세를 함께 볼 수 있도록 두 계열의 월별 평균을 같이 내려줍니다.
+    comparePoints: {
+      sale: monthlySeries(allSales, chartYmds),
+      jeonse: monthlySeries(allJeonse, chartYmds),
+    },
     // 선택한 타입의 개별 실거래 이력 (최근순)
     history: source.slice(0, 200),
     points,
