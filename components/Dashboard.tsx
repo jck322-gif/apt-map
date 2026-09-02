@@ -449,6 +449,9 @@ export default function Dashboard({
           <Link href="/compare" className="deal-tab">
             비교
           </Link>
+          <Link href="/guide" className="deal-tab">
+            상식
+          </Link>
         </nav>
 
         <div className="controls">

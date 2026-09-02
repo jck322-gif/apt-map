@@ -789,3 +789,68 @@ footer.end p { margin: 0 0 12px; }
   font-size: 11.5px; font-weight: 700; box-shadow: var(--shadow);
 }
 .map-expand:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+
+/* ── 부동산 상식 (정보글) ─────────────────────────────── */
+.guide-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 720px) {
+  .guide-list { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+}
+.guide-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 15px 16px;
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--teal);
+  border-radius: 12px; box-shadow: var(--shadow); text-decoration: none; color: inherit;
+}
+.guide-card:hover { border-color: var(--teal); background: var(--surface-2); }
+.guide-card-title {
+  font-family: "Noto Serif KR", serif; font-size: 16px; font-weight: 800; color: var(--ink);
+  line-height: 1.45;
+}
+.guide-card-summary { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.guide-card-meta {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+}
+
+.guide-back {
+  display: inline-block; margin-bottom: 12px; font-size: 12.5px; font-weight: 700;
+  color: var(--teal-deep); text-decoration: none;
+}
+.guide-title {
+  font-family: "Noto Serif KR", serif; font-size: 25px; font-weight: 800; line-height: 1.35;
+  margin: 0 0 8px; color: var(--ink); letter-spacing: -0.01em;
+}
+.guide-meta {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
+  margin: 0 0 14px;
+}
+.guide-summary {
+  font-size: 14.5px; line-height: 1.75; color: var(--ink-soft); margin: 0 0 4px;
+  padding: 13px 15px; background: var(--surface-2); border-radius: 10px;
+}
+
+/* 본문 — 읽기 편하도록 줄 간격을 넉넉히 잡습니다 */
+.guide-body { font-size: 15px; line-height: 1.85; color: var(--ink); max-width: 760px; }
+.guide-body h2 {
+  font-family: "Noto Serif KR", serif; font-size: 19px; font-weight: 800; color: var(--ink);
+  margin: 32px 0 10px; padding-left: 11px; border-left: 4px solid var(--teal);
+  text-transform: none; letter-spacing: normal;
+}
+.guide-body p { margin: 0 0 15px; }
+.guide-body ul, .guide-body ol { margin: 0 0 16px; padding-left: 22px; }
+.guide-body li { margin-bottom: 8px; }
+.guide-body .guide-note {
+  padding: 13px 15px; border-radius: 10px; background: var(--fall-soft);
+  border-left: 4px solid var(--fall); font-size: 14px; color: var(--ink);
+}
+.guide-body .top5-table-wrap { margin: 0 0 18px; max-width: 100%; }
+.guide-table td { font-size: 13.5px; line-height: 1.6; }
+.guide-table td:first-child { font-weight: 700; white-space: nowrap; }
+
+.guide-sources {
+  margin-top: 28px; padding: 14px 16px; border-radius: 10px; background: var(--surface-2);
+  font-size: 13px; color: var(--ink-soft);
+}
+.guide-sources strong { display: block; margin-bottom: 6px; font-size: 12.5px; color: var(--ink); }
+.guide-sources ul { margin: 0; padding-left: 18px; }
+.guide-sources li { margin-bottom: 4px; }
+.guide-sources a { color: var(--teal-deep); }
