@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { REGIONS } from "@/lib/regions";
-import { toPyeong, yyyymm } from "@/lib/molit";
+import { toPyeong } from "@/lib/molit";
 import { getDb } from "@/lib/db";
+import { kstYyyymm } from "@/lib/kst";
 
 export const dynamic = "force-dynamic"; // 캐시하지 않고 요청마다 새로 실행
 
@@ -55,9 +56,10 @@ export async function GET(request: Request) {
     );
   }
 
+  // 서버는 UTC로 돌아가므로 "이번 달"도 한국 시간 기준으로 계산합니다.
   const now = new Date();
-  const currentYmd = yyyymm(0, now);
-  const prevYmd = yyyymm(-1, now);
+  const currentYmd = kstYyyymm(0, now);
+  const prevYmd = kstYyyymm(-1, now);
 
   let db;
   try {
