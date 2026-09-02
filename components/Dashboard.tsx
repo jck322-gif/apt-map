@@ -9,6 +9,7 @@ import KakaoMap from "@/components/KakaoMap";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
 import { SITE_NAME } from "@/lib/site";
+import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
 
 type Listing = {
   dong: string;
@@ -95,9 +96,9 @@ function listingSortValue(l: PriceLike): number {
   return l.priceManwon ?? l.monthlyRentManwon ?? l.depositManwon ?? 0;
 }
 
-/** 오늘 날짜를 "8월 28일" 형태로 표시합니다. */
+/** 오늘 날짜(한국 시간)를 "8월 28일" 형태로 표시합니다. */
 function todayLabel(now = new Date()): string {
-  return `${now.getMonth() + 1}월 ${now.getDate()}일`;
+  return ymdIntToKoLabel(kstTodayYmdInt(now));
 }
 
 /** 계약일과 신고일의 차이를 "· 3일 후 등록" 형태로 만듭니다. */
@@ -292,16 +293,33 @@ export default function Dashboard({
   // (국토부 API는 "계약일"만 제공하고 별도의 "등록일"은 주지 않기 때문에, 여기서 말하는
   // 날짜는 계약일 기준입니다.)
   const RECENT_FEED_LIMIT = 30;
-  const todayYmdInt = useMemo(() => {
-    const n = new Date();
-    return n.getFullYear() * 10000 + (n.getMonth() + 1) * 100 + n.getDate();
-  }, []);
+  const todayYmdInt = useMemo(() => kstTodayYmdInt(), []);
+
+  // 자료에 들어 있는 "가장 최근 신고일". 신고는 평일에만 올라오기 때문에
+  // 주말·공휴일이나 아직 갱신 전이면 오늘 신고분이 아예 없을 수 있습니다.
+  const latestRegYmd = useMemo(() => {
+    let max = 0;
+    for (const r of regions) {
+      for (const l of r.listings) {
+        const reg = l.registeredYmd;
+        if (reg !== null && reg <= todayYmdInt && reg > max) max = reg;
+      }
+    }
+    return max || null;
+  }, [regions, todayYmdInt]);
+
+  // "오늘" 탭인데 오늘 신고분이 없으면 화면을 비워두지 않고 가장 최근 신고일로 대신 보여줍니다.
+  // (빈 화면보다 "9월 1일 신고분"이라도 보이는 편이 훨씬 낫습니다)
+  const isFallbackDay =
+    recentRange === "today" && latestRegYmd !== null && latestRegYmd < todayYmdInt;
+  const feedDayYmd = recentRange === "today" ? latestRegYmd ?? todayYmdInt : todayYmdInt;
+
   const rangeStartYmdInt = useMemo(() => {
-    if (recentRange === "today") return todayYmdInt;
-    const n = new Date();
-    n.setDate(n.getDate() - 6); // 오늘 포함 7일 전 (오늘 + 지난 6일 = 총 7일)
-    return n.getFullYear() * 10000 + (n.getMonth() + 1) * 100 + n.getDate();
-  }, [recentRange, todayYmdInt]);
+    if (recentRange === "today") return feedDayYmd;
+    return kstYmdIntAgo(6); // 오늘 포함 7일 (오늘 + 지난 6일)
+  }, [recentRange, feedDayYmd]);
+  const rangeEndYmdInt = recentRange === "today" ? feedDayYmd : todayYmdInt;
+
   const toRecentListings = useCallback(
     (list: RegionSummary[]): RecentListing[] => {
       const flat: RecentListing[] = list.flatMap((r) =>
@@ -310,13 +328,13 @@ export default function Dashboard({
           // 계약 후 최대 30일까지 신고할 수 있어, 계약일로 거르면 목록이 거의 항상 비어요.
           .filter((l) => {
             const reg = l.registeredYmd;
-            return reg !== null && reg >= rangeStartYmdInt && reg <= todayYmdInt;
+            return reg !== null && reg >= rangeStartYmdInt && reg <= rangeEndYmdInt;
           })
           .map((l) => ({ ...l, regionName: r.name, regionCode: r.code, group: r.group }))
       );
       return flat.sort((a, b) => listingSortValue(b) - listingSortValue(a)).slice(0, RECENT_FEED_LIMIT);
     },
-    [rangeStartYmdInt, todayYmdInt]
+    [rangeStartYmdInt, rangeEndYmdInt]
   );
   const recentBusan = useMemo(() => toRecentListings(busanList), [busanList, toRecentListings]);
   const recentUlsan = useMemo(() => toRecentListings(ulsanList), [ulsanList, toRecentListings]);
@@ -451,8 +469,8 @@ export default function Dashboard({
           <h2>오늘의 실거래 · {dealLabel(dealType)}</h2>
           <span className="hero-date">
             {recentRange === "today"
-              ? `${todayLabel()} 계약분`
-              : `${ymdIntToLabel(rangeStartYmdInt)} ~ ${todayLabel()} 계약분`}
+              ? `${ymdIntToKoLabel(feedDayYmd)} 신고분`
+              : `${ymdIntToLabel(rangeStartYmdInt)} ~ ${todayLabel()} 신고분`}
           </span>
         </div>
         <div className="hero-range-tabs">
@@ -473,7 +491,11 @@ export default function Dashboard({
         </div>
         <p className="empty-note" style={{ padding: "0 0 10px" }}>
           {recentRange === "today"
-            ? `오늘(${todayLabel()}) 국토부에 새로 신고된 거래예요`
+            ? isFallbackDay
+              ? `오늘(${todayLabel()})은 아직 새로 신고된 거래가 없어, 가장 최근 신고일인 ${ymdIntToKoLabel(
+                  feedDayYmd
+                )} 신고분을 보여드려요`
+              : `오늘(${todayLabel()}) 국토부에 새로 신고된 거래예요`
             : `최근 7일(${ymdIntToLabel(rangeStartYmdInt)}~${todayLabel()}) 국토부에 신고된 거래예요`}{" "}
           — 계약일과 신고일은 다릅니다 (계약 후 최대 30일까지 신고). 가격 높은순으로 정렬했어요.
         </p>
@@ -483,8 +505,9 @@ export default function Dashboard({
               <div className="recent-col-heading">{group}</div>
               {list.length === 0 ? (
                 <div className="empty-note">
-                  {recentRange === "today" ? "오늘" : "최근 7일간"} 새로 신고된 거래가 없습니다.
-                  신고는 보통 평일에 올라와요 — &quot;지난 7일&quot;로 넓혀서 보세요.
+                  {recentRange === "today" ? `${ymdIntToKoLabel(feedDayYmd)}에는` : "최근 7일간"} 이
+                  지역에 새로 신고된 거래가 없습니다. 신고는 보통 평일에 올라와요 —
+                  &quot;지난 7일&quot;로 넓혀서 보세요.
                 </div>
               ) : (
                 <div className="recent-feed">
