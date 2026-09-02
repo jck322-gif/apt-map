@@ -15,15 +15,18 @@ const LISTINGS_PER_REGION = 60;
 // 최근 신고된 거래가 빠집니다. 그래서 신고일 순으로도 따로 받아 와서 합칩니다.
 // 부산 16개 × 40 = 640건으로 한도(1000행) 안에 들어옵니다.
 const LISTINGS_BY_REGISTERED = 40;
-// 추세(전월 대비)를 계산하려면 두 달 모두 이 건수 이상이어야 합니다.
-const MIN_SAMPLE_FOR_TREND = 3;
+// 등락률을 계산하려면 최근 30일과 그 이전 30일 모두 이 건수 이상이어야 합니다.
+// (거래 2~3건으로 "집값이 올랐다/내렸다"고 말하면 숫자가 크게 튑니다)
+const MIN_SAMPLE_FOR_TREND = 5;
 
-type MonthlyRow = {
+/** region_rolling 뷰 한 줄 — 최근 30일과 그 이전 30일을 한 번에 담고 있습니다. */
+type RollingRow = {
   region_code: string;
   deal_type: string;
-  deal_ym: string;
   cnt: number;
   avg_value: number | string | null;
+  cnt_prev: number;
+  avg_prev: number | string | null;
 };
 
 type RecentRow = {
@@ -88,12 +91,11 @@ export async function GET(request: Request) {
       .order("region_code")
       .order("first_seen_at", { ascending: false });
 
-  const [monthlyRes, busanRes, ulsanRes, busanRegRes, ulsanRegRes, syncRes] = await Promise.all([
+  const [rollingRes, busanRes, ulsanRes, busanRegRes, ulsanRegRes, syncRes] = await Promise.all([
     db
-      .from("region_monthly")
-      .select("region_code, deal_type, deal_ym, cnt, avg_value")
-      .eq("deal_type", dealType)
-      .in("deal_ym", [currentYmd, prevYmd]),
+      .from("region_rolling")
+      .select("region_code, deal_type, cnt, avg_value, cnt_prev, avg_prev")
+      .eq("deal_type", dealType),
     db
       .from("deals_recent")
       .select(
@@ -120,12 +122,12 @@ export async function GET(request: Request) {
   ]);
 
   const firstError =
-    monthlyRes.error ?? busanRes.error ?? ulsanRes.error ?? busanRegRes.error ?? ulsanRegRes.error;
+    rollingRes.error ?? busanRes.error ?? ulsanRes.error ?? busanRegRes.error ?? ulsanRegRes.error;
   if (firstError) {
     return NextResponse.json({ error: `데이터베이스 조회 실패: ${firstError.message}` }, { status: 500 });
   }
 
-  const monthly = (monthlyRes.data ?? []) as MonthlyRow[];
+  const rolling = (rollingRes.data ?? []) as RollingRow[];
 
   // 계약일 순 목록과 신고일 순 목록을 합치고, 같은 거래가 두 번 들어가지 않게 걸러냅니다.
   const dedupeKey = (r: RecentRow) =>
@@ -146,19 +148,15 @@ export async function GET(request: Request) {
     recent.push(row);
   }
 
-  // 지역별로 이번 달 / 지난 달 집계를 찾아 쓰기 좋게 정리
+  // 지역별 "최근 30일 / 그 이전 30일" 집계를 쓰기 좋게 정리
   const statsByCode = new Map<string, { cnt: number; avg: number | null; cntPrev: number; avgPrev: number | null }>();
-  for (const m of monthly) {
-    const entry = statsByCode.get(m.region_code) ?? { cnt: 0, avg: null, cntPrev: 0, avgPrev: null };
-    const avg = m.avg_value === null ? null : Number(m.avg_value);
-    if (m.deal_ym === currentYmd) {
-      entry.cnt = Number(m.cnt);
-      entry.avg = avg;
-    } else if (m.deal_ym === prevYmd) {
-      entry.cntPrev = Number(m.cnt);
-      entry.avgPrev = avg;
-    }
-    statsByCode.set(m.region_code, entry);
+  for (const m of rolling) {
+    statsByCode.set(m.region_code, {
+      cnt: Number(m.cnt ?? 0),
+      avg: m.avg_value === null ? null : Number(m.avg_value),
+      cntPrev: Number(m.cnt_prev ?? 0),
+      avgPrev: m.avg_prev === null ? null : Number(m.avg_prev),
+    });
   }
 
   const listingsByCode = new Map<string, RecentRow[]>();
