@@ -446,6 +446,9 @@ export default function Dashboard({
               {t.label}
             </Link>
           ))}
+          <Link href="/compare" className="deal-tab">
+            비교
+          </Link>
         </nav>
 
         <div className="controls">
