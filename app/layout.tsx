@@ -23,7 +23,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   // Google Search Console 소유권 확인용 값입니다. 비밀번호가 아니라 공개되어도 되는 값이며,
   // 이 값이 사라지면 소유권 확인이 풀리므로 지우지 마세요.
-  verification: { google: "3pKYt4r2Bf7NyDUswSzEzhIWCh3ypFsvABPzRau8WCA" },
+  verification: {
+    google: "3pKYt4r2Bf7NyDUswSzEzhIWCh3ypFsvABPzRau8WCA",
+    // 네이버 서치어드바이저 소유확인. 네이버는 1년마다 재인증이 필요하니 내년에 한 번 더 받아야 합니다.
+    other: { "naver-site-verification": "cff243ffb55da0672ad284d5b2b80beaa235da2b" },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
