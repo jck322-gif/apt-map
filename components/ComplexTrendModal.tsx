@@ -79,6 +79,38 @@ function buildScale(values: number[]) {
   return { min: min - pad, max: max + pad };
 }
 
+/**
+ * 점들을 부드러운 곡선으로 잇습니다 (꺾인 선보다 추세가 눈에 잘 들어옵니다).
+ * 곡선이 실제 값보다 위아래로 튀어나가면 없는 가격을 그린 것처럼 보이므로,
+ * 조절점의 높이를 양 끝 점 사이로 제한해 과장되지 않게 막았습니다.
+ */
+function smoothPath(pts: { x: number; y: number }[]): string {
+  if (pts.length === 0) return "";
+  if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    const lo = Math.min(p1.y, p2.y);
+    const hi = Math.max(p1.y, p2.y);
+    const clamp = (v: number) => Math.min(hi, Math.max(lo, v));
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = clamp(p1.y + (p2.y - p0.y) / 6);
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = clamp(p2.y - (p3.y - p1.y) / 6);
+    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+
+/** 곡선 아래를 채우는 영역 경로 (선 → 바닥 → 시작점으로 닫습니다) */
+function areaPath(pts: { x: number; y: number }[], baseY: number): string {
+  if (pts.length === 0) return "";
+  return `${smoothPath(pts)} L ${pts[pts.length - 1].x} ${baseY} L ${pts[0].x} ${baseY} Z`;
+}
+
 function ChangeBadge({ amount, pct }: { amount: number | null; pct: number | null }) {
   if (amount === null || pct === null) return null;
   const up = amount >= 0;
@@ -171,40 +203,34 @@ export default function ComplexTrendModal({
     ]);
     const innerW = W - PAD.left - PAD.right;
     const innerH = H - PAD.top - PAD.bottom;
+    const baseY = PAD.top + innerH;
     const xOf = (i: number) => PAD.left + (points.length === 1 ? innerW / 2 : (innerW * i) / (points.length - 1));
     const yOf = (v: number) => PAD.top + innerH - ((v - scale.min) / (scale.max - scale.min)) * innerH;
 
-    // 값이 있는 점들만 이어서 선을 그리되, 중간에 데이터 없는 달이 있으면 선이 끊기도록 구간을 나눔
-    const segments: { x: number; y: number; i: number }[][] = [];
-    let cur: { x: number; y: number; i: number }[] = [];
-    points.forEach((p, i) => {
-      if (p.avgPriceManwon === null) {
-        if (cur.length) segments.push(cur);
-        cur = [];
-        return;
-      }
-      cur.push({ x: xOf(i), y: yOf(p.avgPriceManwon), i });
-    });
-    if (cur.length) segments.push(cur);
+    // 거래가 있는 달만 모아 하나의 곡선으로 잇습니다.
+    // (거래 없는 달에서 선을 끊으면 채운 면이 계단처럼 뚝뚝 떨어져 막대그래프처럼 보입니다.
+    //  어느 달에 거래가 없었는지는 아래 월별 표에 "거래 없음"으로 그대로 나옵니다.)
+    const toPts = (list: MonthlyPoint[]) =>
+      list
+        .map((p, i) => ({ p, i }))
+        .filter(({ p }) => p.avgPriceManwon !== null)
+        .map(({ p, i }) => ({ x: xOf(i), y: yOf(p.avgPriceManwon as number), i }));
 
-    // 전세선도 같은 방식으로 구간을 나눠 그립니다 (데이터 없는 달에서 끊기도록).
-    const jeonseSegments: { x: number; y: number }[][] = [];
-    if (overlayOn) {
-      let jcur: { x: number; y: number }[] = [];
-      jeonsePoints.forEach((p, i) => {
-        if (p.avgPriceManwon === null) {
-          if (jcur.length) jeonseSegments.push(jcur);
-          jcur = [];
-          return;
-        }
-        jcur.push({ x: xOf(i), y: yOf(p.avgPriceManwon) });
-      });
-      if (jcur.length) jeonseSegments.push(jcur);
-    }
+    const linePts = toPts(points);
+    const jeonseLinePts = overlayOn ? toPts(jeonsePoints) : [];
 
     const gridLines = [0, 0.5, 1].map((t) => scale.min + (scale.max - scale.min) * t);
     const active = activeIdx !== null ? points[activeIdx] : null;
     const activeHasValue = active && active.avgPriceManwon !== null;
+
+    // 가장 최근 값 — 점을 크게 찍고 금액을 바로 위에 적어 눈이 먼저 가도록 합니다.
+    const lastPt = linePts[linePts.length - 1] ?? null;
+    const lastValue = lastPt ? (points[lastPt.i].avgPriceManwon as number) : null;
+    const lastText = lastValue !== null ? fmtManwonShort(lastValue) : "";
+    // 글자 뒤에 흰 판을 깔아 선·격자와 겹쳐도 읽히게 합니다
+    // (테두리로 글자를 감싸는 방식은 일부 브라우저에서 글자를 지워버립니다).
+    const labelW = lastText.length * 8.4 + 14;
+    const labelCY = Math.min(Math.max(lastPt ? lastPt.y - 16 : 0, PAD.top + 11), baseY - 11);
 
     chart = (
       <svg
@@ -213,10 +239,18 @@ export default function ComplexTrendModal({
         role="img"
         aria-label={`${complex} ${VALUE_LABEL[viewType]} 최근 12개월 추이`}
       >
+        <defs>
+          {/* 선 아래를 옅게 채워 흐름이 한눈에 들어오게 합니다 */}
+          <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" className="trend-fill-top" />
+            <stop offset="100%" className="trend-fill-bottom" />
+          </linearGradient>
+        </defs>
+
         {gridLines.map((v, idx) => (
           <g key={idx}>
             <line x1={PAD.left} x2={W - PAD.right} y1={yOf(v)} y2={yOf(v)} className="trend-grid-line" />
-            <text x={PAD.left - 8} y={yOf(v) + 3} textAnchor="end" className="trend-axis-label">
+            <text x={PAD.left - 10} y={yOf(v) + 4} textAnchor="end" className="trend-axis-label">
               {fmtManwonShort(v)}
             </text>
           </g>
@@ -225,27 +259,16 @@ export default function ComplexTrendModal({
         {points.map((p, i) =>
           // 12개월치라 라벨이 빽빽해집니다 — 두 달에 하나씩만, 마지막 달은 항상 표시합니다.
           i % 2 === 0 || i === points.length - 1 ? (
-            <text key={p.ymd} x={xOf(i)} y={H - 8} textAnchor="middle" className="trend-axis-label">
+            <text key={p.ymd} x={xOf(i)} y={H - 10} textAnchor="middle" className="trend-axis-label">
               {p.label}
             </text>
           ) : null
         )}
 
-        {segments.map((seg, idx) => (
-          <path
-            key={idx}
-            d={seg.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ")}
-            className="trend-line"
-          />
-        ))}
-
-        {jeonseSegments.map((seg, idx) => (
-          <path
-            key={`j${idx}`}
-            d={seg.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ")}
-            className="trend-line jeonse"
-          />
-        ))}
+        {/* 면(채움) → 선 → 점 순서로 그려야 서로 가리지 않습니다 */}
+        <path d={areaPath(linePts, baseY)} className="trend-area" />
+        <path d={smoothPath(linePts)} className="trend-line" />
+        {overlayOn && <path d={smoothPath(jeonseLinePts)} className="trend-line jeonse" />}
         {overlayOn &&
           jeonsePoints.map((p, i) =>
             p.avgPriceManwon === null ? null : (
@@ -268,11 +291,30 @@ export default function ComplexTrendModal({
               <circle
                 cx={xOf(i)}
                 cy={yOf(p.avgPriceManwon)}
-                r={activeIdx === i ? 7 : 5}
+                r={activeIdx === i ? 6.5 : 4}
                 className={`trend-dot${activeIdx === i ? " active" : ""}`}
               />
             </g>
           )
+        )}
+
+        {/* 가장 최근 달 강조 — 큰 점 + 금액 직접 표기 */}
+        {lastPt && lastValue !== null && (
+          <>
+            <circle cx={lastPt.x} cy={lastPt.y} r={7} className="trend-dot last-halo" />
+            <circle cx={lastPt.x} cy={lastPt.y} r={4.5} className="trend-dot last" />
+            <rect
+              x={lastPt.x - labelW - 10}
+              y={labelCY - 11}
+              width={labelW}
+              height={22}
+              rx={6}
+              className="trend-last-plate"
+            />
+            <text x={lastPt.x - 17} y={labelCY + 5} textAnchor="end" className="trend-last-label">
+              {lastText}
+            </text>
+          </>
         )}
 
         {activeHasValue && activeIdx !== null && (
@@ -400,15 +442,28 @@ export default function ComplexTrendModal({
                 )}
                 {/* 매매를 보고 있을 때는 전세선을 겹쳐 볼 수 있습니다 (전세 자료가 있을 때만) */}
                 {canCompare && (
-                  <button
-                    type="button"
-                    className="compare-toggle"
-                    aria-pressed={showJeonse}
-                    onClick={() => setShowJeonse((v) => !v)}
-                  >
-                    <span className="compare-swatch" />
-                    전세 함께 보기
-                  </button>
+                  <div className="chart-legend-row">
+                    {overlayOn && (
+                      // 선이 둘이면 어느 선이 무엇인지 항상 글자로도 알 수 있어야 합니다.
+                      <span className="chart-legend">
+                        <span className="legend-item">
+                          <span className="legend-swatch sale" />매매
+                        </span>
+                        <span className="legend-item">
+                          <span className="legend-swatch jeonse" />전세
+                        </span>
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="compare-toggle"
+                      aria-pressed={showJeonse}
+                      onClick={() => setShowJeonse((v) => !v)}
+                    >
+                      <span className="compare-swatch" />
+                      전세 {showJeonse ? "숨기기" : "함께 보기"}
+                    </button>
+                  </div>
                 )}
               </div>
 
