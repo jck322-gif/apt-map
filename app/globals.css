@@ -172,8 +172,10 @@ section.block { padding: 20px 16px 0; }
   font-family: "Noto Serif KR", serif; font-size: 14px; font-weight: 800; color: var(--ink);
   margin-bottom: 8px; padding-left: 10px; border-left: 3px solid var(--teal);
 }
+/* 한 화면에 4줄 정도만 보이고 나머지는 스크롤로 보게 합니다
+   (5번째 줄이 살짝 걸쳐 보여야 "더 있다"는 게 전달됩니다) */
 .recent-feed {
-  display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;
   border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
 }
 .recent-row {
