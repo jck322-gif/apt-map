@@ -854,3 +854,56 @@ footer.end p { margin: 0 0 12px; }
 .guide-sources ul { margin: 0; padding-left: 18px; }
 .guide-sources li { margin-bottom: 4px; }
 .guide-sources a { color: var(--teal-deep); }
+
+
+/* ── 부동산 상식 — 5개 큰 묶음 상자 ─────────────────────
+   <details>/<summary>를 써서 자바스크립트 없이 열고 닫습니다.
+   (검색엔진도 접힌 안쪽 글을 모두 읽을 수 있습니다) */
+.cat-stack { display: flex; flex-direction: column; gap: 12px; }
+.cat-box {
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.cat-box[open] { border-color: var(--teal); }
+.cat-summary {
+  display: flex; align-items: center; gap: 13px; padding: 18px 18px;
+  cursor: pointer; list-style: none; user-select: none;
+}
+.cat-summary::-webkit-details-marker { display: none; }
+.cat-summary:hover { background: var(--surface-2); }
+.cat-no {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2); color: var(--teal-deep);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700;
+}
+.cat-box[open] .cat-no { background: var(--teal); color: #fff; }
+.cat-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.cat-name {
+  font-family: "Noto Serif KR", serif; font-size: 17.5px; font-weight: 800; color: var(--ink);
+  line-height: 1.35;
+}
+.cat-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.cat-count {
+  flex-shrink: 0; font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px; font-weight: 700; color: var(--muted);
+}
+.cat-chev {
+  flex-shrink: 0; color: var(--muted); font-size: 13px; transition: transform .18s ease;
+}
+.cat-box[open] .cat-chev { transform: rotate(180deg); }
+
+.cat-inner {
+  display: flex; flex-direction: column; gap: 1px;
+  background: var(--line); border-top: 1px solid var(--line);
+}
+.cat-item {
+  display: flex; flex-direction: column; gap: 4px; padding: 14px 18px;
+  background: var(--surface); text-decoration: none; color: inherit;
+}
+.cat-item:hover { background: var(--surface-2); }
+.cat-item-title { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.5; }
+.cat-item-summary { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.cat-item-meta {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+}
