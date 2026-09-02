@@ -261,7 +261,27 @@ export default function Dashboard({
     if (filter === "전체" || filter === "울산") sections.push({ group: "울산", list: ulsanList });
     return sections;
   }, [filter, busanList, ulsanList]);
-  const top5 = useMemo(() => regions.slice().sort((a, b) => b.count - a.count).slice(0, 5), [regions]);
+  // 가격 TOP 5 — 최근 30일 안에 신고된 거래 중 가장 비싼 5건을 부산·울산 각각 뽑습니다.
+  // 취소(해제)된 거래는 실제로 성사되지 않은 것이라 순위에서 뺍니다.
+  const top5FromYmd = useMemo(() => kstYmdIntAgo(29), []);
+  const pickTop5 = useCallback(
+    (list: RegionSummary[]): RecentListing[] =>
+      list
+        .flatMap((r) =>
+          r.listings
+            .filter((l) => !l.isCancelled && (l.registeredYmd ?? l.dealYmd) >= top5FromYmd)
+            .map((l) => ({ ...l, regionName: r.name, regionCode: r.code, group: r.group }))
+        )
+        .sort((a, b) => listingSortValue(b) - listingSortValue(a))
+        .slice(0, 5),
+    [top5FromYmd]
+  );
+  const topColumns = useMemo(() => {
+    const cols: { group: "부산" | "울산"; list: RecentListing[] }[] = [];
+    if (filter === "전체" || filter === "부산") cols.push({ group: "부산", list: pickTop5(busanList) });
+    if (filter === "전체" || filter === "울산") cols.push({ group: "울산", list: pickTop5(ulsanList) });
+    return cols;
+  }, [filter, busanList, ulsanList, pickTop5]);
   const maxCount = useMemo(() => Math.max(1, ...regions.map((r) => r.count)), [regions]);
 
   // 단지/동 이름 검색 — 화면에 불러온 최근 목록이 아니라 DB 전체를 찾습니다.
@@ -689,19 +709,60 @@ export default function Dashboard({
       </section>
 
       <section className="block" hidden={isHome}>
-        <h2>거래 많은 지역 TOP 5 · {dealLabel(dealType)}</h2>
-        <div className="rank-scroll">
-          {top5.map((r, i) => (
-            <div className="rank-card" key={r.code} onClick={() => selectRegion(r.code)}>
-              <div className="rank-no">TOP {i + 1} · {r.group}</div>
-              <div className="rank-name">{r.name}</div>
-              <div>
-                <span className="rank-count">{r.count}</span>
-                <span className="rank-unit">건</span>
-              </div>
-              <div style={{ marginTop: 6 }}>
-                <TrendBadge trendPct={r.trendPct} />
-              </div>
+        <h2>가격 TOP 5 · {dealLabel(dealType)}</h2>
+        <p className="section-note">
+          최근 30일 안에 신고된 {dealLabel(dealType)} 거래 중 가장 비싼 5건입니다. 취소된 거래는
+          뺐어요. 줄을 누르면 그 단지의 가격 추이가 열립니다.
+        </p>
+        <div className="top5-grid">
+          {topColumns.map(({ group, list }) => (
+            <div className="top5-col" key={group}>
+              <div className="recent-col-heading">{group}</div>
+              {list.length === 0 ? (
+                <div className="empty-note">최근 30일 안에 신고된 거래가 없습니다.</div>
+              ) : (
+                <div className="top5-table-wrap">
+                  <table className="top5-table">
+                    <thead>
+                      <tr>
+                        <th className="c-rank">#</th>
+                        <th className="c-name">아파트</th>
+                        <th className="c-area">전용</th>
+                        <th className="c-price">{dealType === "monthly" ? "보증금/월세" : "가격"}</th>
+                        <th className="c-date">계약일</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {list.map((l, i) => (
+                        <tr
+                          key={`${l.regionCode}-${l.complex}-${l.dealYmd}-${i}`}
+                          onClick={() =>
+                            setTrendTarget({
+                              code: l.regionCode,
+                              regionName: l.regionName,
+                              complex: l.complex,
+                              areaM2: l.areaM2,
+                            })
+                          }
+                        >
+                          <td className="c-rank">
+                            <span className={`rank-badge${i === 0 ? " first" : ""}`}>{i + 1}</span>
+                          </td>
+                          <td className="c-name">
+                            <span className="t5-complex">{l.complex}</span>
+                            <span className="t5-loc">
+                              {l.regionName} · {l.dong} · {l.floor}층
+                            </span>
+                          </td>
+                          <td className="c-area">{Math.round(l.areaM2)}㎡</td>
+                          <td className="c-price">{listingPriceLabel(l)}</td>
+                          <td className="c-date">{l.date}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           ))}
         </div>
