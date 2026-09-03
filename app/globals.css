@@ -907,3 +907,36 @@ footer.end p { margin: 0 0 12px; }
 .cat-item-meta {
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
 }
+
+
+/* ── 오늘의 실거래 브리핑 ─────────────────────────────── */
+.brief-section { margin-top: 26px; }
+.brief-h2 {
+  display: flex; align-items: baseline; gap: 9px; margin: 0 0 10px;
+  font-family: "Noto Serif KR", serif; font-size: 18px; font-weight: 800; color: var(--ink);
+  padding-left: 11px; border-left: 4px solid var(--teal);
+  text-transform: none; letter-spacing: normal;
+}
+.brief-count {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
+  color: var(--muted);
+}
+.brief-regions {
+  margin: 10px 2px 0; font-size: 12.5px; line-height: 1.75; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.brief-regions strong {
+  display: block; margin-bottom: 3px; font-family: "Noto Sans KR", sans-serif;
+  font-size: 12px; color: var(--ink-soft);
+}
+.brief-dates { display: flex; flex-wrap: wrap; gap: 8px; }
+.brief-date-chip {
+  display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 13px;
+  border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface);
+  text-decoration: none; color: var(--ink); font-size: 13px; font-weight: 700;
+}
+.brief-date-chip span {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+  font-weight: 600;
+}
+.brief-date-chip:hover { border-color: var(--teal); background: var(--surface-2); }

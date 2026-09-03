@@ -443,6 +443,9 @@ export default function Dashboard({
               {t.label}
             </Link>
           ))}
+          <Link href="/daily" className="deal-tab">
+            브리핑
+          </Link>
           <Link href="/compare" className="deal-tab">
             비교
           </Link>
