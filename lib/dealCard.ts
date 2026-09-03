@@ -36,7 +36,14 @@ export type CardPayload = {
   /** 최근 12개월 평균값 (거래 없는 달은 null) */
   spark: (number | null)[];
   siteName: string;
-  siteUrl: string;
+  /**
+   * 카드에 사이트 주소를 함께 적을지 — 비워두면 이름만 나옵니다.
+   *
+   * 기본은 "적지 않음"입니다. 부동산 카페들은 대부분 홍보성 게시글을 금지하고,
+   * 이미지 안의 도메인 주소는 운영자 눈에 가장 먼저 광고로 보입니다.
+   * 브랜드는 이름만으로도 충분히 전달되고, 주소가 필요한 블로그에서는 본문에 링크를 걸면 됩니다.
+   */
+  siteUrl?: string;
 };
 
 const W = 880;
@@ -216,13 +223,16 @@ export function drawDealCard(p: CardPayload, canvas?: HTMLCanvasElement): HTMLCa
   ctx.fillText(sub, PAD, 80);
 
   // 사이트 표기 — 크게 넣으면 카페에서 광고로 보입니다. 작고 조용하게.
+  const url = (p.siteUrl ?? "").replace(/^https?:\/\//, "").trim();
   ctx.textAlign = "right";
   ctx.font = `700 15px ${SANS}`;
   ctx.fillStyle = C.teal;
-  ctx.fillText(p.siteName, W - PAD, 46);
-  ctx.font = `400 12px ${SANS}`;
-  ctx.fillStyle = C.muted;
-  ctx.fillText(p.siteUrl.replace(/^https?:\/\//, ""), W - PAD, 66);
+  ctx.fillText(p.siteName, W - PAD, url ? 46 : 56);
+  if (url) {
+    ctx.font = `400 12px ${SANS}`;
+    ctx.fillStyle = C.muted;
+    ctx.fillText(url, W - PAD, 66);
+  }
 
   ctx.strokeStyle = C.line;
   ctx.lineWidth = 1;

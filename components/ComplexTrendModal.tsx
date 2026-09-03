@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { fmtManwon, fmtManwonShort, typeLabel, areaDetail } from "@/lib/format";
 import { downloadDealCard, copyDealCard, type CardPayload, type CardRow } from "@/lib/dealCard";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME } from "@/lib/site";
 
 type MonthlyPoint = {
   ymd: string;
@@ -202,8 +202,8 @@ function buildCardPayload(data: TrendResponse, viewType: "sale" | "jeonse" | "mo
     chips: [`${h0.floor}층`, areaDetail(h0.areaM2), `계약일 ${h0.dateLabel}`],
     rows,
     spark: data.points.map((p) => p.avgPriceManwon),
+    // 사이트 주소는 일부러 넣지 않습니다 (카페 홍보 규정) — 이름만으로 충분합니다.
     siteName: SITE_NAME,
-    siteUrl: SITE_URL,
   };
 }
 
