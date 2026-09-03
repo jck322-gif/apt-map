@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { fmtManwon, fmtManwonShort, typeLabel, areaDetail } from "@/lib/format";
+import { downloadDealCard, copyDealCard, type CardPayload, type CardRow } from "@/lib/dealCard";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 type MonthlyPoint = {
   ymd: string;
@@ -121,6 +123,90 @@ function ChangeBadge({ amount, pct }: { amount: number | null; pct: number | nul
   );
 }
 
+/**
+ * 화면에 보이는 값 그대로 카드 이미지용 자료를 만듭니다.
+ * (표에 없는 숫자를 새로 계산하지 않습니다 — 화면과 카드가 다르면 안 되니까요.)
+ */
+function buildCardPayload(data: TrendResponse, viewType: "sale" | "jeonse" | "monthly"): CardPayload | null {
+  const hist = data.history;
+  const h0 = hist[0];
+  if (!h0) return null;
+  const h1 = hist[1];
+  const s = data.stats;
+
+  const high = hist.length ? hist.reduce((m, c) => (c.priceManwon > m.priceManwon ? c : m)) : null;
+  const low = hist.length ? hist.reduce((m, c) => (c.priceManwon < m.priceManwon ? c : m)) : null;
+  const recovery = high && high.priceManwon !== 0 ? (h0.priceManwon / high.priceManwon) * 100 : null;
+
+  const change = h1 ? h0.priceManwon - h1.priceManwon : null;
+  const changePct = h1 && h1.priceManwon !== 0 ? ((change as number) / h1.priceManwon) * 100 : null;
+
+  const rows: CardRow[] = [];
+  if (h1) {
+    rows.push({
+      label: "직전거래",
+      value: `${fmtManwon(h1.priceManwon)} · ${h1.floor}층`,
+      date: h1.dateLabel,
+    });
+  }
+  if (high) {
+    rows.push({
+      label: "3년 최고",
+      value: `${fmtManwon(high.priceManwon)} · ${high.floor}층`,
+      pill: recovery !== null ? `회복율 ${recovery.toFixed(0)}%` : undefined,
+      date: high.dateLabel,
+      tone: "high",
+    });
+  }
+  if (low) {
+    rows.push({
+      label: "3년 최저",
+      value: `${fmtManwon(low.priceManwon)} · ${low.floor}층`,
+      date: low.dateLabel,
+    });
+  }
+  // 매매 카드에는 전세를, 전세·월세 카드에는 매매를 한 줄 곁들입니다.
+  if (viewType === "sale") {
+    if (s.latestJeonse) {
+      rows.push({
+        label: "전세",
+        value: `${fmtManwon(s.latestJeonse.priceManwon)} · ${s.latestJeonse.floor}층`,
+        pill:
+          s.gapManwon !== null && s.gapPct !== null
+            ? `갭 ${fmtManwon(s.gapManwon)} (${s.gapPct.toFixed(0)}%)`
+            : undefined,
+        date: s.latestJeonse.dateLabel,
+        tone: "jeonse",
+      });
+    }
+  } else if (s.latestSale) {
+    rows.push({
+      label: "매매",
+      value: `${fmtManwon(s.latestSale.priceManwon)} · ${s.latestSale.floor}층`,
+      date: s.latestSale.dateLabel,
+      tone: "jeonse",
+    });
+  }
+
+  return {
+    complex: data.complex,
+    location: `${data.group}광역시 ${data.regionName}${data.dong ? " " + data.dong : ""}`,
+    built: data.buildYear ? `${data.buildYear}년 준공 (${data.age}년차)` : "",
+    dealLabel: DEAL_LABEL[viewType],
+    priceText: fmtManwon(h0.priceManwon),
+    changeText:
+      change !== null && changePct !== null
+        ? `${change >= 0 ? "▲" : "▼"} ${fmtManwon(Math.abs(change))} (${Math.abs(changePct).toFixed(1)}%)`
+        : null,
+    changeUp: (change ?? 0) >= 0,
+    chips: [`${h0.floor}층`, areaDetail(h0.areaM2), `계약일 ${h0.dateLabel}`],
+    rows,
+    spark: data.points.map((p) => p.avgPriceManwon),
+    siteName: SITE_NAME,
+    siteUrl: SITE_URL,
+  };
+}
+
 export default function ComplexTrendModal({
   code,
   regionName,
@@ -151,6 +237,8 @@ export default function ComplexTrendModal({
   const [viewType, setViewType] = useState<"sale" | "jeonse" | "monthly">(dealType);
   // 매매 그래프 위에 전세선을 겹쳐 보여줄지
   const [showJeonse, setShowJeonse] = useState(false);
+  // 카드 이미지 버튼을 눌렀을 때 보여줄 안내 문구
+  const [cardMsg, setCardMsg] = useState<string | null>(null);
 
   // 다른 단지를 열면 선택 타입과 거래유형을 새로 받은 값으로 되돌립니다.
   useEffect(() => {
@@ -535,6 +623,44 @@ export default function ComplexTrendModal({
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* 카페·블로그에 바로 붙일 수 있는 카드 이미지 */}
+            <div className="card-actions">
+              <span className="card-actions-label">이 내용을 이미지 한 장으로</span>
+              <button
+                type="button"
+                className="card-btn"
+                onClick={async () => {
+                  const payload = buildCardPayload(data, viewType);
+                  if (!payload) return setCardMsg("이미지로 만들 거래 자료가 없습니다.");
+                  try {
+                    await downloadDealCard(payload);
+                    setCardMsg("이미지를 저장했습니다.");
+                  } catch {
+                    setCardMsg("저장에 실패했습니다. 다시 시도해 주세요.");
+                  }
+                }}
+              >
+                카드 이미지 저장
+              </button>
+              <button
+                type="button"
+                className="card-btn ghost"
+                onClick={async () => {
+                  const payload = buildCardPayload(data, viewType);
+                  if (!payload) return setCardMsg("이미지로 만들 거래 자료가 없습니다.");
+                  const ok = await copyDealCard(payload);
+                  setCardMsg(
+                    ok
+                      ? "복사했습니다. 글쓰기 창에서 붙여넣기(Ctrl+V) 하세요."
+                      : "이 브라우저는 이미지 복사를 지원하지 않아요. '저장'을 눌러 파일로 받아주세요."
+                  );
+                }}
+              >
+                이미지 복사
+              </button>
+              {cardMsg && <span className="card-actions-msg">{cardMsg}</span>}
             </div>
 
             <div className="trend-table">
