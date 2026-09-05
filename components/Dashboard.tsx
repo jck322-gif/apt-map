@@ -446,6 +446,9 @@ export default function Dashboard({
           <Link href="/daily" className="deal-tab">
             브리핑
           </Link>
+          <Link href="/apt" className="deal-tab">
+            단지
+          </Link>
           <Link href="/compare" className="deal-tab">
             비교
           </Link>
