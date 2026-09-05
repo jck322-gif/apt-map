@@ -364,3 +364,8 @@ export async function listAllComplexesForSitemap(minCount = 3, hardCap = 8000): 
 export function complexHref(regionCode: string, complex: string): string {
   return `/apt/${regionCode}/${encodeURIComponent(complex)}`;
 }
+
+/** 평형별 단지 페이지 주소 (예: /apt/26500/삼익비치/95.17) */
+export function complexAreaHref(regionCode: string, complex: string, areaM2: number): string {
+  return `${complexHref(regionCode, complex)}/${areaM2}`;
+}

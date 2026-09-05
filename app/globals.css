@@ -1015,3 +1015,20 @@ footer.end p { margin: 0 0 12px; }
 
 .top5-table th.c-name { color: var(--muted); font-weight: 700; white-space: nowrap; }
 .c-price.struck { text-decoration: line-through; opacity: 0.6; }
+
+/* 평형 고르기 (단지 페이지) */
+.type-help { margin: 0 0 10px; font-size: 12.5px; color: var(--muted); }
+.area-tabs { display: flex; flex-wrap: wrap; gap: 7px; }
+.area-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 8px 13px; border-radius: 9px; text-decoration: none;
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  font-size: 13.5px; font-weight: 700; line-height: 1.25;
+}
+.area-tab:hover { border-color: var(--teal); background: var(--surface-2); }
+.area-tab[aria-current="page"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.area-tab-sub {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 600;
+  color: var(--muted);
+}
+.area-tab[aria-current="page"] .area-tab-sub { color: rgba(255,255,255,0.85); }
