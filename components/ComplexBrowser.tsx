@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { complexHref, type ComplexListRow } from "@/lib/complex";
+import { complexHref, dongHref, type ComplexListRow } from "@/lib/complex";
 
 /**
  * 한 구·군의 단지 목록 — 동별로 묶고, 각 동 안에서는 가나다순으로 보여줍니다.
@@ -57,7 +57,10 @@ export default function ComplexBrowser({ rows }: { rows: ComplexListRow[] }) {
         groups.map((g) => (
           <section className="brief-section" key={g.dong}>
             <h2 className="brief-h2">
-              {g.dong} <span className="brief-count">{g.list.length}개 단지</span>
+              <Link href={dongHref(g.list[0].regionCode, g.dong)} className="dong-link">
+                {g.dong}
+              </Link>{" "}
+              <span className="brief-count">{g.list.length}개 단지</span>
             </h2>
             <div className="complex-grid">
               {g.list.map((c) => (

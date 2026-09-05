@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { GUIDES } from "@/lib/guides";
 import { SITE_URL } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
-import { listAllComplexesForSitemap, complexHref } from "@/lib/complex";
+import { listAllComplexesForSitemap, listDongs, complexHref, dongHref } from "@/lib/complex";
 
 // 단지 수가 많아 매 요청마다 DB를 훑지 않도록 하루에 한 번만 다시 만듭니다.
 export const revalidate = 86400;
@@ -64,5 +64,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     complexPages = [];
   }
 
-  return [...pages, ...guides, ...regionPages, ...complexPages];
+  // 동별 페이지 — 구·군마다 동 목록을 읽어 옵니다.
+  let dongPages: MetadataRoute.Sitemap = [];
+  try {
+    const lists = await Promise.all(REGIONS.map((r) => listDongs(r.code).then((ds) => ({ r, ds }))));
+    dongPages = lists.flatMap(({ r, ds }) =>
+      ds
+        .filter((d) => d.dong !== "기타")
+        .map((d) => ({
+          url: `${SITE_URL}${dongHref(r.code, d.dong)}`,
+          lastModified: now,
+          changeFrequency: "weekly" as const,
+          priority: 0.65,
+        }))
+    );
+  } catch {
+    dongPages = [];
+  }
+
+  return [...pages, ...guides, ...regionPages, ...dongPages, ...complexPages];
 }

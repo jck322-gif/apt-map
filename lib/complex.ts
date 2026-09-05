@@ -365,7 +365,124 @@ export function complexHref(regionCode: string, complex: string): string {
   return `/apt/${regionCode}/${encodeURIComponent(complex)}`;
 }
 
+/** 동 페이지 주소 (예: /apt/26500/dong/남천동)
+ *  단지 주소(/apt/26500/삼익비치)와 섞이지 않도록 가운데에 dong 을 끼워 넣었습니다.
+ *  Next.js는 같은 자리에서 고정 글자(dong)를 [complex] 같은 변수보다 먼저 맞춰봅니다. */
+export function dongHref(regionCode: string, dong: string): string {
+  return `/apt/${regionCode}/dong/${encodeURIComponent(dong)}`;
+}
+
 /** 평형별 단지 페이지 주소 (예: /apt/26500/삼익비치/95.17) */
 export function complexAreaHref(regionCode: string, complex: string, areaM2: number): string {
   return `${complexHref(regionCode, complex)}/${areaM2}`;
+}
+
+export type DongDeal = {
+  complex: string;
+  areaM2: number;
+  floor: number;
+  priceManwon: number;
+  dateLabel: string;
+};
+
+export type DongSummary = {
+  regionCode: string;
+  regionName: string;
+  group: string;
+  dong: string;
+  complexes: ComplexListRow[];
+  /** 최근 1년 이 동에서 가장 비싸게 팔린 매매 (평형 무관) */
+  topSales: DongDeal[];
+  /** 최근 1년 국평(전용 83~86㎡) 중 가장 비싸게 팔린 매매 */
+  topSales84: DongDeal[];
+  /** 최근 1년 이 동의 매매 신고 건수 */
+  saleCount12m: number;
+};
+
+type RawDeal = {
+  complex: string;
+  area_m2: number | string;
+  floor: number;
+  price_manwon: number | null;
+  deal_date: string;
+  cancel_date: string | null;
+};
+
+function toDongDeal(r: RawDeal): DongDeal {
+  const [y, m, d] = r.deal_date.split("-").map(Number);
+  return {
+    complex: r.complex,
+    areaM2: Number(r.area_m2),
+    floor: r.floor,
+    priceManwon: r.price_manwon as number,
+    dateLabel: `${String(y).slice(2)}.${String(m).padStart(2, "0")}.${String(d).padStart(2, "0")}`,
+  };
+}
+
+/**
+ * 동(법정동) 하나의 요약 — 단지 목록 + 최근 1년 최고가 거래 + 국평 최고가.
+ *
+ * 단지 링크만 늘어놓은 페이지는 검색엔진이 "내용이 얇다"고 봅니다.
+ * 그 동에서 실제로 무슨 일이 있었는지 숫자로 보여주려고 거래 목록을 함께 담습니다.
+ */
+export async function getDongSummary(regionCode: string, dong: string): Promise<DongSummary | null> {
+  const region = REGIONS.find((r) => r.code === regionCode);
+  if (!region) return null;
+
+  const db = getDb();
+  const from = new Date();
+  from.setFullYear(from.getFullYear() - 1);
+  const fromStr = `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}-01`;
+
+  const [complexes, dealsRes] = await Promise.all([
+    listComplexes(regionCode),
+    db
+      .from("deals")
+      .select("complex, area_m2, floor, price_manwon, deal_date, cancel_date")
+      .eq("region_code", regionCode)
+      .eq("dong", dong)
+      .eq("deal_type", "sale")
+      .gte("deal_date", fromStr)
+      .order("price_manwon", { ascending: false })
+      .limit(600),
+  ]);
+
+  const mine = complexes.filter((c) => c.dong === dong);
+  if (mine.length === 0) return null;
+
+  const rows = ((dealsRes.data ?? []) as RawDeal[]).filter(
+    (r) => !r.cancel_date && r.price_manwon !== null
+  );
+
+  const topSales = rows.slice(0, 10).map(toDongDeal);
+  const topSales84 = rows
+    .filter((r) => Number(r.area_m2) >= 83 && Number(r.area_m2) <= 86)
+    .slice(0, 10)
+    .map(toDongDeal);
+
+  return {
+    regionCode,
+    regionName: region.name,
+    group: region.group,
+    dong,
+    complexes: mine.sort((a, b) => a.complex.localeCompare(b.complex, "ko")),
+    topSales,
+    topSales84,
+    saleCount12m: rows.length,
+  };
+}
+
+/** 한 구·군에 있는 동 목록 (단지 수와 함께). 구 페이지와 사이트맵이 씁니다. */
+export async function listDongs(
+  regionCode: string
+): Promise<{ dong: string; complexCount: number }[]> {
+  const rows = await listComplexes(regionCode);
+  const map = new Map<string, number>();
+  for (const r of rows) {
+    const key = r.dong ?? "기타";
+    map.set(key, (map.get(key) ?? 0) + 1);
+  }
+  return [...map.entries()]
+    .map(([dong, complexCount]) => ({ dong, complexCount }))
+    .sort((a, b) => a.dong.localeCompare(b.dong, "ko"));
 }
