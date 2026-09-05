@@ -466,9 +466,13 @@ export default function ComplexTrendModal({
               )}
             </div>
           </div>
-          <button className="modal-close" onClick={onClose} aria-label="닫기">
-            ✕
-          </button>
+          {/* 이 팝업을 그대로 캡처해서 카페·블로그에 올리는 경우가 많아, 사이트 이름을 함께 둡니다. */}
+          <div className="modal-header-right">
+            <span className="modal-brand">{SITE_NAME}</span>
+            <button className="modal-close" onClick={onClose} aria-label="닫기">
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* 이 단지가 가진 타입(평형) 목록 — 누르면 그 타입 기준으로 다시 보여줍니다. */}

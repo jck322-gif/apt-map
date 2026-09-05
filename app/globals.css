@@ -960,3 +960,13 @@ footer.end p { margin: 0 0 12px; }
 @media (max-width: 520px) {
   .card-actions-label { flex-basis: 100%; }
 }
+
+/* 팝업 오른쪽 위 사이트 이름 — 팝업을 캡처해 공유할 때 출처가 함께 남도록 */
+.modal-header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.modal-brand {
+  font-family: "Noto Serif KR", serif; font-size: 16px; font-weight: 700;
+  color: var(--teal); letter-spacing: -0.01em; white-space: nowrap;
+}
+@media (max-width: 420px) {
+  .modal-brand { font-size: 14px; }
+}
