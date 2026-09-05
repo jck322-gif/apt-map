@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL, ADSENSE_CLIENT } from "@/lib/site";
 import "./globals.css";
 
 const TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
@@ -38,6 +38,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap"
         />
+        {/*
+          구글 애드센스 — lib/site.ts의 ADSENSE_CLIENT에 게시자 ID를 넣으면 켜집니다.
+          심사 단계에서는 이 한 줄만 있으면 되고, 광고 위치 지정은 승인 후에 따로 합니다.
+        */}
+        {ADSENSE_CLIENT && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body>{children}</body>
     </html>
