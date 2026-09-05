@@ -71,7 +71,7 @@ export default async function ComplexPage({ params }: { params: { code: string; 
   const monthsNewestFirst = [...data.points].reverse();
 
   return (
-    <main className="page">
+    <div className="wrap">
       <SiteHeader current="apt" />
 
       <article className="block">
@@ -262,6 +262,6 @@ export default async function ComplexPage({ params }: { params: { code: string; 
           <Link href="/compare">단지 비교하기</Link>
         </p>
       </article>
-    </main>
+    </div>
   );
 }

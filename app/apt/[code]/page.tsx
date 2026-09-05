@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
-import { listComplexes, complexHref, type ComplexListRow } from "@/lib/complex";
+import { listComplexes, type ComplexListRow } from "@/lib/complex";
+import ComplexBrowser from "@/components/ComplexBrowser";
 
 // 하루에 한 번만 다시 계산합니다 (단지 목록은 자주 바뀌지 않습니다).
 export const revalidate = 86400;
@@ -36,16 +37,9 @@ export default async function RegionComplexListPage({ params }: { params: { code
   }
 
   const full = `${region.group}광역시 ${region.name}`;
-  const byDong = new Map<string, ComplexListRow[]>();
-  for (const r of rows) {
-    const key = r.dong ?? "기타";
-    if (!byDong.has(key)) byDong.set(key, []);
-    byDong.get(key)!.push(r);
-  }
-  const dongs = [...byDong.keys()].sort((a, b) => a.localeCompare(b, "ko"));
 
   return (
-    <main className="page">
+    <div className="wrap">
       <SiteHeader current="apt" />
 
       <article className="block">
@@ -64,31 +58,7 @@ export default async function RegionComplexListPage({ params }: { params: { code
             아직 이 지역의 단지 목록을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.
           </p>
         ) : (
-          dongs.map((dong) => (
-            <section className="brief-section" key={dong}>
-              <h2 className="brief-h2">
-                {dong} <span className="brief-count">{byDong.get(dong)!.length}개 단지</span>
-              </h2>
-              <div className="complex-grid">
-                {byDong
-                  .get(dong)!
-                  .sort((a, b) => b.totalCount - a.totalCount)
-                  .map((c) => (
-                    <Link
-                      key={`${c.complex}-${c.dong}`}
-                      href={complexHref(c.regionCode, c.complex)}
-                      className="complex-link"
-                    >
-                      <span className="complex-link-name">{c.complex}</span>
-                      <span className="complex-link-meta">
-                        {c.buildYear ? `${c.buildYear}년 · ` : ""}
-                        거래 {c.totalCount}건
-                      </span>
-                    </Link>
-                  ))}
-              </div>
-            </section>
-          ))
+          <ComplexBrowser rows={rows} />
         )}
 
         <p className="section-note" style={{ marginTop: 22 }}>
@@ -96,6 +66,6 @@ export default async function RegionComplexListPage({ params }: { params: { code
           단지는 목록에 나오지 않습니다.
         </p>
       </article>
-    </main>
+    </div>
   );
 }

@@ -18,7 +18,7 @@ export default function AptIndexPage() {
   const ulsan = REGIONS.filter((r) => r.group === "울산");
 
   return (
-    <main className="page">
+    <div className="wrap">
       <SiteHeader current="apt" />
 
       <article className="block">
@@ -52,6 +52,6 @@ export default function AptIndexPage() {
           이루어져 신고된 건만 공개되기 때문에, 거래가 드문 단지는 자료가 없을 수 있습니다.
         </p>
       </article>
-    </main>
+    </div>
   );
 }
