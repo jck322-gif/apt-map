@@ -408,6 +408,19 @@ type RawDeal = {
   cancel_date: string | null;
 };
 
+/** 가격 높은 순으로 정렬된 목록에서 단지마다 첫 한 건씩만 골라냅니다. */
+function pickOnePerComplex(rows: RawDeal[], limit: number): DongDeal[] {
+  const seen = new Set<string>();
+  const out: DongDeal[] = [];
+  for (const r of rows) {
+    if (seen.has(r.complex)) continue;
+    seen.add(r.complex);
+    out.push(toDongDeal(r));
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 function toDongDeal(r: RawDeal): DongDeal {
   const [y, m, d] = r.deal_date.split("-").map(Number);
   return {
@@ -454,11 +467,13 @@ export async function getDongSummary(regionCode: string, dong: string): Promise<
     (r) => !r.cancel_date && r.price_manwon !== null
   );
 
-  const topSales = rows.slice(0, 10).map(toDongDeal);
-  const topSales84 = rows
-    .filter((r) => Number(r.area_m2) >= 83 && Number(r.area_m2) <= 86)
-    .slice(0, 10)
-    .map(toDongDeal);
+  // 한 단지가 표를 독식하지 않게 단지마다 가장 비싼 거래 1건씩만 뽑습니다.
+  // (그러지 않으면 큰 단지 하나가 10칸을 다 차지해서 "이 동에서 비싼 아파트"를 알 수 없습니다.)
+  const topSales = pickOnePerComplex(rows, 10);
+  const topSales84 = pickOnePerComplex(
+    rows.filter((r) => Number(r.area_m2) >= 83 && Number(r.area_m2) <= 86),
+    10
+  );
 
   return {
     regionCode,
