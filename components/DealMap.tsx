@@ -124,7 +124,7 @@ export default function DealMap({ initialArea }: { initialArea: Area }) {
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
-    fetch(`/api/update?dealType=${dealType}`)
+    fetch(`/api/update?dealType=${dealType}`, { cache: "no-store" })
       .then(async (res) => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
