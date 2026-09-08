@@ -219,7 +219,10 @@ export default function Dashboard({
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch(`/api/update?dealType=${type}`);
+      // cache: "no-store" 를 반드시 붙입니다.
+      // 이게 없으면 브라우저가 예전 응답을 재사용해서, 새벽에 새 실거래가 들어와도
+      // 화면에는 어제 자료가 그대로 보입니다 (실제로 그런 일이 있었습니다).
+      const res = await fetch(`/api/update?dealType=${type}`, { cache: "no-store" });
       const json = (await res.json()) as ApiResponse & { error?: string };
       if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
       setData(json);
@@ -297,7 +300,7 @@ export default function Dashboard({
     // 글자를 칠 때마다 요청하지 않도록 잠깐 기다렸다가 보냅니다.
     const timer = setTimeout(() => {
       let cancelled = false;
-      fetch(`/api/search?q=${encodeURIComponent(q)}&dealType=${dealType}`)
+      fetch(`/api/search?q=${encodeURIComponent(q)}&dealType=${dealType}`, { cache: "no-store" })
         .then(async (res) => {
           const json = await res.json();
           if (cancelled) return;
