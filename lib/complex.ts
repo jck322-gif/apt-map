@@ -123,15 +123,27 @@ function toTx(r: DealRow, value: number): TxDetail {
  * 신고가 표시 — 오래된 거래부터 훑으면서, 그 시점까지의 최고가를 넘어선 거래에 표시합니다.
  * 취소된 거래는 최고가 계산에서 제외합니다.
  * (우리가 가진 자료가 3년치라 "3년 내 최고가"라는 뜻입니다.)
+ *
+ * 평형별로 따로 셉니다. 한 단지에 84㎡와 59㎡가 섞여 있으면 59㎡ 거래는
+ * 아무리 비싸게 팔려도 84㎡ 가격을 넘지 못해 영영 신고가가 될 수 없기 때문입니다.
+ * 면적은 반올림해서 묶습니다 — 84.82㎡와 84.98㎡는 사실상 같은 타입입니다.
+ * 그 평형의 첫 거래는 비교할 앞선 거래가 없으므로 신고가로 세지 않습니다.
+ * (Supabase의 record_highs 뷰와 같은 규칙입니다.)
  */
 function markRecordHighs(list: TxDetail[]): TxDetail[] {
   const oldestFirst = [...list].sort((a, b) => a.ymd - b.ymd);
-  let best = -Infinity;
+  const bestByArea = new Map<number, number>();
   for (const tx of oldestFirst) {
     if (tx.cancelDate) continue;
+    const key = Math.round(tx.areaM2);
+    const best = bestByArea.get(key);
+    if (best === undefined) {
+      bestByArea.set(key, tx.priceManwon);
+      continue;
+    }
     if (tx.priceManwon > best) {
       tx.isRecordHigh = true;
-      best = tx.priceManwon;
+      bestByArea.set(key, tx.priceManwon);
     }
   }
   return list;
