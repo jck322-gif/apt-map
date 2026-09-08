@@ -128,7 +128,7 @@ export default function ComparePanel() {
     setSearching(true);
     const timer = setTimeout(() => {
       let cancelled = false;
-      fetch(`/api/search?q=${encodeURIComponent(q)}&dealType=${dealType}`)
+      fetch(`/api/search?q=${encodeURIComponent(q)}&dealType=${dealType}`, { cache: "no-store" })
         .then(async (res) => {
           const json = await res.json();
           if (!cancelled) setResults(res.ok ? (json.results ?? []) : []);
