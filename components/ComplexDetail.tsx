@@ -158,6 +158,10 @@ export default function ComplexDetail({
 
       <section className="brief-section">
         <h2 className="brief-h2">최근 12개월 매매 평균가</h2>
+        <p className="chart-basis-note">
+          <strong>계약일 기준</strong>입니다. 계약 후 30일 안에만 신고하면 되기 때문에, 이번 달에 신고된
+          거래도 지난달 칸에 들어갈 수 있어요.
+        </p>
         <div className="top5-table-wrap">
           <table className="top5-table">
             <thead>
