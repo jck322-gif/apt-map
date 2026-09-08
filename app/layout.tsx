@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL, ADSENSE_CLIENT } from "@/lib/site";
 import "./globals.css";
 
@@ -50,7 +51,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* 방문자 수 집계 (Vercel Analytics).
+            쿠키를 쓰지 않고 개인을 식별하지 않아서, 방문자 동의 배너가 필요 없습니다.
+            숫자는 Vercel 대시보드의 Analytics 탭에서 봅니다. */}
+        <Analytics />
+      </body>
     </html>
   );
 }
