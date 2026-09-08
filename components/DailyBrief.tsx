@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { fmtManwon } from "@/lib/format";
 import { koDate, koDateLong, type DailyBrief } from "@/lib/daily";
+import BriefTopRows from "@/components/BriefTopRows";
+import BriefRecordRows from "@/components/BriefRecordRows";
 
 /** 브리핑 한 건의 본문. 서버에서 그대로 그려지므로 검색엔진이 전부 읽습니다. */
 export default function DailyBriefView({
@@ -42,7 +44,27 @@ export default function DailyBriefView({
                 {fmtManwon(brief.highlight.priceManwon)}이었습니다.
               </>
             )}
+            {brief.records.length > 0 && (
+              <>
+                {" "}
+                신고가를 새로 쓴 거래는 <strong>{brief.records.length}건</strong>입니다.
+              </>
+            )}
           </p>
+        )}
+
+        {brief.records.length > 0 && (
+          <section className="brief-section">
+            <h2 className="brief-h2">
+              오늘의 신고가 <span className="brief-count">{brief.records.length}건</span>
+            </h2>
+            <p className="chart-basis-note">
+              그 단지 <strong>같은 평형</strong>에서 이전까지 나온 가장 비싼 값을 넘어선 거래입니다. 저희가
+              가진 자료가 3년치라 <strong>최근 3년 내 최고가</strong>라는 뜻이고, 한 단지에서 여러 평형이
+              같은 날 기록을 세우면 그중 가장 비싼 한 건만 보여드립니다.
+            </p>
+            <BriefRecordRows rows={brief.records} />
+          </section>
         )}
 
         {[busan, ulsan].map((g) =>
@@ -56,40 +78,7 @@ export default function DailyBriefView({
                 <p className="empty-note">이날 신고된 매매 거래가 없습니다.</p>
               ) : (
                 <>
-                  <div className="top5-table-wrap">
-                    <table className="top5-table">
-                      <thead>
-                        <tr>
-                          <th className="c-rank">#</th>
-                          <th className="c-name">아파트</th>
-                          <th className="c-area">전용</th>
-                          <th className="c-price">매매가</th>
-                          <th className="c-date">계약일</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {g.top.map((d, i) => (
-                          <tr key={`${d.complex}-${d.priceManwon}-${i}`}>
-                            <td className="c-rank">
-                              <span className={`rank-badge${i === 0 ? " first" : ""}`}>{i + 1}</span>
-                            </td>
-                            <td className="c-name">
-                              <span className="t5-complex">
-                                {d.complex}
-                                {d.isDirect && <span className="flag direct">직거래</span>}
-                              </span>
-                              <span className="t5-loc">
-                                {d.regionName} · {d.dong} · {d.floor}층
-                              </span>
-                            </td>
-                            <td className="c-area">{Math.round(d.areaM2)}㎡</td>
-                            <td className="c-price">{fmtManwon(d.priceManwon)}</td>
-                            <td className="c-date">{d.dealDate.slice(5).replace("-", "/")}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <BriefTopRows rows={g.top} />
 
                   {g.byRegion.length > 0 && (
                     <p className="brief-regions">
