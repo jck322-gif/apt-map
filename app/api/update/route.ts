@@ -5,6 +5,14 @@ import { getDb } from "@/lib/db";
 import { kstYyyymm } from "@/lib/kst";
 
 export const dynamic = "force-dynamic"; // 캐시하지 않고 요청마다 새로 실행
+// force-dynamic만으로는 부족합니다. Next.js는 서버가 DB에 보내는 요청까지 따로 캐시해 두는데,
+// 그러면 새벽에 새 실거래가 들어와도 API가 어제 만든 응답을 그대로 돌려줍니다(실제로 겪었습니다).
+// 아래 두 줄과 응답의 Cache-Control 헤더까지 있어야 Next·Vercel CDN·브라우저 세 군데가 모두 막힙니다.
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
+/** 어디에도 저장하지 말라고 못박는 응답 헤더 */
+const NO_STORE = { "Cache-Control": "no-store, max-age=0, must-revalidate" } as const;
 
 type DealTypeParam = "sale" | "jeonse" | "monthly";
 
@@ -72,7 +80,7 @@ export async function GET(request: Request) {
   try {
     db = getDb();
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500, headers: NO_STORE });
   }
 
   // 국토부 API를 직접 부르지 않고 DB에서 읽습니다 (데이터는 /api/sync가 매일 채워둡니다).
@@ -124,7 +132,7 @@ export async function GET(request: Request) {
   const firstError =
     rollingRes.error ?? busanRes.error ?? ulsanRes.error ?? busanRegRes.error ?? ulsanRegRes.error;
   if (firstError) {
-    return NextResponse.json({ error: `데이터베이스 조회 실패: ${firstError.message}` }, { status: 500 });
+    return NextResponse.json({ error: `데이터베이스 조회 실패: ${firstError.message}` }, { status: 500, headers: NO_STORE });
   }
 
   const rolling = (rollingRes.data ?? []) as RollingRow[];
@@ -222,5 +230,5 @@ export async function GET(request: Request) {
     prevYmd,
     regions,
     errors: [],
-  });
+  }, { headers: NO_STORE });
 }
