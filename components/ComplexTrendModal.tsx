@@ -253,7 +253,9 @@ export default function ComplexTrendModal({
     setActiveIdx(null);
     setOpenMonth(null);
     const areaQs = selectedArea !== undefined ? `&area=${selectedArea}` : "";
-    fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${viewType}${areaQs}`)
+    fetch(`/api/complex-trend?code=${code}&complex=${encodeURIComponent(complex)}&dealType=${viewType}${areaQs}`, {
+      cache: "no-store",
+    })
       .then(async (res) => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
