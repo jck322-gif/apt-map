@@ -1038,3 +1038,9 @@ footer.end p { margin: 0 0 12px; }
 .dong-link:hover { color: var(--teal); border-bottom-color: var(--teal); }
 .t5-complex-link { color: var(--ink); text-decoration: none; font-weight: 700; }
 .t5-complex-link:hover { color: var(--teal); text-decoration: underline; }
+
+/* 그래프가 계약일 기준임을 알리는 한 줄 (팝업·단지 페이지 공통) */
+.chart-basis-note {
+  margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted);
+}
+.chart-basis-note strong { color: var(--ink-soft); }
