@@ -3,7 +3,15 @@ import { REGIONS } from "@/lib/regions";
 import { toPyeong } from "@/lib/molit";
 import { getDb } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // 캐시하지 않고 요청마다 새로 실행
+// force-dynamic만으로는 부족합니다. Next.js는 서버가 DB에 보내는 요청까지 따로 캐시해 두는데,
+// 그러면 새벽에 새 실거래가 들어와도 API가 어제 만든 응답을 그대로 돌려줍니다(실제로 겪었습니다).
+// 아래 두 줄과 응답의 Cache-Control 헤더까지 있어야 Next·Vercel CDN·브라우저 세 군데가 모두 막힙니다.
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
+/** 어디에도 저장하지 말라고 못박는 응답 헤더 */
+const NO_STORE = { "Cache-Control": "no-store, max-age=0, must-revalidate" } as const;
 
 type DealTypeParam = "sale" | "jeonse" | "monthly";
 
@@ -28,16 +36,16 @@ export async function GET(request: Request) {
   const q = (searchParams.get("q") ?? "").trim();
   const dealType = (searchParams.get("dealType") ?? "sale") as DealTypeParam;
 
-  if (!q) return NextResponse.json({ query: q, results: [] });
+  if (!q) return NextResponse.json({ query: q, results: [] }, { headers: NO_STORE });
   if (!["sale", "jeonse", "monthly"].includes(dealType)) {
-    return NextResponse.json({ error: `알 수 없는 dealType입니다: ${dealType}` }, { status: 400 });
+    return NextResponse.json({ error: `알 수 없는 dealType입니다: ${dealType}` }, { status: 400, headers: NO_STORE });
   }
 
   let db;
   try {
     db = getDb();
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500, headers: NO_STORE });
   }
 
   // 단지명 또는 동 이름으로 찾되, 같은 단지라도 평형(타입)이 다르면 따로 보여줍니다.
@@ -53,7 +61,7 @@ export async function GET(request: Request) {
     .limit(LIMIT);
 
   if (error) {
-    return NextResponse.json({ error: `검색 실패: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: `검색 실패: ${error.message}` }, { status: 500, headers: NO_STORE });
   }
 
   const rows = (data ?? []) as TypeRow[];
@@ -84,5 +92,5 @@ export async function GET(request: Request) {
     // 같은 단지의 평형들이 흩어지지 않도록 단지명 → 평형 순으로 정렬
     .sort((a, b) => a.complex.localeCompare(b.complex, "ko") || a.areaM2 - b.areaM2);
 
-  return NextResponse.json({ query: q, dealType, results });
+  return NextResponse.json({ query: q, dealType, results }, { headers: NO_STORE });
 }
