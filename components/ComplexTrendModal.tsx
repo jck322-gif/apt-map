@@ -566,6 +566,13 @@ export default function ComplexTrendModal({
                     </button>
                   </div>
                 )}
+
+                {/* 홈 화면의 "오늘의 실거래"는 신고일 기준인데 이 그래프는 계약일 기준이라,
+                    9월에 신고된 8월 계약분이 8월 칸에 들어갑니다. 그 차이를 여기서 바로 알려줍니다. */}
+                <p className="chart-basis-note">
+                  그래프와 아래 월별 표는 <strong>계약일 기준</strong>입니다. 계약 후 30일 안에만 신고하면
+                  되기 때문에, 이번 달에 신고된 거래도 지난달 칸에 들어갈 수 있어요.
+                </p>
               </div>
 
               <div className="stat-card">
