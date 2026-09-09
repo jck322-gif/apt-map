@@ -4,9 +4,13 @@ import DailyBriefView from "@/components/DailyBrief";
 import { getBriefDates, getDailyBrief, getLatestBriefDate, koDate } from "@/lib/daily";
 import { SITE_NAME } from "@/lib/site";
 
-// 하루에 한 번 바뀌는 내용이라 1시간마다 새로 만들어 둡니다
-// (방문할 때마다 DB를 다시 읽지 않아 화면이 빠릅니다).
-export const revalidate = 3600;
+// 이 페이지는 "가장 최근 브리핑"이라 내용이 바뀝니다. 그래서 만들어둔 화면을 10분만 씁니다.
+//
+// 예전에는 1시간이었는데 두 번 문제가 됐습니다. 새벽에 새 실거래가 들어와도, 또 새 기능을
+// 배포해도, 그 전에 만들어진 화면이 한 시간 동안 그대로 나왔습니다. 화면은 조금 느려져도
+// "오늘 자료가 오늘 보이는" 쪽이 이 사이트에는 훨씬 중요합니다.
+// (지난 날짜 브리핑 /daily/[날짜]는 내용이 안 바뀌니 그쪽은 길게 둬도 됩니다.)
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: `오늘의 실거래 브리핑 | ${SITE_NAME}`,
