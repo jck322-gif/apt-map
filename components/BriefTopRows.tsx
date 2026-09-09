@@ -69,7 +69,7 @@ export default function BriefTopRows({ rows }: { rows: BriefRow[] }) {
                 </td>
                 <td className="c-name">
                   <span className="t5-complex">
-                    
+                    <a   
                       href={complexHref(d.regionCode, d.complex)}
                       className="t5-complex-link"
                       onClick={(e) => {
