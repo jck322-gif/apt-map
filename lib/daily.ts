@@ -47,8 +47,10 @@ export type RecordHigh = {
   floor: number;
   dealDate: string;
   priceManwon: number;
-  /** 직전 최고가 */
+  /** 직전 최고가 — "바로 앞 거래"가 아니라 "그때까지 가장 비쌌던 값"입니다 */
   prevPriceManwon: number;
+  /** 그 직전 최고가가 나온 계약일. 이걸 같이 적어야 "직전거래"와 헷갈리지 않습니다. */
+  prevDealDate: string | null;
   /** 직전 최고가보다 얼마나 올랐는지 (만원) */
   gainManwon: number;
 };
@@ -129,6 +131,7 @@ type RecordRow = {
   price_manwon: number;
   deal_date: string;
   prev_price_manwon: number;
+  prev_deal_date: string | null;
   gain_manwon: number;
 };
 
@@ -142,7 +145,9 @@ export async function getRecordHighs(date: string, limit = RECORDS_LIMIT): Promi
   const db = getDb();
   const { data, error } = await db
     .from("record_highs")
-    .select("region_code, complex, dong, area_m2, floor, price_manwon, deal_date, prev_price_manwon, gain_manwon")
+    .select(
+      "region_code, complex, dong, area_m2, floor, price_manwon, deal_date, prev_price_manwon, prev_deal_date, gain_manwon"
+    )
     .eq("first_seen_at", date)
     .order("price_manwon", { ascending: false })
     .limit(300);
@@ -181,6 +186,7 @@ export async function getRecordHighs(date: string, limit = RECORDS_LIMIT): Promi
       dealDate: r.deal_date,
       priceManwon: Number(r.price_manwon),
       prevPriceManwon: Number(r.prev_price_manwon),
+      prevDealDate: r.prev_deal_date ?? null,
       gainManwon: Number(r.gain_manwon),
     });
     if (out.length >= limit) break;
