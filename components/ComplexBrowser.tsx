@@ -25,12 +25,19 @@ export default function ComplexBrowser({ rows }: { rows: ComplexListRow[] }) {
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(r);
     }
+    // 동은 거래가 많은 순으로 먼저 보여줍니다.
+    //
+    // 가나다순으로 두면 해운대구에서 "반송동"이 맨 위에 오는데, 해운대구를 찾아온 사람이
+    // 처음 보고 싶은 건 우동·중동입니다. 검색으로 들어온 사람이 첫 화면에서 아는 이름을
+    // 만나야 머무릅니다. 단지는 동 안에서 가나다순 그대로 둡니다(찾기 쉬우라고).
+    // 건수가 같으면 가나다순으로 갈라 순서가 매번 바뀌지 않게 합니다.
     return [...map.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0], "ko"))
       .map(([dong, list]) => ({
         dong,
+        deals: list.reduce((n, r) => n + r.totalCount, 0),
         list: [...list].sort((a, b) => a.complex.localeCompare(b.complex, "ko")),
-      }));
+      }))
+      .sort((a, b) => b.deals - a.deals || a.dong.localeCompare(b.dong, "ko"));
   }, [rows, query]);
 
   const shown = groups.reduce((n, g) => n + g.list.length, 0);
@@ -60,7 +67,9 @@ export default function ComplexBrowser({ rows }: { rows: ComplexListRow[] }) {
               <Link href={dongHref(g.list[0].regionCode, g.dong)} className="dong-link">
                 {g.dong}
               </Link>{" "}
-              <span className="brief-count">{g.list.length}개 단지</span>
+              <span className="brief-count">
+                {g.list.length}개 단지 · 거래 {g.deals.toLocaleString()}건
+              </span>
             </h2>
             <div className="complex-grid">
               {g.list.map((c) => (
