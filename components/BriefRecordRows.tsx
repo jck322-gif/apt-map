@@ -12,6 +12,12 @@ import type { RecordHigh } from "@/lib/daily";
  * 단지명은 진짜 링크(<a href>)로 두고 클릭만 가로챕니다.
  * 사람은 화면을 벗어나지 않고 바로 보고, 검색엔진은 단지 페이지로 가는 링크를 그대로 읽어갑니다.
  */
+/** "2024-11-10" → "24.11" — 종전 최고가가 언제였는지 짧게 보여줍니다. */
+function ymLabel(date: string): string {
+  const [y, m] = date.split("-");
+  return `${y.slice(2)}.${m}`;
+}
+
 export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
   const [target, setTarget] = useState<{
     code: string;
@@ -78,7 +84,8 @@ export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
                 <td className="c-price">
                   {fmtManwon(d.priceManwon)}
                   <span className="rec-prev">
-                    직전 {fmtManwon(d.prevPriceManwon)} · <b>+{fmtManwon(d.gainManwon)}</b>
+                    종전 최고 {fmtManwon(d.prevPriceManwon)}
+                    {d.prevDealDate && ` (${ymLabel(d.prevDealDate)})`} · <b>+{fmtManwon(d.gainManwon)}</b>
                   </span>
                 </td>
                 <td className="c-date">{d.dealDate.slice(5).replace("-", "/")}</td>
