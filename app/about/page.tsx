@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
   title: `사이트 소개 | ${SITE_NAME}`,
   description: `${SITE_NAME} 서비스 소개 — 어떤 데이터를 어떻게 보여주는지 안내합니다.`,
 };
