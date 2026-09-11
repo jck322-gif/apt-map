@@ -5,6 +5,7 @@ import { GUIDES, GUIDE_CATEGORIES } from "@/lib/guides";
 import { SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/guide" },
   title: `부동산 상식 | ${SITE_NAME}`,
   description:
     "실거래가 읽는 법, 아파트 매매 절차와 기한, 전월세 신고제와 전세가율, 청약과 재개발까지. 부산·울산 실거래 자료를 다루며 정리한 부동산 기초 지식입니다.",
