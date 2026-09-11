@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE_NAME, CONTACT_EMAIL, PRIVACY_EFFECTIVE_DATE } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: `개인정보처리방침 | ${SITE_NAME}`,
   description: `${SITE_NAME} 서비스의 개인정보처리방침 및 쿠키·광고 이용 안내.`,
 };
