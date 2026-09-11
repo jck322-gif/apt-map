@@ -21,9 +21,9 @@ export const revalidate = 86400;
 const MONTHS = 3;
 
 export const metadata: Metadata = {
-  title: `부산 · 울산 아파트 순위 — 신고가 · 평당가 · 거래량 TOP | ${SITE_NAME}`,
+  title: `부산 · 울산 아파트 순위 — 국평 신고가 · 평당가 · 거래량 TOP | ${SITE_NAME}`,
   description:
-    "최근 3개월 부산·울산 아파트 실거래 순위입니다. 신고가를 가장 많이 경신한 단지, 국민평형 최고가, 평당가 TOP, 거래량이 많은 단지를 국토교통부 자료로 정리했습니다.",
+    "최근 3개월 부산·울산 아파트 실거래 순위입니다. 국민평형(전용 84㎡) 신고가, 신고가 상승액, 국평 최고가, 평당가 TOP, 거래량이 많은 단지를 국토교통부 자료로 정리했습니다.",
   alternates: { canonical: "/rank" },
 };
 
@@ -86,7 +86,10 @@ function RecordTable({ rows }: { rows: RecordRank[] }) {
                 {fmtManwon(r.priceManwon)}
                 <span className="rec-prev">
                   종전 최고 {fmtManwon(r.prevPriceManwon)}
-                  {r.prevDealDate && ` (${ym(r.prevDealDate)})`} · <b>+{fmtManwon(r.gainManwon)}</b>
+                  {r.prevDealDate && ` (${ym(r.prevDealDate)})`} ·{" "}
+                  <b>
+                    +{fmtManwon(r.gainManwon)} ({r.gainPct.toFixed(0)}%)
+                  </b>
                 </span>
               </td>
               <td className="c-date">{md(r.dealDate)}</td>
@@ -211,12 +214,14 @@ export default async function RankPage() {
   try {
     data = await getRanking(MONTHS);
   } catch {
-    data = { from: "", to: "", records: [], kukpyeong: [], pyeong: [], volume: [] };
+    data = { from: "", to: "", records: [], recordsKp: [], kukpyeong: [], pyeong: [], volume: [] };
   }
 
   const period = data.from && data.to ? `${md(data.from)} ~ ${md(data.to)}` : `최근 ${MONTHS}개월`;
   const empty =
-    data.records.length + data.kukpyeong.length + data.pyeong.length + data.volume.length === 0;
+    data.records.length + data.recordsKp.length + data.kukpyeong.length + data.pyeong.length +
+      data.volume.length ===
+    0;
 
   return (
     <div className="wrap">
@@ -228,9 +233,9 @@ export default async function RankPage() {
           최근 {MONTHS}개월 ({period}) 계약분 · 국토교통부 실거래가 기준
         </p>
         <p className="guide-summary">
-          최근 {MONTHS}개월 동안 부산·울산에서 신고된 아파트 매매를 네 가지 기준으로 줄 세웠습니다.
-          신고가를 가장 많이 경신한 단지, 국민평형(전용 84㎡) 최고가, 평당가, 거래량 순입니다. 순위표는
-          한 단지가 여러 번 오르지 않도록 <strong>단지마다 한 건씩만</strong> 넣었습니다.
+          최근 {MONTHS}개월 동안 부산·울산에서 신고된 아파트 매매를 다섯 가지 기준으로 줄 세웠습니다.
+          국민평형(전용 84㎡) 신고가, 신고가 상승액, 국평 최고가, 평당가, 거래량 순입니다. 순위표는 한
+          단지가 여러 번 오르지 않도록 <strong>단지마다 한 건씩만</strong> 넣었습니다.
         </p>
 
         {empty && (
@@ -240,12 +245,20 @@ export default async function RankPage() {
         )}
 
         <nav className="rank-nav">
+          <a href="#records-kp">국평 신고가</a>
           <a href="#records">신고가</a>
           <a href="#kukpyeong">국평 최고가</a>
           <a href="#pyeong">평당가</a>
           <a href="#volume">거래량</a>
         </nav>
       </article>
+
+      <Section
+        id="records-kp"
+        title="국민평형 신고가 TOP 20"
+        note="전용 83~86㎡만 모았습니다. 아래 「신고가」 표는 오른 금액 순이라 비싼 대형 평형이 위를 차지하는데, 같은 평형끼리 견주면 우리 동네 아파트가 얼마나 올랐는지 보입니다."
+        render={(g) => <RecordTable rows={byGroup(data.recordsKp, g)} />}
+      />
 
       <Section
         id="records"
