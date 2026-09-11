@@ -4,9 +4,9 @@ import { REGIONS } from "@/lib/regions";
 /**
  * 랭킹 페이지(/rank) 자료.
  *
- * Supabase의 ranking_data() 함수가 네 가지 순위를 JSON 한 덩어리로 돌려줍니다.
+ * Supabase의 ranking_data() 함수가 다섯 가지 순위를 JSON 한 덩어리로 돌려줍니다.
  * 한 번에 1000줄 제한이 있어서 표를 여러 번 읽는 대신 함수 하나로 묶었습니다.
- * (supabase-views-8.sql)
+ * (supabase-views-9.sql)
  *
  * 모든 순위는 **단지마다 한 건씩만** 넣습니다. 안 그러면 거래가 많은 단지 하나가
  * 표를 통째로 차지해서 순위가 아무 의미가 없어집니다.
@@ -32,6 +32,8 @@ export type RecordRank = Base & {
   prevPriceManwon: number;
   prevDealDate: string | null;
   gainManwon: number;
+  /** 종전 최고가 대비 몇 % 올랐는지. 금액만 보면 비싼 집이 무조건 커 보여서 같이 둡니다. */
+  gainPct: number;
 };
  
 export type PriceRank = Base & {
@@ -51,7 +53,10 @@ export type VolumeRank = Base & {
 export type Ranking = {
   from: string;
   to: string;
+  /** 신고가 — 오른 금액 순. 대형 평형이 위로 올라옵니다. */
   records: RecordRank[];
+  /** 국평(전용 83~86㎡) 신고가 — 같은 평형끼리만 겨루므로 금액 비교가 공평합니다. */
+  recordsKp: RecordRank[];
   kukpyeong: PriceRank[];
   pyeong: PriceRank[];
   volume: VolumeRank[];
@@ -77,15 +82,18 @@ function base(r: Record<string, unknown>): Base | null {
 function toRecord(r: Record<string, unknown>): RecordRank | null {
   const b = base(r);
   if (!b) return null;
+  const prev = Number(r.prev_price_manwon);
+  const gain = Number(r.gain_manwon);
   return {
     ...b,
     areaM2: Number(r.area_m2),
     floor: Number(r.floor),
     priceManwon: Number(r.price_manwon),
     dealDate: String(r.deal_date),
-    prevPriceManwon: Number(r.prev_price_manwon),
+    prevPriceManwon: prev,
     prevDealDate: r.prev_deal_date ? String(r.prev_deal_date) : null,
-    gainManwon: Number(r.gain_manwon),
+    gainManwon: gain,
+    gainPct: prev > 0 ? (gain / prev) * 100 : 0,
   };
 }
  
@@ -132,6 +140,7 @@ export async function getRanking(months = 3): Promise<Ranking> {
     from: ymd(from),
     to: ymd(to),
     records: [],
+    recordsKp: [],
     kukpyeong: [],
     pyeong: [],
     volume: [],
@@ -158,6 +167,7 @@ export async function getRanking(months = 3): Promise<Ranking> {
     from: String(d.from ?? empty.from),
     to: String(d.to ?? empty.to),
     records: arr("records").map(toRecord).filter((x): x is RecordRank => x !== null),
+    recordsKp: arr("recordsKp").map(toRecord).filter((x): x is RecordRank => x !== null),
     kukpyeong: arr("kukpyeong").map(toPrice).filter((x): x is PriceRank => x !== null),
     pyeong: arr("pyeong").map(toPrice).filter((x): x is PriceRank => x !== null),
     volume: arr("volume").map(toVolume).filter((x): x is VolumeRank => x !== null),
