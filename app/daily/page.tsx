@@ -13,6 +13,7 @@ import { SITE_NAME } from "@/lib/site";
 export const revalidate = 600;
 
 export const metadata: Metadata = {
+   alternates: { canonical: "/daily" },
   title: `오늘의 실거래 브리핑 | ${SITE_NAME}`,
   description:
     "부산·울산에 오늘 새로 신고된 아파트 실거래를 하루 단위로 정리합니다. 최고가 거래, 구·군별 신고 건수를 한눈에 확인하세요.",
