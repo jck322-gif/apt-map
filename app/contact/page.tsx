@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE_NAME, CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: `문의 | ${SITE_NAME}`,
   description: `${SITE_NAME} 서비스 문의 및 광고 제휴 안내.`,
 };
