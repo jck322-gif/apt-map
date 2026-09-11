@@ -1058,3 +1058,19 @@ footer.end p { margin: 0 0 12px; }
 }
 .rec-prev b { color: var(--rise); font-weight: 700; }
 .brief-section .chart-basis-note { margin-bottom: 10px; }
+
+/* 랭킹 페이지 */
+.rank-nav {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;
+}
+.rank-nav a {
+  padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+  font-size: 13px; font-weight: 600; color: var(--ink-soft); text-decoration: none;
+  background: var(--surface);
+}
+.rank-nav a:hover { border-color: var(--teal); color: var(--teal); }
+.rank-group { margin-top: 16px; }
+.rank-group-title {
+  margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--ink);
+  padding-left: 8px; border-left: 3px solid var(--teal);
+}
