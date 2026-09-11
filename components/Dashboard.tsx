@@ -452,8 +452,8 @@ export default function Dashboard({
           <Link href="/apt" className="deal-tab">
             단지
           </Link>
-          <Link href="/compare" className="deal-tab">
-            비교
+          <Link href="/rank" className="deal-tab">
+            랭킹
           </Link>
           <Link href="/guide" className="deal-tab">
             상식
