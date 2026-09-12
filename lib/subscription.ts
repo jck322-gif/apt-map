@@ -100,7 +100,7 @@ async function fetchPage(
   serviceKey: string,
   page: number,
   perPage: number
-): Promise<{ data: Record<string, unknown>[]; totalCount: number }> {
+): Promise<{ data: Record<string, unknown>[]; totalCount: number; rawText: string }> {
   const qs = new URLSearchParams({
     page: String(page),
     perPage: String(perPage),
@@ -110,19 +110,30 @@ async function fetchPage(
     headers: { Authorization: `Infuser ${serviceKey}` },
     cache: "no-store",
   });
+  const rawText = await res.text();
   if (!res.ok) {
-    throw new Error(`청약홈 API HTTP ${res.status} (page ${page})`);
+    throw new Error(`청약홈 API HTTP ${res.status} (page ${page}) — ${rawText.slice(0, 300)}`);
   }
-  const json = await res.json();
-  const data = Array.isArray(json?.data) ? json.data : [];
-  const totalCount = Number(json?.totalCount ?? data.length) || data.length;
-  return { data, totalCount };
+  let json: unknown;
+  try {
+    json = JSON.parse(rawText);
+  } catch {
+    throw new Error(`청약홈 API 응답이 JSON이 아닙니다 (page ${page}) — ${rawText.slice(0, 300)}`);
+  }
+  const data = Array.isArray((json as Record<string, unknown>)?.data)
+    ? ((json as Record<string, unknown>).data as Record<string, unknown>[])
+    : [];
+  const totalCount = Number((json as Record<string, unknown>)?.totalCount ?? data.length) || data.length;
+  return { data, totalCount, rawText };
 }
 
 /**
  * 부산·울산 청약 일정을 가져옵니다. 페이지를 넘겨가며 최대 MAX_PAGES까지 읽고,
  * 지역명에 "부산"·"울산"이 들어간 항목만 남깁니다.
  * (odcloud 응답이 최신순인지 확정할 수 없어, 넉넉히 읽은 뒤 우리 쪽에서 필터링합니다.)
+ *
+ * 1페이지가 실패하면(키·엔드포인트 문제일 가능성이 커서) 바로 예외를 던져 원인을 드러내고,
+ * 2페이지부터의 실패는 이미 모은 데이터라도 보여주기 위해 조용히 멈춥니다.
  */
 export async function getBusanUlsanSubscriptions(serviceKey: string): Promise<SubscriptionEntry[]> {
   const PER_PAGE = 100;
@@ -136,8 +147,9 @@ export async function getBusanUlsanSubscriptions(serviceKey: string): Promise<Su
       const result = await fetchPage(serviceKey, page, PER_PAGE);
       batch = result.data;
       totalCount = result.totalCount;
-    } catch {
-      break; // 이번 페이지 실패해도, 이미 모은 것까지는 화면에 보여줍니다.
+    } catch (err) {
+      if (page === 1) throw err;
+      break;
     }
     if (batch.length === 0) break;
 
@@ -152,6 +164,20 @@ export async function getBusanUlsanSubscriptions(serviceKey: string): Promise<Su
   }
 
   return Array.from(seen.values());
+}
+
+/** 문제 진단용 — 1페이지를 있는 그대로(가공 없이) 가져와 상태코드·원문 일부·파싱 결과를 함께 돌려줍니다. */
+export async function debugFetchSubscriptions(
+  serviceKey: string
+): Promise<{ rawSample: string; totalCount: number; parsedCount: number; sampleParsed: SubscriptionEntry | null }> {
+  const { data, totalCount, rawText } = await fetchPage(serviceKey, 1, 3);
+  const parsed = data.map(parseEntry).filter((e): e is SubscriptionEntry => e !== null);
+  return {
+    rawSample: rawText.slice(0, 1500),
+    totalCount,
+    parsedCount: parsed.length,
+    sampleParsed: parsed[0] ?? null,
+  };
 }
 
 // ── Supabase 저장/조회 ─────────────────────────────────────────────

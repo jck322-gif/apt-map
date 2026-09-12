@@ -67,8 +67,12 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionCode: "26290",
     regionName: "남구",
     group: "부산",
+    stage: "사업시행인가",
+    lastChecked: "2025.09",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000184/main.do",
-    note: "정확한 현재 단계는 공식 페이지에서 확인해주세요.",
+    note:
+      "총 3,312세대(일반분양 3,110·임대 202) 규모. 2020년 3월 조합설립, 같은 해 10월 시공사로 포스코건설 선정, " +
+      "2025년 9월 5일 남구청으로부터 사업시행계획인가를 받았습니다. 다음 단계(관리처분인가)는 확인되는 대로 갱신하겠습니다.",
   },
 ];
 

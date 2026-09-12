@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { getBusanUlsanSubscriptions, saveSubscriptions } from "@/lib/subscription";
+import { debugFetchSubscriptions, getBusanUlsanSubscriptions, saveSubscriptions } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -21,6 +21,18 @@ export async function GET(request: Request) {
     const ok = authHeader === `Bearer ${cronSecret}` || searchParams.get("secret") === cronSecret;
     if (!ok) {
       return NextResponse.json({ error: "인증 실패 — secret이 올바르지 않습니다." }, { status: 401 });
+    }
+  }
+
+  // ?debug=1 을 붙이면 저장하지 않고, 청약홈이 실제로 무엇을 돌려주는지(원문 일부)만 보여줍니다.
+  // "달력에 아무것도 안 뜬다" 같은 문제를 진단할 때 이 결과를 스크린샷해서 알려주시면 바로 원인을 알 수 있습니다.
+  if (searchParams.get("debug") === "1") {
+    try {
+      const result = await debugFetchSubscriptions(serviceKey);
+      return NextResponse.json(result);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "알 수 없는 오류";
+      return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
   }
 

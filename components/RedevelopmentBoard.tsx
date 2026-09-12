@@ -110,7 +110,6 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
                       <span className="redev-card-type">{e.type}</span>
                       <span className="redev-card-loc">{e.regionName}</span>
                     </div>
-                    <StageTrack stage={e.stage} />
                     <p className="redev-card-stage">
                       {e.stage ? (
                         <>
@@ -121,6 +120,7 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
                         <span className="redev-card-stage-unknown">현재 단계는 확인이 필요합니다</span>
                       )}
                     </p>
+                    <span className="redev-card-expand">진행 단계 펼쳐보기 ▾</span>
                   </button>
                 ))}
               </div>

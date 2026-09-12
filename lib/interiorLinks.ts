@@ -90,19 +90,6 @@ const INTERIOR_ENTRIES: InteriorEntry[] = [
     ],
   },
   {
-    complex: "래미안포레스티지",
-    regionCode: "26260",
-    regionName: "동래구",
-    group: "부산",
-    links: [
-      {
-        title: "온천장 래미안포레스티지 인테리어",
-        url: "http://www.designamc.com/board/?db=project&mari_mode=view@view&no=355",
-        source: "시공사례",
-      },
-    ],
-  },
-  {
     complex: "동래래미안아이파크",
     regionCode: "26260",
     regionName: "동래구",
