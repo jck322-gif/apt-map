@@ -75,3 +75,12 @@ const ENTRIES: RedevelopmentEntry[] = [
 export function getRedevelopmentEntries(): RedevelopmentEntry[] {
   return ENTRIES;
 }
+
+/** 팝업에서 "유튜브/네이버에서 찾아보기" 버튼에 쓸 검색 링크. */
+export function redevelopmentSearchLinks(name: string, type: "재개발" | "재건축"): { label: string; url: string }[] {
+  const q = encodeURIComponent(`${name} ${type}`);
+  return [
+    { label: "유튜브에서 검색", url: `https://www.youtube.com/results?search_query=${q}` },
+    { label: "네이버에서 검색", url: `https://search.naver.com/search.naver?query=${q}` },
+  ];
+}
