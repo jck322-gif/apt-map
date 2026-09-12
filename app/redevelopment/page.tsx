@@ -36,9 +36,9 @@ export default function RedevelopmentPage() {
           로 바로 연결합니다. 궁금한 구역이 있으면 언제든 알려주세요 — 확인해서 추가하겠습니다.
         </p>
 
-        <section className="brief-section">
-          <h2 className="brief-h2">진행 단계 8가지</h2>
-          <p className="section-note" style={{ margin: "0 0 10px" }}>
+        <details className="brief-section stage-legend-details">
+          <summary className="brief-h2 stage-legend-summary">진행 단계 8가지 보기</summary>
+          <p className="section-note" style={{ margin: "8px 0 10px" }}>
             부산시 정비사업 통합홈페이지의 분류를 따랐습니다. 순서대로 진행되며, 단계마다 몇 달~몇 년씩
             걸리기도 합니다. 아래 구역을 누르면 지금 어느 단계인지 자세히 볼 수 있어요.
           </p>
@@ -51,7 +51,7 @@ export default function RedevelopmentPage() {
               </li>
             ))}
           </ol>
-        </section>
+        </details>
 
         <RedevelopmentBoard entries={entries} />
 

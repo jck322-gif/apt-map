@@ -110,6 +110,7 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
                       <span className="redev-card-type">{e.type}</span>
                       <span className="redev-card-loc">{e.regionName}</span>
                     </div>
+                    <StageTrack stage={e.stage} />
                     <p className="redev-card-stage">
                       {e.stage ? (
                         <>
@@ -120,7 +121,6 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
                         <span className="redev-card-stage-unknown">현재 단계는 확인이 필요합니다</span>
                       )}
                     </p>
-                    <span className="redev-card-expand">진행 단계 펼쳐보기 ▾</span>
                   </button>
                 ))}
               </div>
@@ -170,7 +170,38 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
               )}
             </p>
 
+            {(selected.totalHouseholds || selected.constructor) && (
+              <div className="redev-modal-facts">
+                {selected.totalHouseholds && (
+                  <div className="redev-modal-fact">
+                    <span className="redev-modal-fact-label">총 세대수</span>
+                    <span className="redev-modal-fact-value">{selected.totalHouseholds.toLocaleString()}세대</span>
+                  </div>
+                )}
+                {selected.constructor && (
+                  <div className="redev-modal-fact">
+                    <span className="redev-modal-fact-label">시공사</span>
+                    <span className="redev-modal-fact-value">{selected.constructor}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {selected.note && <p className="redev-card-note">{selected.note}</p>}
+
+            {selected.history && selected.history.length > 0 && (
+              <div className="redev-modal-history">
+                <span className="redev-modal-history-title">주요 이력</span>
+                <ul className="redev-modal-history-list">
+                  {selected.history.map((h, i) => (
+                    <li key={i} className="redev-modal-history-item">
+                      <span className="redev-modal-history-date">{h.date}</span>
+                      <span className="redev-modal-history-label">{h.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="redev-modal-links">
               <a href={selected.officialUrl} target="_blank" rel="noopener noreferrer" className="redev-modal-btn">

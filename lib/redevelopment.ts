@@ -58,6 +58,12 @@ export type RedevelopmentEntry = {
   lastChecked?: string;
   officialUrl: string;
   note?: string;
+  /** 총 세대수 (확인되면) */
+  totalHouseholds?: number;
+  /** 시공사 (확인되면) */
+  constructor?: string;
+  /** 주요 이력 — 팝업에서만 보여주는, 목록 카드에는 없는 자세한 내용입니다. */
+  history?: { date: string; label: string }[];
 };
 
 const ENTRIES: RedevelopmentEntry[] = [
@@ -70,9 +76,14 @@ const ENTRIES: RedevelopmentEntry[] = [
     stage: "사업시행인가",
     lastChecked: "2025.09",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000184/main.do",
-    note:
-      "총 3,312세대(일반분양 3,110·임대 202) 규모. 2020년 3월 조합설립, 같은 해 10월 시공사로 포스코건설 선정, " +
-      "2025년 9월 5일 남구청으로부터 사업시행계획인가를 받았습니다. 다음 단계(관리처분인가)는 확인되는 대로 갱신하겠습니다.",
+    totalHouseholds: 3312,
+    constructor: "포스코건설",
+    note: "일반분양 3,110세대 · 임대 202세대. 다음 단계(관리처분인가)는 확인되는 대로 갱신하겠습니다.",
+    history: [
+      { date: "2020.03", label: "조합설립인가" },
+      { date: "2020.10", label: "시공사 선정 (포스코건설)" },
+      { date: "2025.09", label: "사업시행계획인가 (남구청)" },
+    ],
   },
 ];
 
