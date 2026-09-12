@@ -2,6 +2,7 @@ import Link from "next/link";
 import { fmtManwon, areaDetail, typeLabel } from "@/lib/format";
 import { complexHref, complexAreaHref, type ComplexTrend } from "@/lib/complex";
 import FavoriteButton from "@/components/FavoriteButton";
+import InteriorLinks from "@/components/InteriorLinks";
 
 /**
  * 단지 상세 화면 본문.
@@ -241,6 +242,8 @@ export default function ComplexDetail({
           </div>
         </section>
       )}
+
+      <InteriorLinks complex={name} />
 
       <p className="section-note" style={{ marginTop: 22 }}>
         이 페이지의 모든 숫자는 국토교통부 실거래가 공개시스템에 신고된 자료입니다. 아파트 매매는 계약 후

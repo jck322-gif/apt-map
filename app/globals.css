@@ -127,6 +127,24 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 }
 .fav-item-remove:hover { border-color: var(--rise); color: var(--rise); }
 
+.interior-list { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.interior-link {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface); text-decoration: none; color: var(--ink); font-size: 13.5px;
+}
+.interior-link:hover { border-color: var(--teal); background: var(--surface-2); color: var(--teal-deep); }
+.interior-badge {
+  flex-shrink: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 700;
+  padding: 3px 7px; border-radius: 20px; background: var(--surface-2); color: var(--ink-soft);
+}
+.interior-go { margin-left: auto; flex-shrink: 0; color: var(--muted); }
+.interior-search-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.interior-search-btn {
+  font-size: 12.5px; font-weight: 700; padding: 7px 12px; border-radius: 20px;
+  border: 1px dashed var(--line-strong); background: var(--surface); color: var(--ink-soft); text-decoration: none;
+}
+.interior-search-btn:hover { border-color: var(--teal); color: var(--teal-deep); }
+
 .deal-tabs {
   display: flex; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 3px; margin-bottom: 10px;
 }
