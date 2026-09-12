@@ -56,9 +56,24 @@ export async function GET(request: Request) {
     page: "1",
   });
 
+  // 서버(Vercel)에서 V-World로 나가는 요청이 https에서 막히는 경우가 있어(정부 사이트 인증서 체인 문제),
+  // https가 실패하면 http로 한 번 더 시도합니다. 어느 쪽이 됐는지 debug 결과에 남깁니다.
+  async function fetchVworld(): Promise<{ res: Response; text: string; proto: string }> {
+    let lastErr: unknown = null;
+    for (const url of [VWORLD_URL, VWORLD_URL.replace("https://", "http://")]) {
+      try {
+        const res = await fetch(`${url}?${qs.toString()}`, { cache: "no-store" });
+        const text = await res.text();
+        return { res, text, proto: url.startsWith("https") ? "https" : "http" };
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr;
+  }
+
   try {
-    const res = await fetch(`${VWORLD_URL}?${qs.toString()}`, { cache: "no-store" });
-    const text = await res.text();
+    const { res, text, proto } = await fetchVworld();
 
     if (debug) {
       let firstProps: unknown = null;
@@ -73,7 +88,7 @@ export async function GET(request: Request) {
       } catch {
         // 원문이 JSON이 아니면 아래 rawSample 로만 보여줍니다
       }
-      return NextResponse.json({ layer, httpStatus: res.status, count, firstProps, rawSample: text.slice(0, 1200) });
+      return NextResponse.json({ layer, proto, httpStatus: res.status, count, firstProps, rawSample: text.slice(0, 1200) });
     }
 
     if (!res.ok) {
@@ -94,6 +109,9 @@ export async function GET(request: Request) {
       { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" } }
     );
   } catch (e) {
-    return NextResponse.json({ features: [], error: e instanceof Error ? e.message : "요청 실패" });
+    // undici의 "fetch failed"는 진짜 원인(DNS·인증서·연결 거부 등)을 cause 안에 숨겨두므로 같이 보여줍니다.
+    const cause = (e as { cause?: { code?: string; message?: string } })?.cause;
+    const detail = cause ? ` (${cause.code ?? ""} ${cause.message ?? ""})`.trim() : "";
+    return NextResponse.json({ features: [], error: `${e instanceof Error ? e.message : "요청 실패"}${detail}` });
   }
 }
