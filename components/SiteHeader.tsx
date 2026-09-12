@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import FavoritesLink from "@/components/FavoritesLink";
 import { SITE_NAME } from "@/lib/site";
 
 /**
@@ -40,6 +41,7 @@ export default function SiteHeader({
           부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
         </p>
         <span className="live-badge">실시간 연동</span>
+        <FavoritesLink />
       </div>
 
       <nav className="deal-tabs">

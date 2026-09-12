@@ -86,6 +86,42 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.04em;
   padding: 3px 8px; border-radius: 20px; background: var(--teal); color: #fff; font-weight: 700; flex-shrink: 0;
 }
+.fav-badge {
+  order: 2; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.02em;
+  padding: 3px 8px; border-radius: 20px; border: 1px solid var(--line-strong); background: var(--surface);
+  color: var(--ink-soft); font-weight: 700; flex-shrink: 0; text-decoration: none;
+}
+.fav-badge:hover { border-color: var(--teal); color: var(--teal-deep); }
+@media (min-width: 720px) { .fav-badge { order: 4; } }
+
+.complex-title-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.complex-title-row .guide-title { margin: 0; }
+.fav-btn {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; font-family: "Noto Sans KR", sans-serif;
+  font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 20px; cursor: pointer;
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
+}
+.fav-btn:hover { border-color: var(--coral); color: var(--coral); }
+.fav-btn.is-saved { background: var(--coral); border-color: var(--coral); color: #fff; }
+
+.fav-empty { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.fav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fav-item {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface);
+}
+.fav-item-main { flex: 1; min-width: 0; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 2px; }
+.fav-item-name { font-weight: 700; color: var(--ink); }
+.fav-item-where { font-size: 12px; color: var(--muted); }
+.fav-item-meta { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.fav-item-remove {
+  flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--muted); background: none;
+  border: 1px solid var(--line-strong); border-radius: 20px; padding: 5px 10px; cursor: pointer;
+}
+.fav-item-remove:hover { border-color: var(--rise); color: var(--rise); }
+
 .deal-tabs {
   display: flex; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 3px; margin-bottom: 10px;
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { fmtManwon, areaDetail, typeLabel } from "@/lib/format";
 import { complexHref, complexAreaHref, type ComplexTrend } from "@/lib/complex";
+import FavoriteButton from "@/components/FavoriteButton";
 
 /**
  * 단지 상세 화면 본문.
@@ -37,10 +38,19 @@ export default function ComplexDetail({
         )}
       </nav>
 
-      <h1 className="guide-title">
-        {name}
-        {areaSuffix} 실거래가
-      </h1>
+      <div className="complex-title-row">
+        <h1 className="guide-title">
+          {name}
+          {areaSuffix} 실거래가
+        </h1>
+        <FavoriteButton
+          code={data.code}
+          complex={name}
+          regionName={data.regionName}
+          group={data.group}
+          href={complexHref(data.code, name)}
+        />
+      </div>
       <p className="guide-meta">
         {where}
         {data.buildYear ? ` · ${data.buildYear}년 준공 (${data.age}년차)` : ""}
