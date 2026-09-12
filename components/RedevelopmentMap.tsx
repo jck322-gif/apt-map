@@ -35,6 +35,11 @@ export default function RedevelopmentMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
+  const polygonsRef = useRef<any[]>([]);
+  const zoneCacheRef = useRef<Map<string, any[]>>(new Map());
+  const zoneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const entriesRef = useRef(entries);
+  entriesRef.current = entries;
   const [failed, setFailed] = useState(false);
 
   const placed = entries.filter((e) => typeof e.lat === "number" && typeof e.lng === "number");
@@ -66,6 +71,9 @@ export default function RedevelopmentMap({
         }
         mapRef.current = map;
         drawOverlays();
+        // 지도를 움직이거나 확대할 때마다(잠깐 멈추면) 그 범위의 구역 경계를 불러옵니다
+        window.kakao.maps.event.addListener(map, "idle", scheduleZoneLoad);
+        scheduleZoneLoad();
       } catch {
         if (!cancelled) setFailed(true);
       }
@@ -85,6 +93,108 @@ export default function RedevelopmentMap({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /** 지도가 멈추고 0.4초 뒤에 구역 경계를 요청합니다 (드래그 중 연속 요청 방지). */
+  function scheduleZoneLoad() {
+    if (zoneTimerRef.current) clearTimeout(zoneTimerRef.current);
+    zoneTimerRef.current = setTimeout(loadZones, 400);
+  }
+
+  async function loadZones() {
+    const map = mapRef.current;
+    if (!map || !window.kakao?.maps) return;
+    // 너무 멀리서 보면(레벨 9 이상) 경계가 점처럼 보여 의미가 없고 데이터만 무거우니 건너뜁니다
+    if (map.getLevel() > 8) {
+      drawPolygons([]);
+      return;
+    }
+    const b = map.getBounds();
+    const sw = b.getSouthWest();
+    const ne = b.getNorthEast();
+    // 소수점 2자리(≈1km)로 반올림해 같은 범위면 다시 요청하지 않도록 캐시 키를 만듭니다
+    const r = (n: number) => Math.round(n * 100) / 100;
+    const bbox = `${r(sw.getLng()) - 0.01},${r(sw.getLat()) - 0.01},${r(ne.getLng()) + 0.01},${r(ne.getLat()) + 0.01}`;
+
+    const cached = zoneCacheRef.current.get(bbox);
+    if (cached) {
+      drawPolygons(cached);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/redevelopment-zones?bbox=${bbox}`);
+      const json = await res.json();
+      const feats: any[] = Array.isArray(json?.features) ? json.features : [];
+      zoneCacheRef.current.set(bbox, feats);
+      drawPolygons(feats);
+    } catch {
+      // 경계를 못 가져와도 점 표시는 그대로 두면 됩니다
+    }
+  }
+
+  /** V-World 속성에서 구역 이름으로 보이는 값을 찾습니다 (필드 이름이 문서에 명확하지 않아 후보를 순서대로 봅니다). */
+  function featureName(props: Record<string, unknown> | undefined): string {
+    if (!props) return "";
+    for (const k of ["dgm_nm", "uname", "prpos_area_dstrc_nm", "dstrc_nm", "area_nm", "name", "nm"]) {
+      const v = props[k];
+      if (typeof v === "string" && v.trim()) return v.trim();
+    }
+    for (const v of Object.values(props)) {
+      if (typeof v === "string" && /[가-힣]/.test(v) && v.length <= 40) return v.trim();
+    }
+    return "";
+  }
+
+  /** 우리 목록의 구역과 이름으로 짝을 맞춥니다 ("우동3구역" ↔ "우동3 재개발정비구역" 같은 표기 차이를 흡수). */
+  function matchEntry(name: string): RedevelopmentEntry | undefined {
+    const norm = (t: string) =>
+      t.replace(/\s+/g, "").replace(/\(.*?\)/g, "").replace(/(주택)?(재개발|재건축|정비|사업|구역|지구)/g, "");
+    const target = norm(name);
+    if (!target) return undefined;
+    return entriesRef.current.find((e) => {
+      const en = norm(e.name);
+      return en && (target.includes(en) || en.includes(target));
+    });
+  }
+
+  function drawPolygons(feats: any[]) {
+    const map = mapRef.current;
+    if (!map || !window.kakao?.maps) return;
+    polygonsRef.current.forEach((p) => p.setMap(null));
+    polygonsRef.current = [];
+
+    feats.forEach((f) => {
+      const geom = f?.geometry;
+      if (!geom) return;
+      const rings: number[][][] =
+        geom.type === "Polygon" ? [geom.coordinates[0]] :
+        geom.type === "MultiPolygon" ? geom.coordinates.map((poly: number[][][]) => poly[0]) : [];
+      if (rings.length === 0) return;
+
+      const name = featureName(f.properties);
+      const entry = matchEntry(name);
+      const color = entry?.stage ? STAGE_COLOR[entry.stage] : "#6b7a86";
+
+      rings.forEach((ring) => {
+        const path = ring.map(([lng, lat]) => new window.kakao.maps.LatLng(lat, lng));
+        const polygon = new window.kakao.maps.Polygon({
+          path,
+          strokeWeight: entry ? 2.5 : 1.5,
+          strokeColor: color,
+          strokeOpacity: 0.95,
+          strokeStyle: entry ? "solid" : "shortdash",
+          fillColor: color,
+          fillOpacity: entry ? 0.28 : 0.12,
+        });
+        polygon.setMap(map);
+        if (entry) {
+          window.kakao.maps.event.addListener(polygon, "click", () => onSelect(entry));
+          window.kakao.maps.event.addListener(polygon, "mouseover", () => polygon.setOptions({ fillOpacity: 0.45 }));
+          window.kakao.maps.event.addListener(polygon, "mouseout", () => polygon.setOptions({ fillOpacity: 0.28 }));
+        }
+        polygonsRef.current.push(polygon);
+      });
+    });
+  }
 
   function drawOverlays() {
     const map = mapRef.current;
@@ -129,6 +239,7 @@ export default function RedevelopmentMap({
   // 필터로 목록이 바뀌면 점도 다시 그립니다
   useEffect(() => {
     drawOverlays();
+    scheduleZoneLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entries]);
 
