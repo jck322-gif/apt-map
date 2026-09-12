@@ -86,6 +86,12 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
         </div>
       </div>
 
+      {filter !== "all" && (
+        <p className="redev-filter-desc">
+          <strong>{filter}</strong> — {STAGE_ORDER.find((s) => s.stage === filter)?.desc}
+        </p>
+      )}
+
       <p className="redev-count">{filtered.length}개 구역</p>
 
       <RedevelopmentMap entries={filtered} onSelect={(e) => setSelected(e as Entry)} />
