@@ -1200,6 +1200,14 @@ footer.end p { margin: 0 0 12px; }
 }
 
 /* 청약 계획 달력 */
+.subscription-region-tabs { display: flex; gap: 6px; margin: 10px 0 4px; }
+.subscription-region-tab {
+  padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: none;
+}
+.subscription-region-tab:hover { border-color: var(--teal); color: var(--teal); }
+.subscription-region-tab[aria-current="page"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+
 .subscription-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
 .subscription-nav {
   display: flex; align-items: center; justify-content: center; gap: 14px;

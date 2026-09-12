@@ -62,16 +62,27 @@ function ymd(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+const REGION_TABS: { key: "all" | "busan" | "ulsan"; label: string; test: (regionName: string) => boolean }[] = [
+  { key: "all", label: "전체", test: () => true },
+  { key: "busan", label: "부산", test: (r) => r.includes("부산") },
+  { key: "ulsan", label: "울산", test: (r) => r.includes("울산") },
+];
+
 export default async function SubscriptionPage({
   searchParams,
 }: {
-  searchParams: { m?: string };
+  searchParams: { m?: string; region?: string };
 }) {
   const offset = Number(searchParams?.m ?? "0") || 0;
   const now = new Date();
   const base = new Date(now.getFullYear(), now.getMonth() + offset, 1);
   const year = base.getFullYear();
   const month0 = base.getMonth();
+
+  const regionKey = REGION_TABS.some((t) => t.key === searchParams?.region)
+    ? (searchParams!.region as "all" | "busan" | "ulsan")
+    : "all";
+  const regionTab = REGION_TABS.find((t) => t.key === regionKey)!;
 
   const serviceKey = process.env.APPLYHOME_SERVICE_KEY;
 
@@ -86,6 +97,8 @@ export default async function SubscriptionPage({
       fetchError = e instanceof Error ? e.message : "청약 정보를 가져오지 못했습니다.";
     }
   }
+
+  entries = entries.filter((e) => regionTab.test(e.regionName));
 
   const events = buildEvents(entries);
   const eventsByDate = new Map<string, CalEvent[]>();
@@ -119,6 +132,19 @@ export default async function SubscriptionPage({
           </p>
         )}
 
+        <div className="subscription-region-tabs">
+          {REGION_TABS.map((t) => (
+            <Link
+              key={t.key}
+              href={`/subscription?m=${offset}${t.key === "all" ? "" : `&region=${t.key}`}`}
+              className="subscription-region-tab"
+              aria-current={regionKey === t.key ? "page" : undefined}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </div>
+
         <div className="subscription-legend">
           {(Object.keys(KIND_LABEL) as CalEvent["kind"][]).map((k) => (
             <span key={k} className={`subscription-badge subscription-badge-${k}`}>
@@ -128,13 +154,21 @@ export default async function SubscriptionPage({
         </div>
 
         <div className="subscription-nav">
-          <Link href={`/subscription?m=${offset - 1}`} className="subscription-nav-btn" aria-label="이전 달">
+          <Link
+            href={`/subscription?m=${offset - 1}${regionKey === "all" ? "" : `&region=${regionKey}`}`}
+            className="subscription-nav-btn"
+            aria-label="이전 달"
+          >
             ‹
           </Link>
           <span className="subscription-month">
             {year}년 {month0 + 1}월
           </span>
-          <Link href={`/subscription?m=${offset + 1}`} className="subscription-nav-btn" aria-label="다음 달">
+          <Link
+            href={`/subscription?m=${offset + 1}${regionKey === "all" ? "" : `&region=${regionKey}`}`}
+            className="subscription-nav-btn"
+            aria-label="다음 달"
+          >
             ›
           </Link>
         </div>
