@@ -37,6 +37,61 @@ const RAW_INTERIOR_LINKS: Record<string, InteriorLink[]> = {
       source: "시공사례",
     },
   ],
+  레이카운티: [
+    {
+      title: "연제구 레이카운티 34평 내추럴 인테리어",
+      url: "https://mall.hanssem.com/homeIdeaMain/contents/homeIdeaDetail.do?seq=25113",
+      source: "시공사례",
+    },
+  ],
+  대연힐스테이트푸르지오: [
+    {
+      title: "대연동 힐스테이트 푸르지오 40평 인테리어",
+      url: "https://contents.ohou.se/projects/68846",
+      source: "시공사례",
+    },
+    {
+      title: "남구 대연힐스테이트푸르지오 33평 모던 인테리어",
+      url: "https://mall.hanssem.com/homeIdeaMain/contents/homeIdeaDetail.do?seq=3980",
+      source: "시공사례",
+    },
+    {
+      title: "대연힐스테이트푸르지오 46평형 인테리어",
+      url: "https://thebeautyofwordsblog.com/portfolio/78",
+      source: "시공사례",
+    },
+  ],
+  래미안포레스티지: [
+    {
+      title: "온천장 래미안포레스티지 인테리어",
+      url: "http://www.designamc.com/board/?db=project&mari_mode=view@view&no=355",
+      source: "시공사례",
+    },
+  ],
+  동래래미안아이파크: [
+    {
+      title: "온천동 동래래미안아이파크 인테리어 시공 리뷰",
+      url: "https://contents.ohou.se/projects/196569",
+      source: "시공사례",
+    },
+    {
+      title: "동래구 동래 래미안 아이파크 26평 모던 인테리어",
+      url: "https://mall.hanssem.com/homeIdeaMain/contents/homeIdeaDetail.do?seq=5990",
+      source: "시공사례",
+    },
+  ],
+  해운대두산위브더제니스: [
+    {
+      title: "해운대두산위브더제니스 69평 호텔 감성 인테리어",
+      url: "https://contents.ohou.se/projects/177685",
+      source: "시공사례",
+    },
+    {
+      title: "해운대두산위브더제니스 45평 리조트 감성 인테리어",
+      url: "https://contents.ohou.se/projects/37712",
+      source: "시공사례",
+    },
+  ],
 };
 
 const INTERIOR_LINKS = new Map(
