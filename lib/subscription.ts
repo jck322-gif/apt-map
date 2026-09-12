@@ -8,6 +8,13 @@
 // 공식 문서에 응답 항목 전체가 표로 나와 있지 않아, 실제로 널리 쓰이는 필드 이름들을
 // 기준으로 최대한 관대하게 읽습니다(모르는 필드는 그냥 비워 두고, 아는 필드만 채웁니다).
 // 나중에 실제 응답을 보고 필드 이름이 다르면 이 파일의 candidates 배열에 이름만 추가하면 됩니다.
+//
+// 실거래가와 마찬가지로, 방문자가 페이지를 열 때마다 이 외부 API를 직접 부르지 않고
+// Supabase의 subscriptions 테이블에 미리 저장해둔 결과만 읽습니다(빠르게 뜨도록).
+// 실제로 외부 API를 불러와 테이블을 채우는 건 /api/subscription-sync 입니다
+// (supabase-migration-10.sql로 테이블을 먼저 만들어야 합니다).
+
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const BASE_URL = "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail";
 
@@ -145,4 +152,86 @@ export async function getBusanUlsanSubscriptions(serviceKey: string): Promise<Su
   }
 
   return Array.from(seen.values());
+}
+
+// ── Supabase 저장/조회 ─────────────────────────────────────────────
+
+type SubscriptionRow = {
+  pblanc_no: string;
+  house_name: string;
+  region_name: string;
+  address: string | null;
+  house_type: string | null;
+  total_households: number | null;
+  notice_date: string | null;
+  special_supply_start: string | null;
+  special_supply_end: string | null;
+  rank1_start: string | null;
+  rank1_end: string | null;
+  rank2_start: string | null;
+  rank2_end: string | null;
+  winner_announce_date: string | null;
+  homepage_url: string | null;
+};
+
+function toRow(e: SubscriptionEntry): SubscriptionRow {
+  return {
+    pblanc_no: e.pblancNo,
+    house_name: e.houseName,
+    region_name: e.regionName,
+    address: e.address || null,
+    house_type: e.houseType || null,
+    total_households: e.totalHouseholds,
+    notice_date: e.noticeDate,
+    special_supply_start: e.specialSupplyStart,
+    special_supply_end: e.specialSupplyEnd,
+    rank1_start: e.rank1Start,
+    rank1_end: e.rank1End,
+    rank2_start: e.rank2Start,
+    rank2_end: e.rank2End,
+    winner_announce_date: e.winnerAnnounceDate,
+    homepage_url: e.homepageUrl,
+  };
+}
+
+function fromRow(r: SubscriptionRow): SubscriptionEntry {
+  return {
+    pblancNo: r.pblanc_no,
+    houseName: r.house_name,
+    regionName: r.region_name,
+    address: r.address ?? "",
+    houseType: r.house_type ?? "",
+    totalHouseholds: r.total_households,
+    noticeDate: r.notice_date,
+    specialSupplyStart: r.special_supply_start,
+    specialSupplyEnd: r.special_supply_end,
+    rank1Start: r.rank1_start,
+    rank1End: r.rank1_end,
+    rank2Start: r.rank2_start,
+    rank2End: r.rank2_end,
+    winnerAnnounceDate: r.winner_announce_date,
+    homepageUrl: r.homepage_url,
+  };
+}
+
+/** 청약홈에서 새로 받아온 목록을 subscriptions 테이블에 upsert(있으면 갱신, 없으면 추가)합니다. */
+export async function saveSubscriptions(db: SupabaseClient, entries: SubscriptionEntry[]): Promise<void> {
+  const rows = entries.map((e) => ({ ...toRow(e), updated_at: new Date().toISOString() }));
+  const CHUNK = 200;
+  for (let i = 0; i < rows.length; i += CHUNK) {
+    const slice = rows.slice(i, i + CHUNK);
+    const { error } = await db.from("subscriptions").upsert(slice, { onConflict: "pblanc_no" });
+    if (error) throw new Error(`subscriptions 저장 실패: ${error.message}`);
+  }
+}
+
+/** 우리 DB(subscriptions 테이블)에 저장해둔 부산·울산 청약 일정을 읽어옵니다. 빠릅니다. */
+export async function getStoredSubscriptions(db: SupabaseClient): Promise<SubscriptionEntry[]> {
+  const { data, error } = await db
+    .from("subscriptions")
+    .select("*")
+    .or("region_name.ilike.%부산%,region_name.ilike.%울산%")
+    .limit(1000);
+  if (error) throw new Error(`subscriptions 조회 실패: ${error.message}`);
+  return (data ?? []).map((r) => fromRow(r as SubscriptionRow));
 }

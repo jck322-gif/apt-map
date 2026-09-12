@@ -3,6 +3,10 @@
     {
       "path": "/api/sync",
       "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/subscription-sync",
+      "schedule": "30 20 * * *"
     }
   ]
 }
