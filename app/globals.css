@@ -145,6 +145,18 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 }
 .interior-search-btn:hover { border-color: var(--teal); color: var(--teal-deep); }
 
+.interior-gallery { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 720px) { .interior-gallery { grid-template-columns: repeat(2, 1fr); } }
+.interior-card {
+  padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.interior-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.interior-card-name { font-size: 15px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.interior-card-name:hover { color: var(--teal-deep); }
+.interior-card-loc { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.interior-card .interior-list { margin: 0; }
+
 .deal-tabs {
   display: flex; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 3px; margin-bottom: 10px;
 }
