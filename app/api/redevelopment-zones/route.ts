@@ -39,6 +39,27 @@ export async function GET(request: Request) {
   if (!key) {
     return NextResponse.json({ features: [], error: "VWORLD_API_KEY 환경변수가 없습니다." });
   }
+
+  // ?find=정비  → V-World가 제공하는 전체 레이어 목록(WMS GetCapabilities)에서 이름에 그 글자가
+  // 들어간 레이어를 찾아 보여줍니다. 정비구역 레이어 ID를 모를 때 한 번 쓰는 용도입니다.
+  const find = searchParams.get("find");
+  if (find) {
+    try {
+      const capUrl = `https://api.vworld.kr/req/wms?service=WMS&request=GetCapabilities&version=1.3.0&key=${encodeURIComponent(key)}&domain=buulapt.com`;
+      const res = await fetch(capUrl, { cache: "no-store" });
+      const xml = await res.text();
+      const found: { name: string; title: string }[] = [];
+      const re = /<Layer[^>]*>[\s\S]*?<Name>([^<]+)<\/Name>[\s\S]*?<Title>([^<]*)<\/Title>/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(xml)) !== null) {
+        if (m[2].includes(find) || m[1].includes(find)) found.push({ name: m[1], title: m[2] });
+      }
+      return NextResponse.json({ httpStatus: res.status, matched: found, totalLength: xml.length, head: xml.slice(0, 300) });
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : "요청 실패" });
+    }
+  }
+
   if (!bbox) {
     return NextResponse.json({ features: [], error: "bbox 파라미터가 없거나 범위가 너무 넓습니다." }, { status: 400 });
   }
