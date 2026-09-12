@@ -54,7 +54,7 @@ export async function GET(request: Request) {
       while ((m = re.exec(xml)) !== null) {
         if (m[2].includes(find) || m[1].includes(find)) found.push({ name: m[1], title: m[2] });
       }
-      return NextResponse.json({ httpStatus: res.status, matched: found, totalLength: xml.length, head: xml.slice(0, 300) });
+      return NextResponse.json({ httpStatus: res.status, matched: found, totalLength: xml.length, head: xml.slice(0, 1500) });
     } catch (e) {
       return NextResponse.json({ error: e instanceof Error ? e.message : "요청 실패" });
     }
