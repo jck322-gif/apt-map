@@ -52,8 +52,12 @@ export async function GET(request: Request) {
       const found: { name: string; title: string }[] = [];
       const re = /<Layer[^>]*>[\s\S]*?<Name>([^<]+)<\/Name>[\s\S]*?<Title>([^<]*)<\/Title>/g;
       let m: RegExpExecArray | null;
+      // 쉼표로 여러 단어를 한 번에 찾을 수 있습니다 (예: ?find=재개발,재건축,주거,정비,UPIS). 대소문자 구분 안 함.
+      const words = find.split(",").map((w) => w.trim().toLowerCase()).filter(Boolean);
       while ((m = re.exec(xml)) !== null) {
-        if (m[2].includes(find) || m[1].includes(find)) found.push({ name: m[1], title: m[2] });
+        const name = m[1].toLowerCase();
+        const title = m[2].toLowerCase();
+        if (words.some((w) => title.includes(w) || name.includes(w))) found.push({ name: m[1], title: m[2] });
       }
       return NextResponse.json({ httpStatus: res.status, matched: found, totalLength: xml.length, head: xml.slice(0, 1500) });
     } catch (e) {
