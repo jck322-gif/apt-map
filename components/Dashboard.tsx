@@ -8,6 +8,9 @@ import { fmtManwon, typeLabel, areaDetail } from "@/lib/format";
 import KakaoMap from "@/components/KakaoMap";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
+import FavoritesLink from "@/components/FavoritesLink";
+import FavoriteButton from "@/components/FavoriteButton";
+import { complexHref } from "@/lib/complex";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
 
@@ -433,6 +436,7 @@ export default function Dashboard({
             부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
           </p>
           <span className="live-badge">실시간 연동</span>
+          <FavoritesLink />
         </div>
 
         <nav className="deal-tabs">
@@ -555,12 +559,20 @@ export default function Dashboard({
               ) : (
                 <div className="recent-feed">
                   {list.map((l, i) => (
-                    <button
+                    <div
                       className="recent-row"
                       key={`${l.regionName}-${l.complex}-${l.dealYmd}-${i}`}
+                      role="button"
+                      tabIndex={0}
                       onClick={() =>
                         setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex, areaM2: l.areaM2 })
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setTrendTarget({ code: l.regionCode, regionName: l.regionName, complex: l.complex, areaM2: l.areaM2 });
+                        }
+                      }}
                     >
                       <div className="recent-main">
                         <span className="recent-loc">
@@ -573,6 +585,15 @@ export default function Dashboard({
                         </span>
                       </div>
                       <div className="recent-side">
+                        <FavoriteButton
+                          compact
+                          stopPropagation
+                          code={l.regionCode}
+                          complex={l.complex}
+                          regionName={l.regionName}
+                          group={l.group}
+                          href={complexHref(l.regionCode, l.complex)}
+                        />
                         <span className={`recent-price${l.isCancelled ? " struck" : ""}`}>
                           {listingPriceLabel(l)}
                         </span>
@@ -580,7 +601,7 @@ export default function Dashboard({
                           {l.date} 계약{regDelayLabel(l)}
                         </span>
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
@@ -751,6 +772,7 @@ export default function Dashboard({
                         <th className="c-area">전용</th>
                         <th className="c-price">{dealType === "monthly" ? "보증금/월세" : "가격"}</th>
                         <th className="c-date">계약일</th>
+                        <th className="c-fav" aria-hidden="true"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -778,6 +800,17 @@ export default function Dashboard({
                           <td className="c-area">{Math.round(l.areaM2)}㎡</td>
                           <td className="c-price">{listingPriceLabel(l)}</td>
                           <td className="c-date">{l.date}</td>
+                          <td className="c-fav">
+                            <FavoriteButton
+                              compact
+                              stopPropagation
+                              code={l.regionCode}
+                              complex={l.complex}
+                              regionName={l.regionName}
+                              group={l.group}
+                              href={complexHref(l.regionCode, l.complex)}
+                            />
+                          </td>
                         </tr>
                       ))}
                     </tbody>

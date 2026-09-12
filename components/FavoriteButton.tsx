@@ -17,12 +17,18 @@ export default function FavoriteButton({
   regionName,
   group,
   href,
+  compact = false,
+  stopPropagation = false,
 }: {
   code: string;
   complex: string;
   regionName: string;
   group: string;
   href: string;
+  /** true면 글자 없이 별 아이콘만 (목록 줄 안에 넣을 때) */
+  compact?: boolean;
+  /** true면 클릭이 부모 요소(목록 줄 클릭 등)로 전파되지 않게 막습니다 */
+  stopPropagation?: boolean;
 }) {
   const [saved, setSaved] = useState(false);
   const [ready, setReady] = useState(false);
@@ -36,9 +42,11 @@ export default function FavoriteButton({
   return (
     <button
       type="button"
-      className={`fav-btn${saved ? " is-saved" : ""}`}
+      className={`fav-btn${saved ? " is-saved" : ""}${compact ? " fav-btn-compact" : ""}`}
       aria-pressed={saved}
-      onClick={() => {
+      aria-label={saved ? `${complex} 즐겨찾기 해제` : `${complex} 즐겨찾기`}
+      onClick={(e) => {
+        if (stopPropagation) e.stopPropagation();
         const nowSaved = toggleFavorite({ code, complex, regionName, group, href });
         setSaved(nowSaved);
       }}
@@ -46,7 +54,7 @@ export default function FavoriteButton({
       style={ready ? undefined : { opacity: 0.6 }}
     >
       <span aria-hidden="true">{saved ? "★" : "☆"}</span>
-      {saved ? "즐겨찾기 됨" : "즐겨찾기"}
+      {!compact && (saved ? "즐겨찾기 됨" : "즐겨찾기")}
     </button>
   );
 }
