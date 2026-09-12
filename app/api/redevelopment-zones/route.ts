@@ -77,24 +77,42 @@ export async function GET(request: Request) {
     page: "1",
   });
 
-  // 서버(Vercel)에서 V-World로 나가는 요청이 https에서 막히는 경우가 있어(정부 사이트 인증서 체인 문제),
-  // https가 실패하면 http로 한 번 더 시도합니다. 어느 쪽이 됐는지 debug 결과에 남깁니다.
-  async function fetchVworld(): Promise<{ res: Response; text: string; proto: string }> {
+  // V-World는 인증키를 "등록한 서비스 URL"과 짝지어 검사합니다. 서버에서 부를 때는 브라우저처럼
+  // Referer가 없으므로 domain 파라미터로 알려줘야 하는데, 등록 화면에 적은 형태(https:// 포함 여부,
+  // www 여부)와 정확히 같아야 통과합니다. 어떤 형태로 등록했는지 모르니 후보를 순서대로 시도합니다.
+  const DOMAIN_CANDIDATES = [
+    process.env.VWORLD_DOMAIN,
+    "buulapt.com",
+    "https://buulapt.com",
+    "https://buulapt.com/",
+    "www.buulapt.com",
+    "https://www.buulapt.com",
+  ].filter((d): d is string => !!d);
+
+  async function fetchVworld(): Promise<{ res: Response; text: string; proto: string; domain: string }> {
     let lastErr: unknown = null;
-    for (const url of [VWORLD_URL, VWORLD_URL.replace("https://", "http://")]) {
-      try {
-        const res = await fetch(`${url}?${qs.toString()}`, { cache: "no-store" });
-        const text = await res.text();
-        return { res, text, proto: url.startsWith("https") ? "https" : "http" };
-      } catch (e) {
-        lastErr = e;
+    let last: { res: Response; text: string; proto: string; domain: string } | null = null;
+    for (const domain of DOMAIN_CANDIDATES) {
+      qs.set("domain", domain);
+      for (const url of [VWORLD_URL, VWORLD_URL.replace("https://", "http://")]) {
+        try {
+          const res = await fetch(`${url}?${qs.toString()}`, { cache: "no-store", headers: { Referer: `https://${domain.replace(/^https?:\/\//, "").replace(/\/$/, "")}/` } });
+          const text = await res.text();
+          last = { res, text, proto: url.startsWith("https") ? "https" : "http", domain };
+          // 인증키 오류(INVALID_KEY)면 다음 domain 후보로, 그 외에는 이 결과를 그대로 씁니다
+          if (!/INVALID_KEY/.test(text)) return last;
+          break; // 같은 domain으로 http를 또 시도할 필요는 없음
+        } catch (e) {
+          lastErr = e;
+        }
       }
     }
+    if (last) return last;
     throw lastErr;
   }
 
   try {
-    const { res, text, proto } = await fetchVworld();
+    const { res, text, proto, domain } = await fetchVworld();
 
     if (debug) {
       let firstProps: unknown = null;
@@ -109,7 +127,7 @@ export async function GET(request: Request) {
       } catch {
         // 원문이 JSON이 아니면 아래 rawSample 로만 보여줍니다
       }
-      return NextResponse.json({ layer, proto, httpStatus: res.status, count, firstProps, rawSample: text.slice(0, 1200) });
+      return NextResponse.json({ layer, proto, domain, keyTail: key.slice(-6), httpStatus: res.status, count, firstProps, rawSample: text.slice(0, 1200) });
     }
 
     if (!res.ok) {
