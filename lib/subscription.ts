@@ -263,11 +263,13 @@ export async function saveSubscriptions(db: SupabaseClient, entries: Subscriptio
 
 /** 우리 DB(subscriptions 테이블)에 저장해둔 부산·울산 청약 일정을 읽어옵니다. 빠릅니다. */
 export async function getStoredSubscriptions(db: SupabaseClient): Promise<SubscriptionEntry[]> {
-  const { data, error } = await db
-    .from("subscriptions")
-    .select("*")
-    .or("region_name.ilike.%부산%,region_name.ilike.%울산%")
-    .limit(1000);
+  // 애초에 저장할 때(saveSubscriptions 호출 전, getBusanUlsanSubscriptions에서) 이미
+  // 부산·울산만 걸러서 넣기 때문에, 여기서는 테이블 전체를 그냥 읽어옵니다.
+  // (PostgREST의 .or()/.ilike() 문자열 조합이 한글·와일드카드 조합에서 종종 기대와 다르게
+  //  동작해서, 안전하게 자바스크립트에서 한 번 더 걸러냅니다.)
+  const { data, error } = await db.from("subscriptions").select("*").limit(1000);
   if (error) throw new Error(`subscriptions 조회 실패: ${error.message}`);
-  return (data ?? []).map((r) => fromRow(r as SubscriptionRow));
+  return (data ?? [])
+    .map((r) => fromRow(r as SubscriptionRow))
+    .filter((e) => /부산|울산/.test(e.regionName));
 }
