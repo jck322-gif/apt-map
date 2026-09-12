@@ -12,7 +12,18 @@ import { SITE_NAME } from "@/lib/site";
 export default function SiteHeader({
   current,
 }: {
-  current?: "sale" | "jeonse" | "monthly" | "daily" | "apt" | "rank" | "compare" | "guide" | "interior";
+  current?:
+    | "sale"
+    | "jeonse"
+    | "monthly"
+    | "daily"
+    | "apt"
+    | "rank"
+    | "compare"
+    | "guide"
+    | "interior"
+    | "redevelopment"
+    | "subscription";
 }) {
   // 상단에는 매매·전세·월세만 남기고, 나머지(브리핑/단지/랭킹/상식)는 오른쪽 "☰ 더보기"
   // 드롭다운(MoreMenu)에 모아 둡니다. 항목이 늘어나도 이 세 개만 항상 한 줄에 남기 때문에

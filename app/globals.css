@@ -157,6 +157,36 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 .interior-card-loc { font-size: 12px; color: var(--muted); flex-shrink: 0; }
 .interior-card .interior-list { margin: 0; }
 
+.stage-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.stage-legend-item {
+  display: flex; align-items: baseline; gap: 10px; padding: 9px 12px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface);
+}
+.stage-legend-num {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--teal); color: #fff;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.stage-legend-name { flex-shrink: 0; font-weight: 700; font-size: 13.5px; color: var(--ink); min-width: 84px; }
+.stage-legend-desc { font-size: 12.5px; color: var(--muted); }
+
+.redev-list { display: flex; flex-direction: column; gap: 10px; }
+.redev-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+.redev-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.redev-card-name { font-size: 15px; font-weight: 800; color: var(--ink); }
+.redev-card-type {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; background: var(--surface-2); color: var(--ink-soft);
+}
+.redev-card-loc { font-size: 12px; color: var(--muted); margin-left: auto; }
+.redev-card-stage { font-size: 13.5px; margin: 0 0 4px; }
+.redev-card-stage strong { color: var(--teal-deep); }
+.redev-card-stage-unknown { color: var(--muted); }
+.redev-card-checked { color: var(--muted); font-size: 12px; }
+.redev-card-note { font-size: 12.5px; color: var(--muted); margin: 0 0 8px; }
+.redev-card-link { font-size: 12.5px; font-weight: 700; color: var(--teal-deep); text-decoration: none; }
+.redev-card-link:hover { text-decoration: underline; }
+
 .deal-tabs {
   display: flex; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 3px; margin-bottom: 10px;
 }
@@ -1167,4 +1197,56 @@ footer.end p { margin: 0 0 12px; }
 .rank-group-title {
   margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--ink);
   padding-left: 8px; border-left: 3px solid var(--teal);
+}
+
+/* 청약 계획 달력 */
+.subscription-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
+.subscription-nav {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin: 14px 0 10px;
+}
+.subscription-nav-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); text-decoration: none; font-size: 16px; font-weight: 700;
+}
+.subscription-nav-btn:hover { border-color: var(--teal); color: var(--teal); }
+.subscription-month { font-size: 15.5px; font-weight: 800; color: var(--ink); min-width: 96px; text-align: center; }
+
+.subscription-calendar {
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface);
+}
+.subscription-weekdays, .subscription-week { display: grid; grid-template-columns: repeat(7, 1fr); }
+.subscription-weekdays {
+  border-bottom: 1px solid var(--line); background: var(--surface-2);
+  font-size: 12px; font-weight: 700; color: var(--muted);
+}
+.subscription-weekdays span { padding: 7px 4px; text-align: center; }
+.subscription-weekdays span.is-sun { color: #dc2626; }
+.subscription-weekdays span.is-sat { color: #2563eb; }
+
+.subscription-cell {
+  min-height: 74px; padding: 4px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 2px; font-size: 11px; overflow: hidden;
+}
+.subscription-week .subscription-cell:last-child { border-right: none; }
+.subscription-cell.is-empty { background: var(--surface-2); }
+.subscription-cell.is-sun .subscription-daynum { color: #dc2626; }
+.subscription-cell.is-sat .subscription-daynum { color: #2563eb; }
+.subscription-daynum { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
+
+.subscription-badge {
+  display: block; padding: 1.5px 5px; border-radius: 5px; font-size: 10px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.6;
+}
+.subscription-badge-notice { background: #f1f5f9; color: #475569; }
+.subscription-badge-special { background: #fef3c7; color: #92400e; }
+.subscription-badge-rank1 { background: #dcfce7; color: #166534; }
+.subscription-badge-rank2 { background: #dbeafe; color: #1e40af; }
+.subscription-badge-winner { background: #fce7f3; color: #9d174d; }
+.subscription-more { font-size: 10px; color: var(--muted); padding-left: 5px; }
+
+@media (max-width: 560px) {
+  .subscription-cell { min-height: 56px; font-size: 10px; }
+  .subscription-badge { font-size: 9px; }
 }
