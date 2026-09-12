@@ -1349,3 +1349,12 @@ footer.end p { margin: 0 0 12px; }
   color: var(--teal-deep); flex-shrink: 0; min-width: 58px;
 }
 .redev-modal-history-label { font-size: 13px; color: var(--ink-soft); }
+
+/* 재개발 — 지도 · 단계 배지 */
+.redev-map-wrap { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); margin: 10px 0 4px; }
+.redev-map-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 12px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--ink-soft); }
+.redev-map-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.redev-map-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.redev-stage-badge {
+  padding: 2px 9px; border-radius: 999px; color: #fff; font-size: 11px; font-weight: 800; white-space: nowrap;
+}

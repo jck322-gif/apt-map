@@ -7,6 +7,7 @@ import {
   type RedevelopmentEntry,
   type RedevelopmentStage,
 } from "@/lib/redevelopment";
+import RedevelopmentMap, { STAGE_COLOR } from "@/components/RedevelopmentMap";
 
 type Entry = RedevelopmentEntry & { href: string };
 
@@ -87,6 +88,8 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
 
       <p className="redev-count">{filtered.length}개 구역</p>
 
+      <RedevelopmentMap entries={filtered} onSelect={(e) => setSelected(e as Entry)} />
+
       {[
         { title: "부산광역시", list: busan },
         { title: "울산광역시", list: ulsan },
@@ -108,6 +111,11 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
                     <div className="redev-card-head">
                       <span className="redev-card-name">{e.name}</span>
                       <span className="redev-card-type">{e.type}</span>
+                      {e.stage && (
+                        <span className="redev-stage-badge" style={{ background: STAGE_COLOR[e.stage] }}>
+                          {e.stage}
+                        </span>
+                      )}
                       <span className="redev-card-loc">{e.regionName}</span>
                     </div>
                     <StageTrack stage={e.stage} />
@@ -170,7 +178,7 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
               )}
             </p>
 
-            {(selected.totalHouseholds || selected.constructor) && (
+            {(selected.totalHouseholds || selected.builder) && (
               <div className="redev-modal-facts">
                 {selected.totalHouseholds && (
                   <div className="redev-modal-fact">
@@ -178,10 +186,10 @@ export default function RedevelopmentBoard({ entries }: { entries: Entry[] }) {
                     <span className="redev-modal-fact-value">{selected.totalHouseholds.toLocaleString()}세대</span>
                   </div>
                 )}
-                {selected.constructor && (
+                {selected.builder && (
                   <div className="redev-modal-fact">
                     <span className="redev-modal-fact-label">시공사</span>
-                    <span className="redev-modal-fact-value">{selected.constructor}</span>
+                    <span className="redev-modal-fact-value">{selected.builder}</span>
                   </div>
                 )}
               </div>
