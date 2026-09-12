@@ -67,11 +67,18 @@ function parseEntry(item: Record<string, unknown>): SubscriptionEntry | null {
   const pblancNo = pick(item, ["PBLANC_NO", "pblancNo"]);
   if (!houseName || !pblancNo) return null;
 
+  // 실제 응답에는 "SUBSCRPT_AREA_CODE_NM" 같은 시·도 전용 필드가 없었습니다(debug로 확인).
+  // 대신 공급위치 주소(HSSPLY_ADRES)가 항상 "부산광역시 남구 ..." 처럼 시·도로 시작하므로,
+  // 그 첫 단어를 지역명으로 씁니다. (전용 필드가 나중에 생기면 그것도 우선 시도합니다.)
+  const address = pick(item, ["HSSPLY_ADRES", "hssplyAdres", "HSSPLY_ZIP", "PBLANC_ADRES"]);
+  const regionFromField = pick(item, ["SUBSCRPT_AREA_CODE_NM", "subscrptAreaCodeNm"]);
+  const regionName = regionFromField || address.split(/\s+/)[0] || "";
+
   return {
     pblancNo,
     houseName,
-    regionName: pick(item, ["SUBSCRPT_AREA_CODE_NM", "subscrptAreaCodeNm"]),
-    address: pick(item, ["HSSPLY_ADRES", "hssplyAdres", "HSSPLY_ZIP", "PBLANC_ADRES"]),
+    regionName,
+    address,
     houseType: pick(item, ["HOUSE_SECD_NM", "houseSecdNm", "HOUSE_DTL_SECD_NM"]),
     totalHouseholds: pickNumber(item, ["TOT_SUPLY_HSHLDCO", "totSuplyHshldco"]),
     noticeDate: pickDate(item, ["RCRIT_PBLANC_DE", "rcritPblancDe"]),
@@ -136,8 +143,11 @@ async function fetchPage(
  * 2페이지부터의 실패는 이미 모은 데이터라도 보여주기 위해 조용히 멈춥니다.
  */
 export async function getBusanUlsanSubscriptions(serviceKey: string): Promise<SubscriptionEntry[]> {
-  const PER_PAGE = 100;
-  const MAX_PAGES = 5;
+  // 전국 공고가 한 번에 (지금 기준 약 2,875건) 들어있고 지역별 정렬을 보장하지 않아서,
+  // 부산·울산을 놓치지 않으려면 전체를 다 훑어야 합니다. 하루 한 번(크론)만 도는 작업이라
+  // 넉넉히 잡아도 괜찮습니다.
+  const PER_PAGE = 500;
+  const MAX_PAGES = 20; // 500 × 20 = 최대 10,000건까지 커버
   const seen = new Map<string, SubscriptionEntry>();
 
   for (let page = 1; page <= MAX_PAGES; page++) {
