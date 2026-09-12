@@ -30,7 +30,8 @@ function parseBbox(raw: string | null): [number, number, number, number] | null 
 }
 
 export async function GET(request: Request) {
-  const key = process.env.VWORLD_API_KEY;
+  // 환경변수에 앞뒤 공백·따옴표가 섞여 들어가는 실수가 잦아서 정리해서 씁니다.
+  const key = (process.env.VWORLD_API_KEY ?? "").trim().replace(/^["']|["']$/g, "");
   const { searchParams } = new URL(request.url);
   const bbox = parseBbox(searchParams.get("bbox"));
   const debug = searchParams.get("debug") === "1";
@@ -129,7 +130,7 @@ export async function GET(request: Request) {
       } catch {
         // 원문이 JSON이 아니면 아래 rawSample 로만 보여줍니다
       }
-      return NextResponse.json({ layer, proto, domain, keyTail: key.slice(-6), httpStatus: res.status, count, firstProps, rawSample: text.slice(0, 1200) });
+      return NextResponse.json({ version: "v5", layer, proto, domain, keyTail: key.slice(-6), keyLen: key.length, httpStatus: res.status, count, firstProps, rawSample: text.slice(0, 1200) });
     }
 
     if (!res.ok) {
