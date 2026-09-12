@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   const find = searchParams.get("find");
   if (find) {
     try {
-      const capUrl = `https://api.vworld.kr/req/wms?service=WMS&request=GetCapabilities&version=1.3.0&key=${encodeURIComponent(key)}&domain=buulapt.com`;
+      const capUrl = `https://api.vworld.kr/req/wms?service=WMS&request=GetCapabilities&version=1.3.0&key=${key}&domain=https://buulapt.com`;
       const res = await fetch(capUrl, { cache: "no-store" });
       const xml = await res.text();
       const found: { name: string; title: string }[] = [];
@@ -69,10 +69,8 @@ export async function GET(request: Request) {
     request: "GetFeature",
     data: layer,
     key,
-    domain: "buulapt.com",
     format: "json",
     crs: "EPSG:4326",
-    geomFilter: `BOX(${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]})`,
     size: "1000",
     page: "1",
   });
@@ -93,11 +91,14 @@ export async function GET(request: Request) {
     let lastErr: unknown = null;
     let last: { res: Response; text: string; proto: string; domain: string } | null = null;
     for (const domain of DOMAIN_CANDIDATES) {
-      qs.set("domain", domain);
       for (const url of [VWORLD_URL, VWORLD_URL.replace("https://", "http://")]) {
         try {
           // 브라우저에서 주소창에 직접 쳤을 때(Referer 없음)는 통과했으므로, 서버에서도 Referer 없이 보냅니다.
-          const res = await fetch(`${url}?${qs.toString()}`, { cache: "no-store" });
+          // ⚠️ URLSearchParams는 domain의 "https://" 를 %3A%2F%2F 로 바꿔 보내는데, V-World는 이걸
+          // 풀지 않고 글자 그대로 비교해서 "등록되지 않은 인증키"로 거부합니다(브라우저 주소창에 그대로
+          // 쳤을 때는 통과한 이유). 그래서 domain·geomFilter는 인코딩 없이 직접 붙입니다.
+          const query = `${qs.toString()}&domain=${domain}&geomFilter=BOX(${bbox!.join(",")})`;
+          const res = await fetch(`${url}?${query}`, { cache: "no-store" });
           const text = await res.text();
           last = { res, text, proto: url.startsWith("https") ? "https" : "http", domain };
           // 인증키 오류(INVALID_KEY)면 다음 domain 후보로, 그 외에는 이 결과를 그대로 씁니다
