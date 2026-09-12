@@ -82,8 +82,8 @@ export async function GET(request: Request) {
   // www 여부)와 정확히 같아야 통과합니다. 어떤 형태로 등록했는지 모르니 후보를 순서대로 시도합니다.
   const DOMAIN_CANDIDATES = [
     process.env.VWORLD_DOMAIN,
-    "buulapt.com",
     "https://buulapt.com",
+    "buulapt.com",
     "https://buulapt.com/",
     "www.buulapt.com",
     "https://www.buulapt.com",
@@ -96,7 +96,8 @@ export async function GET(request: Request) {
       qs.set("domain", domain);
       for (const url of [VWORLD_URL, VWORLD_URL.replace("https://", "http://")]) {
         try {
-          const res = await fetch(`${url}?${qs.toString()}`, { cache: "no-store", headers: { Referer: `https://${domain.replace(/^https?:\/\//, "").replace(/\/$/, "")}/` } });
+          // 브라우저에서 주소창에 직접 쳤을 때(Referer 없음)는 통과했으므로, 서버에서도 Referer 없이 보냅니다.
+          const res = await fetch(`${url}?${qs.toString()}`, { cache: "no-store" });
           const text = await res.text();
           last = { res, text, proto: url.startsWith("https") ? "https" : "http", domain };
           // 인증키 오류(INVALID_KEY)면 다음 domain 후보로, 그 외에는 이 결과를 그대로 씁니다
