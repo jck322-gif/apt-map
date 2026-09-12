@@ -27,14 +27,6 @@ export default function RedevelopmentPage() {
 
       <article className="block">
         <h1 className="guide-title">재개발 · 재건축 현황</h1>
-        <p className="guide-summary">
-          재개발·재건축은 실거래가처럼 매일 자동으로 갱신되는 자료가 없습니다. 그래서 이 페이지는
-          확실히 확인된 정보만 담고, 그 외에는 억지로 채우지 않고{" "}
-          <a href="https://dynamice.busan.go.kr/" target="_blank" rel="noopener noreferrer">
-            부산시 정비사업 통합홈페이지
-          </a>
-          로 바로 연결합니다. 궁금한 구역이 있으면 언제든 알려주세요 — 확인해서 추가하겠습니다.
-        </p>
 
         <details className="brief-section stage-legend-details">
           <summary className="brief-h2 stage-legend-summary">진행 단계 8가지 보기</summary>
