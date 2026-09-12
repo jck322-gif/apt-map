@@ -10,11 +10,11 @@ import { useEffect, useRef, useState } from "react";
  * (예전에는 메뉴가 8개가 되면 휴대폰에서 두 줄로 넘어가는 문제 때문에 항목 개수를 아껴 써야
  * 했는데, 이제는 여기 목록에만 추가하면 됩니다).
  */
-const MORE_ITEMS: { key: string; label: string; href: string }[] = [
-  { key: "daily", label: "브리핑", href: "/daily" },
-  { key: "apt", label: "단지", href: "/apt" },
-  { key: "rank", label: "랭킹", href: "/rank" },
-  { key: "guide", label: "상식", href: "/guide" },
+const MORE_ITEMS: { key: string; label: string; desc: string; href: string }[] = [
+  { key: "daily", label: "브리핑", desc: "오늘의 실거래 요약", href: "/daily" },
+  { key: "apt", label: "단지", desc: "단지별 실거래가·시세", href: "/apt" },
+  { key: "rank", label: "랭킹", desc: "신고가·상승률 순위", href: "/rank" },
+  { key: "guide", label: "상식", desc: "실거래가 읽는 법 등", href: "/guide" },
 ];
 
 export default function MoreMenu({ current }: { current?: string }) {
@@ -61,7 +61,8 @@ export default function MoreMenu({ current }: { current?: string }) {
               aria-current={current === i.key ? "page" : undefined}
               onClick={() => setOpen(false)}
             >
-              {i.label}
+              <span className="more-menu-item-label">{i.label}</span>
+              <span className="more-menu-item-desc">{i.desc}</span>
             </Link>
           ))}
         </div>
