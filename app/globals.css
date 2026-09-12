@@ -138,6 +138,25 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 .deal-tab[aria-pressed="true"],
 .deal-tab[aria-current="page"] { background: var(--ink); color: var(--paper); }
 
+.more-menu { position: relative; flex-shrink: 0; }
+.more-menu-btn {
+  font-family: "Noto Sans KR", sans-serif; font-size: 13px; font-weight: 700; padding: 7px 12px;
+  border-radius: 8px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
+  white-space: nowrap;
+}
+.more-menu-btn.is-active { background: var(--ink); color: var(--paper); }
+.more-menu-list {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; min-width: 132px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
+  padding: 4px; display: flex; flex-direction: column; gap: 2px;
+}
+.more-menu-item {
+  padding: 9px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: var(--ink);
+  text-decoration: none;
+}
+.more-menu-item:hover { background: var(--surface-2); }
+.more-menu-item[aria-current="page"] { background: var(--teal); color: #fff; font-weight: 700; }
+
 /* 로고·사이트명 전체가 홈으로 가는 링크입니다. */
 a.brand { text-decoration: none; color: inherit; }
 a.brand:hover h1 { color: var(--teal-deep); }

@@ -10,6 +10,7 @@ import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
 import FavoritesLink from "@/components/FavoritesLink";
 import FavoriteButton from "@/components/FavoriteButton";
+import MoreMenu from "@/components/MoreMenu";
 import { complexHref } from "@/lib/complex";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
@@ -450,18 +451,7 @@ export default function Dashboard({
               {t.label}
             </Link>
           ))}
-          <Link href="/daily" className="deal-tab">
-            브리핑
-          </Link>
-          <Link href="/apt" className="deal-tab">
-            단지
-          </Link>
-          <Link href="/rank" className="deal-tab">
-            랭킹
-          </Link>
-          <Link href="/guide" className="deal-tab">
-            상식
-          </Link>
+          <MoreMenu />
         </nav>
 
         <div className="controls">
