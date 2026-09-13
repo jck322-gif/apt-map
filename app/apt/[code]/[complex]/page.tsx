@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
+import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { fmtManwon } from "@/lib/format";
 import { loadComplexTrend, complexHref, type ComplexTrend } from "@/lib/complex";
 
@@ -63,8 +64,35 @@ export default async function ComplexPage({ params }: { params: { code: string; 
   if (!data) notFound();
   if (data.counts.sale + data.counts.jeonse + data.counts.monthly === 0) notFound();
 
+  const name = decodeName(params.complex);
+  // "홈 > 지역 > 단지" 탐색 경로를 구글에 알려줍니다 (검색결과에 경로가 표시될 수 있습니다).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: SITE_NAME, item: SITE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: `${region.group}광역시 ${region.name}`,
+            item: `${SITE_URL}/apt/${region.code}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name,
+            item: `${SITE_URL}${complexHref(region.code, name)}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="wrap">
+      <JsonLd data={jsonLd} />
       <SiteHeader current="apt" />
       <ComplexDetail data={data} />
     </div>

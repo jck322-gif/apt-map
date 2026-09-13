@@ -48,25 +48,18 @@ function fontStyle(family: string | null): { fontFamily: string } | Record<strin
   return family ? { fontFamily: family } : {};
 }
 
-type LoadedFonts = { name: string; data: ArrayBuffer; weight: 500 | 800; style: "normal" }[];
+type LoadedFonts = { name: string; data: ArrayBuffer; weight: 800; style: "normal" }[];
 
-async function loadFonts(text: string): Promise<{ serifFamily: string | null; sansFamily: string | null; fonts: LoadedFonts }> {
-  const [serif, sans] = await Promise.allSettled([
-    loadGoogleFont("Noto Serif KR", 800, text),
-    loadGoogleFont("Noto Sans KR", 500, text),
-  ]);
+// 제목·가격·본문 모두 굵은 고딕(Noto Sans KR)만 씁니다 — 경쟁 사이트의 두꺼운 고딕 느낌에 맞췄습니다.
+async function loadFonts(text: string): Promise<{ sansFamily: string | null; fonts: LoadedFonts }> {
+  const sans = await loadGoogleFont("Noto Sans KR", 800, text).catch(() => null);
   const fonts: LoadedFonts = [];
-  let serifFamily: string | null = null;
   let sansFamily: string | null = null;
-  if (serif.status === "fulfilled") {
-    fonts.push({ name: "Noto Serif KR", data: serif.value, weight: 800, style: "normal" });
-    serifFamily = "Noto Serif KR";
-  }
-  if (sans.status === "fulfilled") {
-    fonts.push({ name: "Noto Sans KR", data: sans.value, weight: 500, style: "normal" });
+  if (sans) {
+    fonts.push({ name: "Noto Sans KR", data: sans, weight: 800, style: "normal" });
     sansFamily = "Noto Sans KR";
   }
-  return { serifFamily, sansFamily, fonts };
+  return { sansFamily, fonts };
 }
 
 /** 뭔가 크게 잘못됐을 때 내려주는 최후의 이미지 — 한글도, 커스텀 폰트도 안 쓰므로 이 자체가 실패할 일은 없습니다. */
@@ -122,7 +115,8 @@ export async function GET(request: Request) {
         title = top.complex;
         moreLabel = brief.records.length > 1 ? `외 ${brief.records.length - 1}곳` : "";
         priceLabel = fmtManwon(top.priceManwon);
-        detailLabel = `${top.dong} · 전용 ${Math.round(top.areaM2)}㎡ · ${top.floor}층 · ${top.dealDate} 계약`;
+        // ㎡(U+33A1) 글자는 구글 폰트 서브셋에 없을 때가 있어 빈 네모로 깨지므로, 이 이미지에서는 "m²"로 씁니다.
+        detailLabel = `${top.dong} · 전용 ${Math.round(top.areaM2)}m² · ${top.floor}층 · ${top.dealDate} 계약`;
       } else if (brief.highlight) {
         hasContent = true;
         const h = brief.highlight;
@@ -130,7 +124,7 @@ export async function GET(request: Request) {
         badgeKind = "오늘 최고가 거래";
         title = h.complex;
         priceLabel = fmtManwon(h.priceManwon);
-        detailLabel = `${h.dong} · 전용 ${Math.round(h.areaM2)}㎡ · ${h.floor}층 · ${h.dealDate} 계약`;
+        detailLabel = `${h.dong} · 전용 ${Math.round(h.areaM2)}m² · ${h.floor}층 · ${h.dealDate} 계약`;
       }
     } catch {
       // DB 조회가 실패해도 아래에서 기본 브랜드 이미지를 내려줍니다.
@@ -155,7 +149,25 @@ export async function GET(request: Request) {
       )
     ).join("");
 
-    const { serifFamily, sansFamily, fonts } = await loadFonts(allText);
+    const { sansFamily, fonts } = await loadFonts(allText);
+
+    // 실제 사진 대신, 짙은 하늘 아래 건물 실루엣을 그려서 "도심 야경" 느낌만 냅니다.
+    // (경쟁 사이트처럼 실제 항공사진을 쓸 수는 없어서, 저작권 걱정 없는 그림으로 대신합니다.)
+    const buildings = [
+      { w: 88, h: 220, c: "#0a2229" },
+      { w: 64, h: 300, c: "#123a42" },
+      { w: 118, h: 190, c: "#0a2229" },
+      { w: 70, h: 360, c: "#153f47" },
+      { w: 100, h: 260, c: "#0d2b31" },
+      { w: 52, h: 420, c: "#1a4750" },
+      { w: 140, h: 230, c: "#0a2229" },
+      { w: 82, h: 340, c: "#123a42" },
+      { w: 66, h: 270, c: "#0d2b31" },
+      { w: 112, h: 210, c: "#153f47" },
+      { w: 76, h: 380, c: "#1a4750" },
+      { w: 96, h: 250, c: "#0a2229" },
+      { w: 130, h: 200, c: "#0d2b31" },
+    ];
 
     return new ImageResponse(
       (
@@ -165,158 +177,151 @@ export async function GET(request: Request) {
             height: "100%",
             display: "flex",
             flexDirection: "column",
-            padding: "72px",
-            background: "linear-gradient(135deg, #0b1f22 0%, #144951 55%, #1f6f78 100%)",
             position: "relative",
+            background: "linear-gradient(180deg, #030f13 0%, #0a2530 55%, #123a42 100%)",
             ...fontStyle(sansFamily),
           }}
         >
+          {/* 은은한 달빛/글로우 */}
           <div
             style={{
               position: "absolute",
-              top: -120,
-              right: -140,
-              width: 480,
-              height: 480,
+              top: -140,
+              right: -120,
+              width: 520,
+              height: 520,
               borderRadius: 9999,
-              background: "rgba(255,255,255,0.06)",
-              display: "flex",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: -160,
-              left: -100,
-              width: 380,
-              height: 380,
-              borderRadius: 9999,
-              background: "rgba(217,102,63,0.15)",
+              background: "rgba(255,255,255,0.05)",
               display: "flex",
             }}
           />
 
-          <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center" }}>
-            <div
-              style={{
-                display: "flex",
-                background: "#d9663f",
-                color: "white",
-                padding: "16px 34px",
-                borderRadius: 999,
-                fontSize: 36,
-                fontWeight: 700,
-                ...fontStyle(sansFamily),
-              }}
-            >
-              {badgeGroup} {badgeKind}
-            </div>
-            <div style={{ display: "flex", color: "rgba(255,255,255,0.75)", fontSize: 28, ...fontStyle(sansFamily) }}>
-              {dateLabel}
-            </div>
+          {/* 건물 실루엣 (화면 하단) */}
+          <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", alignItems: "flex-end" }}>
+            {buildings.map((b, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  width: b.w,
+                  height: b.h,
+                  background: b.c,
+                  borderTop: "3px solid rgba(255,214,160,0.18)",
+                }}
+              />
+            ))}
           </div>
+          {/* 건물 위 옅은 안개 */}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 420,
+              display: "flex",
+              background: "linear-gradient(180deg, rgba(3,15,19,0) 0%, rgba(3,15,19,0.65) 100%)",
+            }}
+          />
 
-          <div style={{ display: "flex", flexDirection: "column", marginTop: 56 }}>
-            <div
-              style={{
-                display: "flex",
-                color: "white",
-                fontSize: title.length > 8 ? 76 : 108,
-                fontWeight: 800,
-                lineHeight: 1.2,
-                ...fontStyle(serifFamily),
-              }}
-            >
-              {hasContent ? title : "오늘 실거래 소식"}
-            </div>
-            {moreLabel && (
+          {/* 실제 내용 */}
+          <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", padding: "70px" }}>
+            <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center" }}>
               <div
                 style={{
                   display: "flex",
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 44,
+                  background: "rgba(6,14,17,0.6)",
+                  border: "1px solid rgba(255,255,255,0.22)",
+                  color: "white",
+                  padding: "14px 32px",
+                  borderRadius: 999,
+                  fontSize: 32,
                   fontWeight: 700,
-                  marginTop: 14,
                   ...fontStyle(sansFamily),
                 }}
               >
-                {moreLabel}
+                {badgeGroup} {badgeKind}
               </div>
-            )}
-          </div>
+              <div style={{ display: "flex", color: "rgba(255,255,255,0.55)", fontSize: 24, ...fontStyle(sansFamily) }}>
+                {dateLabel}
+              </div>
+            </div>
 
-          {hasContent ? (
-            <>
+            <div style={{ display: "flex", flexDirection: "column", marginTop: 64 }}>
               <div
                 style={{
                   display: "flex",
-                  color: "#ffd9c9",
-                  fontSize: 76,
+                  color: "white",
+                  fontSize: title.length > 8 ? 58 : 68,
                   fontWeight: 800,
-                  marginTop: 44,
-                  ...fontStyle(serifFamily),
+                  lineHeight: 1.25,
+                  ...fontStyle(sansFamily),
+                }}
+              >
+                {hasContent ? title : "오늘 실거래 소식"}
+              </div>
+              {moreLabel && (
+                <div
+                  style={{
+                    display: "flex",
+                    color: "rgba(255,255,255,0.6)",
+                    fontSize: 32,
+                    fontWeight: 700,
+                    marginTop: 10,
+                    ...fontStyle(sansFamily),
+                  }}
+                >
+                  {moreLabel}
+                </div>
+              )}
+            </div>
+
+            {hasContent ? (
+              <div
+                style={{
+                  display: "flex",
+                  color: "#ff7a4d",
+                  fontSize: 138,
+                  fontWeight: 800,
+                  marginTop: 20,
+                  lineHeight: 1.05,
+                  ...fontStyle(sansFamily),
                 }}
               >
                 {priceLabel}
               </div>
+            ) : (
               <div
                 style={{
                   display: "flex",
-                  color: "rgba(255,255,255,0.7)",
-                  fontSize: 30,
-                  marginTop: 18,
+                  color: "rgba(255,255,255,0.75)",
+                  fontSize: 34,
+                  marginTop: 30,
+                  ...fontStyle(sansFamily),
+                }}
+              >
+                {fallbackLabel}
+              </div>
+            )}
+
+            <div style={{ display: "flex", flexGrow: 1 }} />
+
+            {hasContent && (
+              <div
+                style={{
+                  display: "flex",
+                  color: "rgba(255,255,255,0.75)",
+                  fontSize: 28,
+                  marginBottom: 18,
                   ...fontStyle(sansFamily),
                 }}
               >
                 {detailLabel}
               </div>
-            </>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                color: "rgba(255,255,255,0.75)",
-                fontSize: 34,
-                marginTop: 30,
-                ...fontStyle(sansFamily),
-              }}
-            >
-              {fallbackLabel}
-            </div>
-          )}
+            )}
 
-          <div style={{ display: "flex", flexGrow: 1 }} />
-
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              borderTop: "2px solid rgba(255,255,255,0.25)",
-              paddingTop: 34,
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div
-                style={{ display: "flex", color: "white", fontSize: 42, fontWeight: 800, ...fontStyle(serifFamily) }}
-              >
-                {SITE_NAME}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  color: "rgba(255,255,255,0.65)",
-                  fontSize: 24,
-                  marginTop: 6,
-                  ...fontStyle(sansFamily),
-                }}
-              >
-                {SITE_TAGLINE}
-              </div>
-            </div>
-            <div style={{ display: "flex", color: "rgba(255,255,255,0.85)", fontSize: 28, fontWeight: 700 }}>
-              BUULAPT.COM
+            <div style={{ display: "flex", color: "rgba(255,255,255,0.7)", fontSize: 26, ...fontStyle(sansFamily) }}>
+              {SITE_NAME} · BUULAPT.COM
             </div>
           </div>
         </div>

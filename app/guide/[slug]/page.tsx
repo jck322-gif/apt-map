@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import GuideBody from "@/components/GuideBody";
+import JsonLd from "@/components/JsonLd";
 import { GUIDES, getGuide } from "@/lib/guides";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 export function generateStaticParams() {
   return GUIDES.map((g) => ({ slug: g.slug }));
@@ -16,6 +17,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   return {
     title: `${guide.title} | ${SITE_NAME}`,
     description: guide.summary,
+    alternates: { canonical: `/guide/${guide.slug}` },
   };
 }
 
@@ -25,8 +27,35 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const others = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 3);
 
+  // 이 글이 "글(Article)"이고, 사이트 안에서 어떤 경로로 들어오는지(Breadcrumb) 구글에 알려줍니다.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: guide.title,
+        description: guide.summary,
+        datePublished: guide.updated,
+        dateModified: guide.updated,
+        inLanguage: "ko-KR",
+        author: { "@type": "Organization", name: SITE_NAME },
+        publisher: { "@type": "Organization", name: SITE_NAME },
+        mainEntityOfPage: `${SITE_URL}/guide/${guide.slug}`,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: SITE_NAME, item: SITE_URL },
+          { "@type": "ListItem", position: 2, name: "부동산 상식", item: `${SITE_URL}/guide` },
+          { "@type": "ListItem", position: 3, name: guide.title, item: `${SITE_URL}/guide/${guide.slug}` },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="wrap">
+      <JsonLd data={jsonLd} />
       <SiteHeader current="guide" />
 
       <article className="block">

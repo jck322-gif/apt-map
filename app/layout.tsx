@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL, ADSENSE_CLIENT } from "@/lib/site";
+import JsonLd from "@/components/JsonLd";
 import "./globals.css";
 
 const TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
@@ -33,10 +34,35 @@ export const metadata: Metadata = {
   },
 };
 
+// 사이트 전체에 한 번만 심는 구조화 데이터 — "부울아파트"라는 곳이 어떤 조직·웹사이트인지
+// 구글에 알려줍니다. 페이지마다 따로 안 넣어도 되고, 여기 한 번이면 모든 페이지에 실립니다.
+const SITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      description: SITE_TAGLINE,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}#organization` },
+      inLanguage: "ko-KR",
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
       <head>
+        <JsonLd data={SITE_JSON_LD} />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap"
