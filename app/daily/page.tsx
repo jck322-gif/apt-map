@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   title: `오늘의 실거래 브리핑 | ${SITE_NAME}`,
   description:
     "부산·울산에 오늘 새로 신고된 아파트 실거래를 하루 단위로 정리합니다. 최고가 거래, 구·군별 신고 건수를 한눈에 확인하세요.",
+  // 카카오톡·인스타그램 등에 이 페이지 링크를 공유하면 오늘의 신고가로 자동 생성된 사진이 뜹니다.
+  openGraph: {
+    images: [{ url: "/api/og/daily", width: 1080, height: 1080 }],
+  },
 };
 
 export default async function Page() {

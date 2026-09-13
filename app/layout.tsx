@@ -20,6 +20,8 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: SITE_URL,
     siteName: SITE_NAME,
+    // 페이지마다 따로 정하지 않으면 이 사진이 뜹니다 (오늘의 신고가로 자동 생성됨).
+    images: [{ url: "/api/og/daily", width: 1080, height: 1080 }],
   },
   robots: { index: true, follow: true },
   // Google Search Console 소유권 확인용 값입니다. 비밀번호가 아니라 공개되어도 되는 값이며,
