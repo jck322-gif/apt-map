@@ -34,6 +34,11 @@ export type SubscriptionEntry = {
   rank2End: string | null;
   winnerAnnounceDate: string | null; // 당첨자 발표일
   homepageUrl: string | null;
+  // 청약홈 공공데이터가 아니라 사람이 직접 입력한 항목(아직 공식 모집공고 전, SNS 등에서
+  // 미리 안내된 일정)인 경우 true. lib/subscriptionManual.ts 참고.
+  isManual?: boolean;
+  // isManual일 때만 쓰는, 어디서 가져온 정보인지 짧게 밝히는 문구.
+  sourceNote?: string;
 };
 
 function pick(item: Record<string, unknown>, keys: string[]): string {

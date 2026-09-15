@@ -1260,6 +1260,8 @@ footer.end p { margin: 0 0 12px; }
 .subscription-badge-rank1 { background: #dcfce7; color: #166534; }
 .subscription-badge-rank2 { background: #dbeafe; color: #1e40af; }
 .subscription-badge-winner { background: #fce7f3; color: #9d174d; }
+/* 공식 청약홈 공고 전, SNS 등에서 미리 안내된 "예정" 일정 — 점선 테두리로 확정 일정과 구분 */
+.subscription-badge.is-manual { background: transparent; border: 1.3px dashed currentColor; }
 .subscription-more { font-size: 10px; color: var(--muted); padding-left: 5px; }
 
 @media (max-width: 560px) {

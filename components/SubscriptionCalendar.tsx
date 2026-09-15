@@ -7,6 +7,8 @@ type CalEvent = {
   date: string; // YYYY-MM-DD
   label: string;
   kind: "notice" | "special" | "rank1" | "rank2" | "winner";
+  isManual?: boolean;
+  sourceNote?: string;
 };
 
 const KIND_LABEL: Record<CalEvent["kind"], string> = {
@@ -20,11 +22,12 @@ const KIND_LABEL: Record<CalEvent["kind"], string> = {
 function buildEvents(entries: SubscriptionEntry[]): CalEvent[] {
   const events: CalEvent[] = [];
   for (const e of entries) {
-    if (e.noticeDate) events.push({ date: e.noticeDate, label: e.houseName, kind: "notice" });
-    if (e.specialSupplyStart) events.push({ date: e.specialSupplyStart, label: e.houseName, kind: "special" });
-    if (e.rank1Start) events.push({ date: e.rank1Start, label: e.houseName, kind: "rank1" });
-    if (e.rank2Start) events.push({ date: e.rank2Start, label: e.houseName, kind: "rank2" });
-    if (e.winnerAnnounceDate) events.push({ date: e.winnerAnnounceDate, label: e.houseName, kind: "winner" });
+    const base = { label: e.houseName, isManual: e.isManual, sourceNote: e.sourceNote };
+    if (e.noticeDate) events.push({ ...base, date: e.noticeDate, kind: "notice" });
+    if (e.specialSupplyStart) events.push({ ...base, date: e.specialSupplyStart, kind: "special" });
+    if (e.rank1Start) events.push({ ...base, date: e.rank1Start, kind: "rank1" });
+    if (e.rank2Start) events.push({ ...base, date: e.rank2Start, kind: "rank2" });
+    if (e.winnerAnnounceDate) events.push({ ...base, date: e.winnerAnnounceDate, kind: "winner" });
   }
   return events;
 }
@@ -90,6 +93,12 @@ export default function SubscriptionCalendar({
           </span>
         ))}
       </div>
+      {filtered.some((e) => e.isManual) && (
+        <p className="section-note" style={{ marginTop: 4 }}>
+          점선 테두리 + &quot;(예정)&quot; 배지는 아직 청약홈에 공식 모집공고가 올라오지 않은, SNS 등에서 미리
+          안내된 일정이에요. 날짜가 바뀔 수 있으니 참고만 해주세요.
+        </p>
+      )}
 
       {loading && <p className="section-note">청약 일정을 불러오는 중입니다…</p>}
       {!loading && error && (
@@ -122,10 +131,15 @@ export default function SubscriptionCalendar({
                   {dayEvents.slice(0, 4).map((ev, i) => (
                     <span
                       key={i}
-                      className={`subscription-badge subscription-badge-${ev.kind}`}
-                      title={`${ev.label} · ${KIND_LABEL[ev.kind]}`}
+                      className={`subscription-badge subscription-badge-${ev.kind}${
+                        ev.isManual ? " is-manual" : ""
+                      }`}
+                      title={`${ev.label} · ${KIND_LABEL[ev.kind]}${
+                        ev.isManual ? ` · 예정(미확정)${ev.sourceNote ? " — " + ev.sourceNote : ""}` : ""
+                      }`}
                     >
                       {ev.label}
+                      {ev.isManual ? " (예정)" : ""}
                     </span>
                   ))}
                   {dayEvents.length > 4 && <span className="subscription-more">+{dayEvents.length - 4}</span>}
