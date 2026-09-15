@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { fmtManwon, fmtManwonShort, typeLabel, areaDetail } from "@/lib/format";
 import { downloadDealCard, copyDealCard, type CardPayload, type CardRow } from "@/lib/dealCard";
 import { SITE_NAME } from "@/lib/site";
+import { REGIONS } from "@/lib/regions";
+import { complexHref } from "@/lib/complex";
+import FavoriteButton from "@/components/FavoriteButton";
 
 type MonthlyPoint = {
   ymd: string;
@@ -470,6 +473,15 @@ export default function ComplexTrendModal({
           </div>
           {/* 이 팝업을 그대로 캡처해서 카페·블로그에 올리는 경우가 많아, 사이트 이름을 함께 둡니다. */}
           <div className="modal-header-right">
+            <FavoriteButton
+              compact
+              stopPropagation
+              code={code}
+              complex={complex}
+              regionName={regionName}
+              group={data?.group ?? REGIONS.find((r) => r.code === code)?.group ?? "부산"}
+              href={complexHref(code, complex)}
+            />
             <span className="modal-brand">{SITE_NAME}</span>
             <button className="modal-close" onClick={onClose} aria-label="닫기">
               ✕

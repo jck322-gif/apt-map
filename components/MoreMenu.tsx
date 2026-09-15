@@ -14,6 +14,7 @@ const MORE_ITEMS: { key: string; label: string; desc: string; href: string }[] =
   { key: "daily", label: "브리핑", desc: "오늘의 실거래 요약", href: "/daily" },
   { key: "apt", label: "단지", desc: "단지별 실거래가·시세", href: "/apt" },
   { key: "rank", label: "랭킹", desc: "신고가·상승률 순위", href: "/rank" },
+  { key: "compare", label: "비교", desc: "단지 최대 4개 가격 비교", href: "/compare" },
   { key: "guide", label: "상식", desc: "실거래가 읽는 법 등", href: "/guide" },
   { key: "interior", label: "집구경", desc: "내부 구조·인테리어 참고", href: "/interior" },
   { key: "redevelopment", label: "재개발", desc: "재개발·재건축 구역 현황", href: "/redevelopment" },
