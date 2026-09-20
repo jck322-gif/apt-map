@@ -20,9 +20,9 @@ export const MANUAL_SUBSCRIPTIONS: SubscriptionEntry[] = [
     pblancNo: "manual-yeonje-galleria-zai",
     houseName: "연제 갤러리 자이",
     regionName: "부산광역시",
-    address: "부산광역시 연제구",
+    address: "부산광역시 연제구 연산동",
     houseType: "민영주택",
-    totalHouseholds: 499, // 총 499세대(일반분양 459세대)
+    totalHouseholds: 499, // 총 499세대(일반분양 459세대) — 84A 112 · 84B 114 · 84C 39 · 84D 234세대
     noticeDate: "2026-10-08",
     specialSupplyStart: "2026-10-19",
     specialSupplyEnd: null,
@@ -33,7 +33,9 @@ export const MANUAL_SUBSCRIPTIONS: SubscriptionEntry[] = [
     winnerAnnounceDate: null,
     homepageUrl: null,
     isManual: true,
-    sourceNote: "SNS 사전 안내(30년 9월 입주 예정) — 공식 모집공고 전이라 일정이 바뀔 수 있어요",
+    // GS건설이 연산동에 이 단지를 10월 분양한다는 건 언론(서울신문 9.15, 브릿지경제 9.8 등)으로도
+    // 확인됐지만, 정확한 모집공고·특공·1순위 날짜는 아직 SNS 사전 안내에서만 나온 값입니다.
+    sourceNote: "GS건설 연산동 분양(언론 보도로 확인) — 정확한 날짜는 SNS 사전 안내 기준, 공식 모집공고 전이라 바뀔 수 있어요",
   },
   {
     pblancNo: "manual-ssangyong-platinum-centum",
@@ -41,7 +43,7 @@ export const MANUAL_SUBSCRIPTIONS: SubscriptionEntry[] = [
     regionName: "부산광역시",
     address: "부산광역시 수영구 망미동",
     houseType: "지역주택조합",
-    totalHouseholds: 490, // 총 490세대(일반분양 53세대, 특공 22세대)
+    totalHouseholds: 490, // 총 490세대(일반분양 53세대, 특공 22세대) — 63A·63B·74B·84 타입
     noticeDate: "2026-09-18",
     specialSupplyStart: "2026-09-28",
     specialSupplyEnd: null,
@@ -52,6 +54,9 @@ export const MANUAL_SUBSCRIPTIONS: SubscriptionEntry[] = [
     winnerAnnounceDate: null,
     homepageUrl: null,
     isManual: true,
-    sourceNote: "SNS 사전 안내(망미동 지역주택조합, 29년 1월 입주 예정) — 공식 모집공고 전이라 일정이 바뀔 수 있어요",
+    // 9.18 모집공고가 예정대로 나왔다는 정황(블로그 보도, 2026-09-18)은 있지만 청약홈에서
+    // 직접 확인은 안 돼서 100% 공식 확정은 아닙니다. 84㎡ 약 11.98~13.21억, 63A 9.12~9.38억,
+    // 63B 9.11~9.16억, 74B 10.41~11.02억으로 알려져 있습니다.
+    sourceNote: "망미동 지역주택조합, 29년 1월 입주 예정 — 9.18 모집공고 소식은 있으나 청약홈 미확인, 일정이 바뀔 수 있어요",
   },
 ];

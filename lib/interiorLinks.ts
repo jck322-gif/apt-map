@@ -125,6 +125,115 @@ const INTERIOR_ENTRIES: InteriorEntry[] = [
       },
     ],
   },
+  {
+    complex: "해운대아이파크",
+    regionCode: "26350",
+    regionName: "해운대구",
+    group: "부산",
+    links: [
+      {
+        title: "부산광역시 해운대구 해운대아이파크 40평 모던 인테리어",
+        url: "https://mall.hanssem.com/homeIdeaMain/contents/homeIdeaDetail.do?seq=21469",
+        source: "시공사례",
+      },
+      {
+        title: "부산광역시 해운대구 해운대아이파크 42평 모던 인테리어",
+        url: "https://mall.hanssem.com/homeIdeaMain/contents/homeIdeaDetail.do?seq=12505",
+        source: "시공사례",
+      },
+    ],
+  },
+  {
+    complex: "남천삼익비치",
+    regionCode: "26500",
+    regionName: "수영구",
+    group: "부산",
+    links: [
+      {
+        title: "남천 삼익비치 33평 인테리어",
+        url: "https://contents.ohou.se/projects/36016",
+        source: "시공사례",
+      },
+    ],
+  },
+  {
+    complex: "엘크루블루오션5단지",
+    regionCode: "26440",
+    regionName: "강서구",
+    group: "부산",
+    links: [
+      {
+        title: "명지동 엘크루블루오션5단지 인테리어, 대형 아일랜드로 완성한 66평",
+        url: "https://www.lxzin.com/styling/expert-style/detail/5034",
+        source: "시공사례",
+      },
+    ],
+  },
+  {
+    complex: "대연롯데캐슬레전드",
+    regionCode: "26290",
+    regionName: "남구",
+    group: "부산",
+    links: [
+      {
+        title: "대연롯데캐슬레전드 34평 인테리어",
+        url: "https://thebeautyofwordsblog.com/portfolio/76",
+        source: "블로그",
+      },
+    ],
+  },
+  {
+    complex: "신대연코오롱하늘채",
+    regionCode: "26290",
+    regionName: "남구",
+    group: "부산",
+    links: [
+      {
+        title: "신대연 코오롱하늘채 33평 인테리어 시공후기",
+        url: "https://contents.ohou.se/projects/65997",
+        source: "시공사례",
+      },
+    ],
+  },
+  {
+    complex: "문수로1차아이파크",
+    regionCode: "31140",
+    regionName: "남구",
+    group: "울산",
+    links: [
+      {
+        title: "울산 신정동 문수로아이파크 1단지 아파트 욕실 리모델링",
+        url: "https://mall.hanssem.com/homeIdeaMain/contents/homeIdeaDetail.do?seq=22617",
+        source: "시공사례",
+      },
+    ],
+  },
+  {
+    complex: "문수아이필",
+    regionCode: "31140",
+    regionName: "남구",
+    group: "울산",
+    links: [
+      {
+        title: "울산시 무거동 문수아이필 인테리어, 단차를 준 아트월 디자인으로 깊이감을 더한 34평",
+        url: "https://www.lxzin.com/styling/expert-style/detail/7883",
+        source: "시공사례",
+      },
+    ],
+  },
+  {
+    complex: "롯데캐슬킹덤",
+    regionCode: "31140",
+    regionName: "남구",
+    group: "울산",
+    links: [
+      {
+        title: "울산시 신정동 롯데캐슬킹덤 인테리어, 전체 히든도어로 개방감의 끝 67평",
+        url: "https://www.lxzin.com/styling/expert-style/detail/3921",
+        source: "시공사례",
+      },
+    ],
+  },
 ];
 
 const BY_NORMALIZED_NAME = new Map(
