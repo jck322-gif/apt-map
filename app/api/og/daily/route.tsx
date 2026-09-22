@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { getDailyBrief, getLatestBriefDate, isValidDate, koDateLong } from "@/lib/daily";
 import { fmtManwon } from "@/lib/format";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { loadComplexTrend, type MonthlyPoint } from "@/lib/complex";
 
 /**
  * "오늘 신고가 OOO 외 N곳" 스타일 썸네일을 그날 실거래 자료로 자동 생성합니다.
@@ -104,6 +105,8 @@ export async function GET(request: Request) {
     let priceLabel = "";
     let detailLabel = "";
     let hasContent = false;
+    let trendPoints: MonthlyPoint[] = [];
+    let regionCode = "";
 
     try {
       const brief = await getDailyBrief(date);
@@ -117,6 +120,7 @@ export async function GET(request: Request) {
         priceLabel = fmtManwon(top.priceManwon);
         // ㎡(U+33A1) 글자는 구글 폰트 서브셋에 없을 때가 있어 빈 네모로 깨지므로, 이 이미지에서는 "m²"로 씁니다.
         detailLabel = `${top.dong} · 전용 ${Math.round(top.areaM2)}m² · ${top.floor}층 · ${top.dealDate} 계약`;
+        regionCode = top.regionCode;
       } else if (brief.highlight) {
         hasContent = true;
         const h = brief.highlight;
@@ -125,9 +129,22 @@ export async function GET(request: Request) {
         title = h.complex;
         priceLabel = fmtManwon(h.priceManwon);
         detailLabel = `${h.dong} · 전용 ${Math.round(h.areaM2)}m² · ${h.floor}층 · ${h.dealDate} 계약`;
+        regionCode = h.regionCode;
       }
     } catch {
       // DB 조회가 실패해도 아래에서 기본 브랜드 이미지를 내려줍니다.
+    }
+
+    // 사이트에서 단지를 눌렀을 때 뜨는 팝업과 같은 "가격 추이 곡선"을 카드 배경에 그립니다.
+    // (예전에는 건물 실루엣만 그렸는데, 실제 서비스 화면과 느낌이 다르다는 피드백을 반영했습니다.)
+    // 이 조회가 실패해도 카드 자체는 그대로 나가야 하므로 별도로 감쌉니다.
+    if (hasContent && regionCode) {
+      try {
+        const trend = await loadComplexTrend({ code: regionCode, complex: title, dealType: "sale" });
+        trendPoints = trend.points;
+      } catch {
+        trendPoints = [];
+      }
     }
 
     const dateLabel = koDateLong(date);
@@ -151,23 +168,38 @@ export async function GET(request: Request) {
 
     const { sansFamily, fonts } = await loadFonts(allText);
 
-    // 실제 사진 대신, 짙은 하늘 아래 건물 실루엣을 그려서 "도심 야경" 느낌만 냅니다.
-    // (경쟁 사이트처럼 실제 항공사진을 쓸 수는 없어서, 저작권 걱정 없는 그림으로 대신합니다.)
-    const buildings = [
-      { w: 88, h: 220, c: "#0a2229" },
-      { w: 64, h: 300, c: "#123a42" },
-      { w: 118, h: 190, c: "#0a2229" },
-      { w: 70, h: 360, c: "#153f47" },
-      { w: 100, h: 260, c: "#0d2b31" },
-      { w: 52, h: 420, c: "#1a4750" },
-      { w: 140, h: 230, c: "#0a2229" },
-      { w: 82, h: 340, c: "#123a42" },
-      { w: 66, h: 270, c: "#0d2b31" },
-      { w: 112, h: 210, c: "#153f47" },
-      { w: 76, h: 380, c: "#1a4750" },
-      { w: 96, h: 250, c: "#0a2229" },
-      { w: 130, h: 200, c: "#0d2b31" },
-    ];
+    // 사이트에서 단지를 눌렀을 때 뜨는 팝업과 같은 "가격 추이 곡선"을 카드 배경에 그립니다.
+    // (예전에는 건물 실루엣만 그렸는데, 실제로 눌러서 보는 화면과 느낌이 다르다는 피드백을 받아
+    //  실제 12개월 시세 흐름을 그대로 옮겨 그립니다.)
+    const CW = SIZE; // 차트 폭 — 카드 전체 너비
+    const CH = 430; // 차트 높이 — 카드 하단부 (아래쪽 글자 자리는 비워둡니다)
+    const CPAD = { top: 50, bottom: 30, left: 20, right: 20 };
+    const withValue = trendPoints.filter(
+      (p): p is MonthlyPoint & { avgPriceManwon: number } => p.avgPriceManwon !== null
+    );
+    let chartPath = "";
+    let chartAreaPath = "";
+    let chartDotX = 0;
+    let chartDotY = 0;
+    if (withValue.length >= 2) {
+      const values = withValue.map((p) => p.avgPriceManwon);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const span = max - min || Math.max(1, max * 0.05);
+      const scaleMin = min - span * 0.15;
+      const scaleMax = max + span * 0.15;
+      const innerW = CW - CPAD.left - CPAD.right;
+      const innerH = CH - CPAD.top - CPAD.bottom;
+      const xOf = (i: number) =>
+        CPAD.left + (withValue.length === 1 ? innerW / 2 : (innerW * i) / (withValue.length - 1));
+      const yOf = (v: number) => CPAD.top + innerH - ((v - scaleMin) / (scaleMax - scaleMin)) * innerH;
+      const pts = withValue.map((p, i) => ({ x: xOf(i), y: yOf(p.avgPriceManwon) }));
+      chartPath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+      const baseY = CPAD.top + innerH;
+      chartAreaPath = `M${pts[0].x.toFixed(1)},${baseY} ` + pts.map((p) => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ") + ` L${pts[pts.length - 1].x.toFixed(1)},${baseY} Z`;
+      chartDotX = pts[pts.length - 1].x;
+      chartDotY = pts[pts.length - 1].y;
+    }
 
     return new ImageResponse(
       (
@@ -196,31 +228,36 @@ export async function GET(request: Request) {
             }}
           />
 
-          {/* 건물 실루엣 (화면 하단) */}
-          <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", alignItems: "flex-end" }}>
-            {buildings.map((b, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  width: b.w,
-                  height: b.h,
-                  background: b.c,
-                  borderTop: "3px solid rgba(255,214,160,0.18)",
-                }}
-              />
-            ))}
-          </div>
-          {/* 건물 위 옅은 안개 */}
+          {/* 단지 팝업과 같은 스타일의 12개월 가격 추이 곡선 (화면 하단) */}
+          {chartPath && (
+            <svg
+              width={CW}
+              height={CH}
+              viewBox={`0 0 ${CW} ${CH}`}
+              style={{ position: "absolute", left: 0, bottom: 90 }}
+            >
+              <defs>
+                <linearGradient id="ogTrendFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#5cb8bf" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#5cb8bf" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d={chartAreaPath} fill="url(#ogTrendFill)" />
+              <path d={chartPath} fill="none" stroke="#5cb8bf" strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx={chartDotX} cy={chartDotY} r={10} fill="#5cb8bf" />
+              <circle cx={chartDotX} cy={chartDotY} r={16} fill="none" stroke="#5cb8bf" strokeOpacity={0.4} strokeWidth={4} />
+            </svg>
+          )}
+          {/* 곡선 위 옅은 그림자 — 위쪽 글자가 배경 곡선과 겹쳐도 잘 읽히게 합니다 */}
           <div
             style={{
               position: "absolute",
               left: 0,
               right: 0,
-              bottom: 0,
-              height: 420,
+              top: 0,
+              height: 360,
               display: "flex",
-              background: "linear-gradient(180deg, rgba(3,15,19,0) 0%, rgba(3,15,19,0.65) 100%)",
+              background: "linear-gradient(180deg, rgba(3,15,19,0.55) 0%, rgba(3,15,19,0) 100%)",
             }}
           />
 
@@ -276,7 +313,7 @@ export async function GET(request: Request) {
               )}
             </div>
 
-            {hasContent ? (
+            {hasContent && (
               <div
                 style={{
                   display: "flex",
@@ -290,7 +327,23 @@ export async function GET(request: Request) {
               >
                 {priceLabel}
               </div>
-            ) : (
+            )}
+
+            {hasContent && (
+              <div
+                style={{
+                  display: "flex",
+                  color: "rgba(255,255,255,0.78)",
+                  fontSize: 28,
+                  marginTop: 16,
+                  ...fontStyle(sansFamily),
+                }}
+              >
+                {detailLabel}
+              </div>
+            )}
+
+            {!hasContent && (
               <div
                 style={{
                   display: "flex",
@@ -306,21 +359,18 @@ export async function GET(request: Request) {
 
             <div style={{ display: "flex", flexGrow: 1 }} />
 
-            {hasContent && (
-              <div
-                style={{
-                  display: "flex",
-                  color: "rgba(255,255,255,0.75)",
-                  fontSize: 28,
-                  marginBottom: 18,
-                  ...fontStyle(sansFamily),
-                }}
-              >
-                {detailLabel}
-              </div>
-            )}
-
-            <div style={{ display: "flex", color: "rgba(255,255,255,0.7)", fontSize: 26, ...fontStyle(sansFamily) }}>
+            <div
+              style={{
+                display: "flex",
+                alignSelf: "flex-start",
+                background: "rgba(3,15,19,0.55)",
+                borderRadius: 10,
+                padding: "6px 16px 6px 0",
+                color: "rgba(255,255,255,0.7)",
+                fontSize: 26,
+                ...fontStyle(sansFamily),
+              }}
+            >
               {SITE_NAME} · BUULAPT.COM
             </div>
           </div>
