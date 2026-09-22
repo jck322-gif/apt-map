@@ -186,16 +186,27 @@ function groupByDong(listings: Listing[]) {
 export default function Dashboard({
   staticRegions,
   mode,
+  initialData = null,
 }: {
   staticRegions: Region[];
   mode: "home" | DealType;
+  /**
+   * 페이지(서버 컴포넌트)가 미리 만들어 심어주는 첫 화면용 데이터.
+   * 이게 있으면 브라우저가 /api/update를 아직 못 불러온 순간에도(또는 그 fetch가
+   * 실패하더라도) 실제 단지명·거래표가 처음부터 보입니다 — 구글 크롤러가 자바스크립트
+   * 실행 없이 읽는 최초 HTML에도 실제 데이터가 그대로 들어있다는 뜻입니다.
+   */
+  initialData?: ApiResponse | null;
 }) {
   const isHome = mode === "home";
   // 홈에서도 "오늘의 실거래"와 지도는 매매 기준으로 보여줍니다.
   const dealType: DealType = isHome ? "sale" : mode;
   const router = useRouter();
 
-  const [data, setData] = useState<ApiResponse | null>(null);
+  // initialData가 지금 dealType과 맞을 때만 씁니다(다른 거래유형 데이터를 잘못 보여주지
+  // 않도록). 현재는 페이지마다 dealType이 고정이라 항상 맞지만, 혹시 몰라 확인합니다.
+  const seedData = initialData && initialData.dealType === dealType ? initialData : null;
+  const [data, setData] = useState<ApiResponse | null>(seedData);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"전체" | "부산" | "울산">("전체");
@@ -227,8 +238,21 @@ export default function Dashboard({
       // 이게 없으면 브라우저가 예전 응답을 재사용해서, 새벽에 새 실거래가 들어와도
       // 화면에는 어제 자료가 그대로 보입니다 (실제로 그런 일이 있었습니다).
       const res = await fetch(`/api/update?dealType=${type}`, { cache: "no-store" });
-      const json = (await res.json()) as ApiResponse & { error?: string };
-      if (!res.ok) throw new Error(json.error ?? `요청 실패 (${res.status})`);
+      // res.json()을 바로 부르면, 응답 본문이 비어 있을 때(서버리스 함수가 중간에 끊긴 경우 등)
+      // "Unexpected end of JSON input"이라는 알아보기 힘든 오류가 납니다. 먼저 텍스트로
+      // 받아서 직접 파싱하면 훨씬 명확한 오류 문구를 보여줄 수 있습니다.
+      const text = await res.text();
+      let json: (ApiResponse & { error?: string }) | null = null;
+      if (text) {
+        try {
+          json = JSON.parse(text);
+        } catch {
+          throw new Error("서버 응답을 해석하지 못했습니다 (일시적인 오류일 수 있어요)");
+        }
+      }
+      if (!res.ok || !json) throw new Error(json?.error ?? `요청 실패 (${res.status})`);
+      // 성공했을 때만 덮어씁니다 — 실패하면 이전(또는 서버가 처음부터 심어준) 데이터를
+      // 그대로 남겨서, 화면이 "0건"으로 비어버리는 대신 마지막 정상 데이터가 계속 보이게 합니다.
       setData(json);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
@@ -238,6 +262,9 @@ export default function Dashboard({
   }, []);
 
   useEffect(() => {
+    // 서버가 이미 이 거래유형의 데이터를 심어줬다면, 마운트 직후 한 번은 그 데이터를
+    // 그대로 쓰고 굳이 다시 불러오지 않습니다. 그래도 최신 자료가 궁금할 수 있으니
+    // 완전히 건너뛰지는 않고, 화면이 비어 보이지 않는 상태에서 조용히 새로고침합니다.
     load(dealType);
     setOpenComplex(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -469,17 +496,28 @@ export default function Dashboard({
           </div>
         </div>
         <p className="last-updated">
-          {loading
-            ? "불러오는 중…"
-            : data
+          {data
             ? `국토교통부 자료 기준 · ${dealLabel(dealType)} · 최근 30일 집계 · 매일 새벽 자동 갱신`
+            : loading
+            ? "불러오는 중…"
             : "데이터를 불러오지 못했습니다"}
         </p>
       </header>
 
       {loadError && (
         <div className="banner error">
-          <strong>업데이트 실패</strong> — {loadError}
+          {data ? (
+            // 이미 보여줄 데이터가 있는 상태에서 "새로고침"만 실패한 경우입니다.
+            // 화면은 그대로 마지막 정상 데이터를 보여주고 있다는 걸 알려줍니다.
+            <>
+              <strong>최신 자료를 새로 받아오지 못했습니다</strong> — {loadError} (지금 보이는 자료는
+              마지막으로 성공한 결과입니다)
+            </>
+          ) : (
+            <>
+              <strong>업데이트 실패</strong> — {loadError}
+            </>
+          )}
         </div>
       )}
       {!loadError && data && data.errors.length > 0 && (
