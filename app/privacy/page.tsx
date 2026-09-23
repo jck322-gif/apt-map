@@ -56,8 +56,27 @@ export default function PrivacyPage() {
         </p>
         <p>
           이용자는 웹브라우저 설정을 통해 쿠키 저장을 거부하거나 삭제할 수 있으며, Google 광고
-          설정(adssettings.google.com)에서 맞춤 광고 게재를 비활성화할 수 있습니다. 다만 쿠키 저장을
-          거부할 경우 일부 서비스 이용에 어려움이 있을 수 있습니다.
+          설정(
+          <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">
+            adssettings.google.com
+          </a>
+          )에서 맞춤 광고 게재를 비활성화할 수 있습니다. 다만 쿠키 저장을 거부할 경우 일부 서비스
+          이용에 어려움이 있을 수 있습니다.
+        </p>
+        <p>
+          Google이 광고에 쿠키를 사용하는 방식은{" "}
+          <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">
+            Google 광고 정책
+          </a>
+          과{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            Google 개인정보처리방침
+          </a>
+          에서 확인할 수 있습니다. 제3자 광고 공급업체의 맞춤 광고는{" "}
+          <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener noreferrer">
+            aboutads.info
+          </a>
+          에서도 거부할 수 있습니다.
         </p>
       </section>
 

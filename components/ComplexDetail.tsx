@@ -253,6 +253,11 @@ export default function ComplexDetail({
       </p>
 
       <p className="section-note">
+        이 페이지는 공개된 실거래 자료를 정리한 참고용 정보이며, 매수·매도 등 투자 판단을 권유하는 것이
+        아닙니다. 실제 거래 전에는 현장 시세와 등기부등본 등을 반드시 직접 확인하세요.
+      </p>
+
+      <p className="section-note">
         <Link href={`/apt/${data.code}`}>{data.regionName}의 다른 단지 보기</Link>
         {" · "}
         <Link href="/daily">오늘의 실거래 브리핑</Link>
