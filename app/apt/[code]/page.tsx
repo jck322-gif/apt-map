@@ -6,9 +6,12 @@ import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
 import { listComplexes, type ComplexListRow } from "@/lib/complex";
 import ComplexBrowser from "@/components/ComplexBrowser";
+import RegionSummaryBlock from "@/components/RegionSummaryBlock";
+import { getRegionSummary, type RegionSummary } from "@/lib/regionSummary";
 
 // 하루에 한 번만 다시 계산합니다 (단지 목록은 자주 바뀌지 않습니다).
-export const revalidate = 86400;
+// 거래 요약(최근 30일)이 들어가서 하루 네 번 새로 만듭니다.
+export const revalidate = 21600;
 
 export function generateStaticParams() {
   return REGIONS.map((r) => ({ code: r.code }));
@@ -67,6 +70,14 @@ export default async function RegionComplexListPage({ params }: { params: { code
 
   const full = `${region.group}광역시 ${region.name}`;
 
+  // 이 지역 최근 거래 요약 — 실패해도 단지 목록은 그대로 보여줍니다.
+  let summary: RegionSummary | null = null;
+  try {
+    summary = await getRegionSummary(region.code);
+  } catch {
+    summary = null;
+  }
+
   return (
     <div className="wrap">
       <SiteHeader current="apt" />
@@ -82,6 +93,8 @@ export default async function RegionComplexListPage({ params }: { params: { code
           입니다. 단지명을 누르면 그 단지의 매매·전세·월세 실거래 이력, 평형별 시세 흐름, 신고가 기록을 볼 수
           있습니다. 국토교통부 실거래가 자료를 매일 받아 갱신합니다.
         </p>
+
+        {summary && <RegionSummaryBlock code={region.code} fullName={full} summary={summary} />}
 
         {rows.length === 0 ? (
           <p className="empty-note">

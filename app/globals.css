@@ -1371,3 +1371,11 @@ footer.end p { margin: 0 0 12px; }
 .muted-small { color: var(--muted, #6b7280); font-size: 0.85em; }
 .nearby-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .nearby-list li { line-height: 1.5; }
+
+/* 홈 — 구·군 링크, 지역 패널 안 링크 */
+.region-links-nav .region-links-group + .region-links-group { margin-top: 14px; }
+.region-all-link, .complex-page-link { display: inline-block; margin: 4px 0 10px; font-size: 0.9em; color: var(--teal); }
+.complex-page-link { margin-left: 10px; }
+.dong-link { color: inherit; text-decoration: underline; text-decoration-color: rgba(127,127,127,0.4); text-underline-offset: 3px; }
+a.t5-complex { text-decoration: none; }
+a.t5-complex:hover { color: var(--teal); text-decoration: underline; }

@@ -11,7 +11,7 @@ import Logo from "@/components/Logo";
 import FavoritesLink from "@/components/FavoritesLink";
 import FavoriteButton from "@/components/FavoriteButton";
 import MoreMenu from "@/components/MoreMenu";
-import { complexHref } from "@/lib/complex";
+import { complexHref, dongHref } from "@/lib/complex";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
 
@@ -820,7 +820,21 @@ export default function Dashboard({
                             <span className={`rank-badge${i === 0 ? " first" : ""}`}>{i + 1}</span>
                           </td>
                           <td className="c-name">
-                            <span className="t5-complex">{l.complex}</span>
+                            {/* 검색엔진이 따라갈 수 있는 진짜 링크입니다. 보통 클릭은 지금처럼 팝업을 열고,
+                                Ctrl/⌘·가운데 클릭은 새 탭으로 단지 페이지를 엽니다. */}
+                            <Link
+                              href={complexHref(l.regionCode, l.complex)}
+                              className="t5-complex"
+                              onClick={(e) => {
+                                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+                                  e.stopPropagation();
+                                  return;
+                                }
+                                e.preventDefault();
+                              }}
+                            >
+                              {l.complex}
+                            </Link>
                             <span className="t5-loc">
                               {l.regionName} · {l.dong} · {l.floor}층
                             </span>
@@ -904,6 +918,9 @@ export default function Dashboard({
                       <span className="chev">▾</span>
                     </button>
                     <div className="listing-panel">
+                      <Link href={`/apt/${r.code}`} className="region-all-link">
+                        {r.name} 단지별 실거래가 전체 보기 →
+                      </Link>
                       {dongGroups.length === 0 ? (
                         <div className="empty-note">
                           이번 달 {dealLabel(dealType)} 거래 데이터가 없습니다.
@@ -912,7 +929,14 @@ export default function Dashboard({
                         dongGroups.map(({ dong, complexes }) => (
                           <div className="dong-group" key={dong}>
                             <div className="dong-heading">
-                              {dong} <span className="dong-count">단지 {complexes.length}곳</span>
+                              {dong && dong !== "기타" ? (
+                                <Link href={dongHref(r.code, dong)} className="dong-link">
+                                  {dong}
+                                </Link>
+                              ) : (
+                                dong
+                              )}{" "}
+                              <span className="dong-count">단지 {complexes.length}곳</span>
                             </div>
                             <div className="complex-chip-row">
                               {complexes.map(({ complex, items }) => {
@@ -944,6 +968,9 @@ export default function Dashboard({
                                   >
                                     {complex} 가격 추이 보기 (최근 6개월)
                                   </button>
+                                  <Link href={complexHref(r.code, complex)} className="complex-page-link">
+                                    {complex} 실거래가 전체 보기 →
+                                  </Link>
                                   {items.map((l, i) => (
                                     <div className="listing" key={i}>
                                       <div className="l-top">
@@ -974,6 +1001,25 @@ export default function Dashboard({
           </div>
         ))}
       </section>
+
+      {/* 구·군 페이지로 가는 진짜 링크 — 홈에서 검색엔진이 지역·단지 페이지를 찾아가는 길입니다. */}
+      <nav className="block region-links-nav" aria-label="구·군별 아파트 실거래가">
+        <h2>구·군별 아파트 실거래가</h2>
+        {(["부산", "울산"] as const).map((g) => (
+          <div key={g} className="region-links-group">
+            <h3 className="group-heading">{g}광역시</h3>
+            <div className="region-grid">
+              {staticRegions
+                .filter((r) => r.group === g)
+                .map((r) => (
+                  <Link key={r.code} href={`/apt/${r.code}`} className="region-link">
+                    {r.name}
+                  </Link>
+                ))}
+            </div>
+          </div>
+        ))}
+      </nav>
 
       <footer className="end">
         <p>
