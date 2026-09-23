@@ -19,6 +19,7 @@ export default function SiteHeader({
     | "daily"
     | "apt"
     | "rank"
+    | "insight"
     | "compare"
     | "guide"
     | "interior"

@@ -38,3 +38,19 @@ export function fmtManwonShort(manwon: number): string {
   }
   return `${sign}${Math.round(abs).toLocaleString()}만`;
 }
+
+/** 받침 여부에 따라 조사를 고릅니다. josa("기장군", "이", "가") → "기장군이" */
+export function josa(word: string, withBatchim: string, without: string): string {
+  return word + pickJosa(word, withBatchim, without);
+}
+
+/** 조사만 돌려줍니다. "남천자이(수영구)가"처럼 괄호 뒤에 붙일 때 앞 단어 기준으로 고르려고 씁니다. */
+export function pickJosa(word: string, withBatchim: string, without: string): string {
+  const last = word.trim().slice(-1);
+  const code = last.charCodeAt(0);
+  if (code >= 0xac00 && code <= 0xd7a3) {
+    return (code - 0xac00) % 28 !== 0 ? withBatchim : without;
+  }
+  // 한글이 아니면(숫자·영문) 받침이 있는 쪽으로 읽히는 경우가 많아 그쪽을 씁니다.
+  return withBatchim;
+}

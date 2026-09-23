@@ -1379,3 +1379,11 @@ footer.end p { margin: 0 0 12px; }
 .dong-link { color: inherit; text-decoration: underline; text-decoration-color: rgba(127,127,127,0.4); text-underline-offset: 3px; }
 a.t5-complex { text-decoration: none; }
 a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
+
+/* 분석 페이지 */
+.insight-list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
+.insight-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line, #e5e7eb); border-radius: 12px; color: var(--ink); text-decoration: none; }
+.insight-card:hover { border-color: var(--teal); }
+.insight-card span { color: var(--muted); font-size: 0.9em; line-height: 1.5; }
+.num-up { color: #d9480f; }
+.num-down { color: #1c7ed6; }

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { GUIDES } from "@/lib/guides";
+import { INSIGHT_PAGES } from "@/lib/insightPages";
 import { SITE_URL } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
 import { listAllComplexesForSitemap, listDongs, complexHref, dongHref } from "@/lib/complex";
@@ -25,6 +26,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/map`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE_URL}/apt`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/rank`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/insight`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    ...INSIGHT_PAGES.map((p) => ({
+      url: `${SITE_URL}/insight/${p.slug}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    })),
     { url: `${SITE_URL}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/interior`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },

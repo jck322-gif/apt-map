@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/db";
 import { kstToday } from "@/lib/kst";
+import { fetchAll } from "@/lib/fetchAll";
 
 /**
  * 구·군 페이지 맨 위의 "이 지역 요즘 거래 요약".
@@ -101,16 +102,19 @@ export async function getRegionSummary(regionCode: string): Promise<RegionSummar
   const d30 = shiftDays(today, -30);
   const d90 = shiftDays(today, -90);
 
-  const [dealsRes, recordsRes] = await Promise.all([
-    db
-      .from("deals")
-      .select("complex, dong, area_m2, floor, price_manwon, deal_date")
-      .eq("region_code", regionCode)
-      .eq("deal_type", "sale")
-      .is("cancel_date", null)
-      .gte("deal_date", from)
-      .order("deal_date", { ascending: false })
-      .limit(5000),
+  // 거래가 많은 구(해운대·부산진 등)는 넉 달 치가 1000행을 넘으므로 나눠 받습니다.
+  const [dealRows, recordsRes] = await Promise.all([
+    fetchAll<Row>((f, t) =>
+      db
+        .from("deals")
+        .select("complex, dong, area_m2, floor, price_manwon, deal_date")
+        .eq("region_code", regionCode)
+        .eq("deal_type", "sale")
+        .is("cancel_date", null)
+        .gte("deal_date", from)
+        .order("id", { ascending: true })
+        .range(f, t)
+    ),
     db
       .from("record_highs")
       .select("complex", { count: "exact", head: true })
@@ -118,8 +122,7 @@ export async function getRegionSummary(regionCode: string): Promise<RegionSummar
       .gte("deal_date", d30),
   ]);
 
-  if (dealsRes.error) throw new Error(`지역 요약 조회 실패: ${dealsRes.error.message}`);
-  const rows = ((dealsRes.data ?? []) as Row[]).filter((r) => r.price_manwon !== null);
+  const rows = dealRows.filter((r) => r.price_manwon !== null);
 
   const inRange = (r: Row, f: string, t: string) => r.deal_date >= f && r.deal_date < t;
   const countA = rows.filter((r) => inRange(r, a.from, a.to)).length;
