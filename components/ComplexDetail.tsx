@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { fmtManwon, areaDetail, typeLabel } from "@/lib/format";
-import { complexHref, complexAreaHref, type ComplexTrend } from "@/lib/complex";
+import { complexHref, complexAreaHref, type ComplexTrend, type ComplexListRow } from "@/lib/complex";
 import FavoriteButton from "@/components/FavoriteButton";
 import InteriorLinks from "@/components/InteriorLinks";
 
@@ -11,14 +11,85 @@ import InteriorLinks from "@/components/InteriorLinks";
  *
  * 서버에서 그대로 그려지므로 표 안의 숫자를 검색엔진이 전부 읽습니다.
  */
+/** "3.2% 올랐습니다" 같은 변동 문장 */
+function changeWords(pct: number): string {
+  const a = Math.abs(pct);
+  if (a < 0.5) return "거의 같은 가격입니다";
+  return `${a.toFixed(1)}% ${pct > 0 ? "올랐습니다" : "내렸습니다"}`;
+}
+
+/**
+ * 숫자를 사람이 읽는 문장으로 풀어 쓴 해설.
+ * 전부 실제 자료에서 계산한 값만 쓰고, 자료가 부족한 항목은 문장 자체를 빼서 없는 말을 지어내지 않습니다.
+ */
+function buildCommentary(data: ComplexTrend, selectedArea?: number): string[] {
+  const i = data.insights;
+  const latest = data.stats.latestSale;
+  const out: string[] = [];
+
+  if (latest) {
+    let t = `가장 최근 매매는 ${latest.dateLabel} 계약된 전용 ${Math.round(latest.areaM2)}㎡ ${latest.floor}층으로 ${fmtManwon(
+      latest.priceManwon
+    )}입니다.`;
+    if (i.sameAreaPrev && i.sameAreaChangePct !== null) {
+      t += ` 같은 평형의 직전 거래(${i.sameAreaPrev.dateLabel}, ${fmtManwon(i.sameAreaPrev.priceManwon)})와 비교하면 ${changeWords(
+        i.sameAreaChangePct
+      )}.`;
+    } else {
+      t += " 같은 평형의 이전 거래가 없어 직전 거래와 비교하기는 어렵습니다.";
+    }
+    t += " 층·향·수리 상태에 따라 같은 평형도 가격 차이가 크므로, 한 건만으로 시세가 바뀌었다고 보기는 이릅니다.";
+    out.push(t);
+  }
+
+  const v = i.volume;
+  if (v.m12 > 0) {
+    let t = `최근 12개월 동안 매매는 ${v.m12}건 신고됐고, 최근 3개월은 ${v.m3}건입니다.`;
+    if (v.prev3 > 0 || v.m3 > 0) {
+      if (v.m3 > v.prev3) t += ` 그 전 3개월(${v.prev3}건)보다 거래가 늘었습니다.`;
+      else if (v.m3 < v.prev3) t += ` 그 전 3개월(${v.prev3}건)보다 거래가 줄었습니다.`;
+      else t += ` 그 전 3개월과 거래 건수가 같습니다.`;
+    }
+    t += " 최근 한두 달은 아직 신고되지 않은 계약이 있을 수 있어(계약 후 30일 안에 신고) 실제보다 적게 보일 수 있습니다.";
+    out.push(t);
+  } else if (latest) {
+    out.push("최근 12개월 안에 신고된 매매가 없어, 지금 시세를 판단할 때는 주변 단지 거래를 함께 보는 것이 좋습니다.");
+  }
+
+  const extra: string[] = [];
+  if (i.recordHighs90d > 0) extra.push(`최근 90일 동안 평형별 3년 내 최고가를 새로 쓴 거래(신고가)가 ${i.recordHighs90d}건 있었습니다.`);
+  if (i.cancelled12m > 0)
+    extra.push(`최근 1년 사이 계약됐다가 해제(취소)된 매매가 ${i.cancelled12m}건 있어, 아래 거래 목록에서 취소 표시를 함께 확인하세요.`);
+  if (i.directPct12m !== null && i.directPct12m >= 20)
+    extra.push(
+      `최근 1년 거래 중 직거래 비율이 ${i.directPct12m.toFixed(0)}%로 높은 편입니다. 직거래는 가족 간 거래처럼 시세와 다른 가격이 섞일 수 있습니다.`
+    );
+  if (extra.length) out.push(extra.join(" "));
+
+  if (i.jeonseRatePct !== null && !selectedArea) {
+    const r = i.jeonseRatePct;
+    let t = `같은 평형 기준 최근 전세가율은 약 ${r.toFixed(0)}%입니다.`;
+    if (r >= 80) t += " 매매가와 전세가 차이가 매우 작아, 전세로 들어갈 때는 보증보험 가입과 선순위 채권을 꼭 확인해야 합니다.";
+    else if (r >= 70) t += " 전세가율이 높은 편이라 전세 계약 시 보증보험 가입 여부를 확인하는 것이 좋습니다.";
+    else if (r <= 50) t += " 전세가율이 낮은 편으로, 매매가에 비해 전세 보증금 비중이 작습니다.";
+    out.push(t);
+  }
+  return out;
+}
+
 export default function ComplexDetail({
   data,
   selectedArea,
+  nearby = [],
 }: {
   data: ComplexTrend;
   /** 지금 보고 있는 전용면적. 없으면 전체 평형 합산입니다. */
   selectedArea?: number;
+  /** 같은 동의 다른 단지 */
+  nearby?: ComplexListRow[];
 }) {
+  const commentary = buildCommentary(data, selectedArea);
+  const ins = data.insights;
   const s = data.stats;
   const name = data.complex;
   const where = `${data.group}광역시 ${data.regionName}${data.dong ? ` ${data.dong}` : ""}`;
@@ -102,6 +173,20 @@ export default function ComplexDetail({
         </section>
       )}
 
+      {commentary.length > 0 && (
+        <section className="brief-section">
+          <h2 className="brief-h2">
+            {name}
+            {areaSuffix} 실거래 해설
+          </h2>
+          {commentary.map((t, idx) => (
+            <p key={idx} className="complex-commentary">
+              {t}
+            </p>
+          ))}
+        </section>
+      )}
+
       {/* 핵심 숫자 — 검색엔진이 글자로 읽을 수 있게 표로 둡니다 */}
       <section className="brief-section">
         <h2 className="brief-h2">매매 요약{selectedArea ? ` — ${typeLabel(selectedArea)}` : ""}</h2>
@@ -166,6 +251,78 @@ export default function ComplexDetail({
           </table>
         </div>
       </section>
+
+      <section className="brief-section">
+        <h2 className="brief-h2">매매 거래량</h2>
+        <div className="top5-table-wrap">
+          <table className="top5-table">
+            <thead>
+              <tr>
+                <th>최근 30일</th>
+                <th>최근 3개월</th>
+                <th>그 전 3개월</th>
+                <th>최근 12개월</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{ins.volume.d30}건</td>
+                <td>{ins.volume.m3}건</td>
+                <td>{ins.volume.prev3}건</td>
+                <td>{ins.volume.m12}건</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="chart-basis-note">계약일 기준, 해제(취소)된 거래는 뺐습니다.</p>
+      </section>
+
+      {!selectedArea && ins.areaStats.length > 0 && (
+        <section className="brief-section">
+          <h2 className="brief-h2">평형별 매매가 (최근 12개월)</h2>
+          <div className="top5-table-wrap">
+            <table className="top5-table">
+              <thead>
+                <tr>
+                  <th className="c-name">평형</th>
+                  <th>최근 거래</th>
+                  <th>최저</th>
+                  <th>중간값</th>
+                  <th>최고</th>
+                  <th>건수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ins.areaStats.map((a) => (
+                  <tr key={a.areaM2}>
+                    <th className="c-name">
+                      <Link href={complexAreaHref(data.code, name, a.areaM2)}>{Math.round(a.areaM2)}㎡</Link>
+                    </th>
+                    <td>
+                      {a.latest ? (
+                        <>
+                          {fmtManwon(a.latest.priceManwon)}
+                          <br />
+                          <span className="muted-small">{a.latest.dateLabel}</span>
+                        </>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td>{a.low12m !== null ? fmtManwon(a.low12m) : "-"}</td>
+                    <td>{a.median12m !== null ? fmtManwon(a.median12m) : "-"}</td>
+                    <td>{a.high12m !== null ? fmtManwon(a.high12m) : "-"}</td>
+                    <td>{a.count12m}건</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="chart-basis-note">
+            최근 12개월 거래가 없는 평형은 최저·중간·최고가 비어 있고, 최근 거래는 3년 안의 가장 최근 거래입니다.
+          </p>
+        </section>
+      )}
 
       <section className="brief-section">
         <h2 className="brief-h2">최근 12개월 매매 평균가</h2>
@@ -240,6 +397,27 @@ export default function ComplexDetail({
               </tbody>
             </table>
           </div>
+        </section>
+      )}
+
+      {nearby.length > 0 && (
+        <section className="brief-section">
+          <h2 className="brief-h2">
+            {data.dong} 주변 단지 실거래가
+          </h2>
+          <ul className="nearby-list">
+            {nearby.map((n) => (
+              <li key={n.complex}>
+                <Link href={complexHref(n.regionCode, n.complex)}>{n.complex} 실거래가</Link>
+                <span className="muted-small">
+                  {n.buildYear ? ` · ${n.buildYear}년 준공` : ""} · 3년 거래 {n.totalCount}건
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="chart-basis-note">
+            <Link href={`/apt/${data.code}`}>{data.regionName} 전체 단지 보기</Link>
+          </p>
         </section>
       )}
 

@@ -6,7 +6,7 @@ import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { fmtManwon } from "@/lib/format";
-import { loadComplexTrend, complexHref, type ComplexTrend } from "@/lib/complex";
+import { loadComplexTrend, listNearbyComplexes, complexHref, type ComplexTrend } from "@/lib/complex";
 
 // 단지 페이지는 하루에 한 번만 다시 만듭니다.
 // (실거래 신고는 하루 단위로 올라오므로 이 정도면 충분하고, DB 부담도 적습니다.)
@@ -65,6 +65,8 @@ export default async function ComplexPage({ params }: { params: { code: string; 
   if (data.counts.sale + data.counts.jeonse + data.counts.monthly === 0) notFound();
 
   const name = decodeName(params.complex);
+  // 같은 동의 다른 단지 — 페이지 아래 "주변 단지" 링크로 보여줍니다.
+  const nearby = await listNearbyComplexes(region.code, data.dong, data.complex);
   // "홈 > 지역 > 단지" 탐색 경로를 구글에 알려줍니다 (검색결과에 경로가 표시될 수 있습니다).
   const jsonLd = {
     "@context": "https://schema.org",
@@ -94,7 +96,7 @@ export default async function ComplexPage({ params }: { params: { code: string; 
     <div className="wrap">
       <JsonLd data={jsonLd} />
       <SiteHeader current="apt" />
-      <ComplexDetail data={data} />
+      <ComplexDetail data={data} nearby={nearby} />
     </div>
   );
 }

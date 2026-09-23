@@ -80,7 +80,38 @@ export type ComplexTrend = {
     gapManwon: number | null;
     gapPct: number | null;
   };
+  /** 단지 페이지 해설·표에 쓰는 추가 숫자 (취소된 거래는 모두 제외) */
+  insights: ComplexInsights;
   errors: { ymd: string; message: string }[];
+};
+
+/** 평형 하나의 매매 요약 */
+export type AreaStat = {
+  /** 대표 전용면적(㎡) — complex_types 값이 있으면 그 값, 없으면 거래에서 본 값 */
+  areaM2: number;
+  count3y: number;
+  count12m: number;
+  latest: TxDetail | null;
+  high12m: number | null;
+  low12m: number | null;
+  median12m: number | null;
+};
+
+export type ComplexInsights = {
+  /** 계약일 기준 매매 거래량 (취소 제외) */
+  volume: { d30: number; m3: number; m12: number; prev3: number };
+  /** 최근 매매와 "같은 평형"의 직전 매매 — 평형이 다른 거래끼리 비교하면 오해가 생겨 따로 둡니다 */
+  sameAreaPrev: TxDetail | null;
+  sameAreaChangePct: number | null;
+  /** 최근 90일 안에 나온 신고가 건수 */
+  recordHighs90d: number;
+  /** 최근 12개월 안에 계약됐다가 해제(취소)된 매매 건수 */
+  cancelled12m: number;
+  /** 최근 12개월 직거래 비율(%) */
+  directPct12m: number | null;
+  /** 전세가율(%) = 최근 전세 ÷ 같은 평형 최근 매매 */
+  jeonseRatePct: number | null;
+  areaStats: AreaStat[];
 };
 
 function average(nums: number[]): number | null {
@@ -147,6 +178,99 @@ function markRecordHighs(list: TxDetail[]): TxDetail[] {
     }
   }
   return list;
+}
+
+function median(nums: number[]): number | null {
+  if (nums.length === 0) return null;
+  const a = [...nums].sort((x, y) => x - y);
+  const mid = Math.floor(a.length / 2);
+  return a.length % 2 ? a[mid] : Math.round((a[mid - 1] + a[mid]) / 2);
+}
+
+/** Date → 20260923 같은 숫자 (TxDetail.ymd와 같은 형식) */
+function ymdNum(d: Date): number {
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
+function daysAgo(now: Date, days: number): number {
+  return ymdNum(new Date(now.getTime() - days * 86400000));
+}
+
+export function buildInsights(
+  sales: TxDetail[],
+  jeonse: TxDetail[],
+  types: number[],
+  now: Date
+): ComplexInsights {
+  // sales/jeonse는 최신순, 취소 거래 포함 상태로 들어옵니다.
+  const valid = sales.filter((t) => !t.cancelDate);
+  const validJeonse = jeonse.filter((t) => !t.cancelDate);
+  const d30 = daysAgo(now, 30);
+  const d90 = daysAgo(now, 90);
+  const d180 = daysAgo(now, 182);
+  const d365 = daysAgo(now, 365);
+
+  const volume = {
+    d30: valid.filter((t) => t.ymd >= d30).length,
+    m3: valid.filter((t) => t.ymd >= d90).length,
+    prev3: valid.filter((t) => t.ymd >= d180 && t.ymd < d90).length,
+    m12: valid.filter((t) => t.ymd >= d365).length,
+  };
+
+  const latest = valid[0] ?? null;
+  const key = (a: number) => Math.round(a);
+  const sameAreaPrev = latest ? valid.slice(1).find((t) => key(t.areaM2) === key(latest.areaM2)) ?? null : null;
+  const sameAreaChangePct =
+    latest && sameAreaPrev && sameAreaPrev.priceManwon
+      ? ((latest.priceManwon - sameAreaPrev.priceManwon) / sameAreaPrev.priceManwon) * 100
+      : null;
+
+  const recordHighs90d = valid.filter((t) => t.isRecordHigh && t.ymd >= d90).length;
+  const cancelled12m = sales.filter((t) => t.cancelDate && t.ymd >= d365).length;
+  const last12 = valid.filter((t) => t.ymd >= d365);
+  const directPct12m = last12.length >= 5 ? (last12.filter((t) => t.isDirect).length / last12.length) * 100 : null;
+
+  // 전세가율 — 최근 전세와 같은 평형의 최근 매매를 비교합니다 (1년 안의 거래끼리만).
+  let jeonseRatePct: number | null = null;
+  const lj = validJeonse[0];
+  if (lj && lj.ymd >= d365) {
+    const ls = valid.find((t) => key(t.areaM2) === key(lj.areaM2) && t.ymd >= d365);
+    if (ls && ls.priceManwon) jeonseRatePct = (lj.priceManwon / ls.priceManwon) * 100;
+  }
+
+  // 평형별 요약 — 면적을 반올림해 묶습니다 (84.82㎡와 84.98㎡는 같은 타입).
+  const groups = new Map<number, TxDetail[]>();
+  for (const t of valid) {
+    const k = key(t.areaM2);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k)!.push(t);
+  }
+  const areaStats: AreaStat[] = [...groups.entries()]
+    .map(([k, list]) => {
+      const recent = list.filter((t) => t.ymd >= d365).map((t) => t.priceManwon);
+      const typed = types.find((a) => key(a) === k);
+      return {
+        areaM2: typed ?? list[0].areaM2,
+        count3y: list.length,
+        count12m: recent.length,
+        latest: list[0] ?? null,
+        high12m: recent.length ? Math.max(...recent) : null,
+        low12m: recent.length ? Math.min(...recent) : null,
+        median12m: median(recent),
+      };
+    })
+    .sort((a, b) => a.areaM2 - b.areaM2);
+
+  return {
+    volume,
+    sameAreaPrev,
+    sameAreaChangePct,
+    recordHighs90d,
+    cancelled12m,
+    directPct12m,
+    jeonseRatePct,
+    areaStats,
+  };
 }
 
 export class ComplexError extends Error {
@@ -243,13 +367,17 @@ export async function loadComplexTrend(opts: {
   const age = buildYear ? now.getFullYear() - buildYear + 1 : null;
   const dong = infoRow?.dong ?? null;
 
-  const latestSale = allSales[0] ?? null;
-  const previousSale = allSales[1] ?? null;
-  const highSale = allSales.length
-    ? allSales.reduce((max, cur) => (cur.priceManwon > max.priceManwon ? cur : max))
+  // 요약 숫자에서는 해제(취소)된 거래를 뺍니다. 취소된 고가 거래가 "3년 최고가"로 잡히면
+  // 실제로는 성사되지 않은 가격을 보여주게 되기 때문입니다. (거래 목록에는 "취소"로 그대로 보입니다.)
+  const validSales = allSales.filter((t) => !t.cancelDate);
+  const validJeonse = allJeonse.filter((t) => !t.cancelDate);
+  const latestSale = validSales[0] ?? null;
+  const previousSale = validSales[1] ?? null;
+  const highSale = validSales.length
+    ? validSales.reduce((max, cur) => (cur.priceManwon > max.priceManwon ? cur : max))
     : null;
-  const lowSale = allSales.length
-    ? allSales.reduce((min, cur) => (cur.priceManwon < min.priceManwon ? cur : min))
+  const lowSale = validSales.length
+    ? validSales.reduce((min, cur) => (cur.priceManwon < min.priceManwon ? cur : min))
     : null;
   const recoveryPct =
     latestSale && highSale && highSale.priceManwon !== 0
@@ -261,7 +389,7 @@ export async function loadComplexTrend(opts: {
       ? ((saleChangeManwon as number) / previousSale.priceManwon) * 100
       : null;
 
-  const latestJeonse = allJeonse[0] ?? null;
+  const latestJeonse = validJeonse[0] ?? null;
   const gapManwon = latestSale && latestJeonse ? latestSale.priceManwon - latestJeonse.priceManwon : null;
   const gapPct =
     latestSale && gapManwon !== null && latestSale.priceManwon !== 0
@@ -270,8 +398,11 @@ export async function loadComplexTrend(opts: {
 
   // 그래프용 월별 집계 — 현재 보고 있는 거래유형 기준
   const chartYmds = Array.from({ length: CHART_MONTHS }, (_, i) => yyyymm(-(CHART_MONTHS - 1) + i, now));
-  const source = markRecordHighs(dealType === "sale" ? allSales : dealType === "jeonse" ? allJeonse : allMonthly);
-  const points: MonthlyPoint[] = monthlySeries(source, chartYmds);
+  markRecordHighs(allSales);
+  const source = dealType === "sale" ? allSales : markRecordHighs(dealType === "jeonse" ? allJeonse : allMonthly);
+  const noCancel = (list: TxDetail[]) => list.filter((t) => !t.cancelDate);
+  const points: MonthlyPoint[] = monthlySeries(noCancel(source), chartYmds);
+  const insights = buildInsights(allSales, allJeonse, types, now);
 
   return {
     code: region.code,
@@ -285,8 +416,8 @@ export async function loadComplexTrend(opts: {
     types,
     counts: { sale: allSales.length, jeonse: allJeonse.length, monthly: allMonthly.length },
     comparePoints: {
-      sale: monthlySeries(allSales, chartYmds),
-      jeonse: monthlySeries(allJeonse, chartYmds),
+      sale: monthlySeries(validSales, chartYmds),
+      jeonse: monthlySeries(validJeonse, chartYmds),
     },
     history: source.slice(0, 200),
     points,
@@ -302,6 +433,7 @@ export async function loadComplexTrend(opts: {
       gapManwon,
       gapPct,
     },
+    insights,
     errors: [],
   };
 }
@@ -315,6 +447,28 @@ export type ComplexListRow = {
   totalCount: number;
   lastDealDate: string | null;
 };
+
+/**
+ * 같은 동의 다른 단지 — 단지 페이지 아래 "주변 단지" 링크에 씁니다.
+ * 거래가 많은 순으로 몇 개만 고릅니다. 실패해도 페이지는 떠야 하므로 빈 배열을 돌려줍니다.
+ */
+export async function listNearbyComplexes(
+  regionCode: string,
+  dong: string | null,
+  exclude: string,
+  limit = 6
+): Promise<ComplexListRow[]> {
+  if (!dong) return [];
+  try {
+    const rows = await listComplexes(regionCode);
+    return rows
+      .filter((r) => r.dong === dong && r.complex !== exclude && r.saleCount >= 3)
+      .sort((a, b) => b.totalCount - a.totalCount)
+      .slice(0, limit);
+  } catch {
+    return [];
+  }
+}
 
 /** 한 지역의 단지 목록 (거래가 많은 순). 단지 목록 페이지와 사이트맵이 씁니다. */
 export async function listComplexes(regionCode: string, limit = 1000): Promise<ComplexListRow[]> {
