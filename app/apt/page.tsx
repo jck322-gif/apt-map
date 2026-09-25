@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
+import AptSearch from "@/components/AptSearch";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
 
@@ -28,6 +29,8 @@ export default function AptIndexPage() {
           3년치 매매·전세·월세 실거래가와 월별 가격 흐름, 3년 최고·최저가, 전세 갭을 한 화면에서 볼 수
           있습니다. 모든 숫자는 국토교통부 실거래가 공개시스템 자료입니다.
         </p>
+
+        <AptSearch />
 
         {[
           { title: "부산광역시", list: busan },

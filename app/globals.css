@@ -1387,3 +1387,15 @@ a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
 .insight-card span { color: var(--muted); font-size: 0.9em; line-height: 1.5; }
 .num-up { color: #d9480f; }
 .num-down { color: #1c7ed6; }
+
+/* 단지 목록(/apt) — 단지명으로 찾기 */
+.apt-search { margin: 18px 0 6px; }
+.apt-search-label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--ink); }
+.apt-search .complex-search { margin-bottom: 10px; }
+.apt-search-results { margin-bottom: 14px; }
+.apt-search-list { list-style: none; padding: 0; margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.apt-search-list li + li { border-top: 1px solid var(--line); }
+.apt-search-item { display: flex; flex-direction: column; gap: 2px; padding: 11px 14px; color: var(--ink); text-decoration: none; }
+.apt-search-item:hover { background: var(--surface-2); }
+.apt-search-name { font-weight: 700; font-size: 15px; }
+.apt-search-meta { font-size: 13px; color: var(--muted); }
