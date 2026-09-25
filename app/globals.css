@@ -1399,3 +1399,17 @@ a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
 .apt-search-item:hover { background: var(--surface-2); }
 .apt-search-name { font-weight: 700; font-size: 15px; }
 .apt-search-meta { font-size: 13px; color: var(--muted); }
+
+/* 표 안의 행 제목(평형·항목 이름) — 머리줄처럼 회색 칸이 아니라 본문과 같은 흰 칸에,
+   작은 고정폭 글씨 대신 본문 글씨로 보여줍니다. 링크는 사이트 색(청록)으로. */
+.top5-table tbody th {
+  background: var(--surface);
+  font-family: inherit; font-size: 13px; letter-spacing: 0;
+  padding: 10px 8px; border-bottom: 1px solid var(--line);
+}
+.top5-table tbody tr:last-child th { border-bottom: none; }
+.top5-table tbody tr:hover th { background: var(--surface-2); }
+.top5-table tbody th a, .top5-table td a {
+  color: var(--teal); font-weight: 700; text-decoration: none;
+}
+.top5-table tbody th a:hover, .top5-table td a:hover { text-decoration: underline; }
