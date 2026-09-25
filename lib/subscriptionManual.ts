@@ -33,9 +33,10 @@ export const MANUAL_SUBSCRIPTIONS: SubscriptionEntry[] = [
     winnerAnnounceDate: null,
     homepageUrl: null,
     isManual: true,
-    // GS건설이 연산동에 이 단지를 10월 분양한다는 건 언론(서울신문 9.15, 브릿지경제 9.8 등)으로도
-    // 확인됐지만, 정확한 모집공고·특공·1순위 날짜는 아직 SNS 사전 안내에서만 나온 값입니다.
-    sourceNote: "GS건설 연산동 분양(언론 보도로 확인) — 정확한 날짜는 SNS 사전 안내 기준, 공식 모집공고 전이라 바뀔 수 있어요",
+    // 2026-09-25 재확인: 뉴스핌(9.8)·아시아투데이(9.8)·서울신문(9.15)·로이슈(9.23) 모두 "10월 분양"까지만
+    // 나오고 날짜는 없습니다. 아래 공고·특공·1순위 날짜는 여전히 SNS 사전 안내에서만 나온 값입니다.
+    // 지하 4층~지상 43층 3개 동, 전 세대 전용 84㎡.
+    sourceNote: "GS건설 · 전 세대 84㎡ · 10월 분양은 언론 확인, 날짜는 SNS 사전 안내 기준이라 바뀔 수 있어요",
   },
   {
     pblancNo: "manual-ssangyong-platinum-centum",
@@ -49,14 +50,14 @@ export const MANUAL_SUBSCRIPTIONS: SubscriptionEntry[] = [
     specialSupplyEnd: null,
     rank1Start: "2026-09-29",
     rank1End: null,
-    rank2Start: null,
+    rank2Start: "2026-09-30",
     rank2End: null,
-    winnerAnnounceDate: null,
+    winnerAnnounceDate: "2026-10-07",
     homepageUrl: null,
     isManual: true,
-    // 9.18 모집공고가 예정대로 나왔다는 정황(블로그 보도, 2026-09-18)은 있지만 청약홈에서
-    // 직접 확인은 안 돼서 100% 공식 확정은 아닙니다. 84㎡ 약 11.98~13.21억, 63A 9.12~9.38억,
-    // 63B 9.11~9.16억, 74B 10.41~11.02억으로 알려져 있습니다.
-    sourceNote: "망미동 지역주택조합, 29년 1월 입주 예정 — 9.18 모집공고 소식은 있으나 청약홈 미확인, 일정이 바뀔 수 있어요",
+    // 2026-09-25 재확인: 9.18 입주자모집공고가 청약홈에 실제로 게재됨(공고 내용을 옮긴 자료로 확인).
+    // 특공 9.28 · 1순위 9.29 · 2순위 9.30 · 당첨자 발표 10.7 · 계약 10.19~21. 일반공급 53세대.
+    // 공식 공고라 청약홈 자동 수집에도 곧 들어오며, 들어오면 이 수동 항목은 자동으로 빠집니다.
+    sourceNote: "망미동 지역주택조합 · 일반공급 53세대 · 9.18 모집공고 게재 확인, 당첨 발표 10.7 · 29년 1월 입주 예정",
   },
 ];
