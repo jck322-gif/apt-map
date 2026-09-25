@@ -6,7 +6,7 @@ import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { fmtManwon } from "@/lib/format";
-import { loadComplexTrend, listNearbyComplexes, complexHref, type ComplexTrend } from "@/lib/complex";
+import { loadComplexTrend, listNearbyComplexes, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
 
 // 단지 페이지는 하루에 한 번만 다시 만듭니다.
 // (실거래 신고는 하루 단위로 올라오므로 이 정도면 충분하고, DB 부담도 적습니다.)
@@ -24,8 +24,13 @@ function decodeName(v: string): string {
 async function load(code: string, complexRaw: string): Promise<ComplexTrend | null> {
   try {
     return await loadComplexTrend({ code, complex: decodeName(complexRaw), dealType: "sale" });
-  } catch {
-    return null;
+  } catch (err) {
+    // 잘못된 주소(400)만 "없는 페이지"로 처리합니다. 데이터베이스가 잠깐 응답하지 않은 경우까지
+    // 404로 보내면 구글이 멀쩡한 단지 페이지를 "없어진 페이지"로 알고 검색에서 빼버립니다.
+    // 오류를 그대로 던지면 서버 오류(500)가 되어 구글이 나중에 다시 오고, 이미 만들어 둔
+    // 페이지가 있으면 Next.js가 그 마지막 정상 페이지를 계속 보여줍니다.
+    if (err instanceof ComplexError && err.status < 500) return null;
+    throw err;
   }
 }
 

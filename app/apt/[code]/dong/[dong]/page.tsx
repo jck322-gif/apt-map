@@ -87,12 +87,9 @@ export default async function DongPage({ params }: { params: Params }) {
   if (!region) notFound();
 
   const dong = decodeName(params.dong);
-  let s;
-  try {
-    s = await getDongSummary(params.code, dong);
-  } catch {
-    s = null;
-  }
+  // 데이터베이스 오류는 그대로 던집니다(500). 예전에는 오류도 404로 보내서, 잠깐의 장애 때
+  // 구글이 멀쩡한 동 페이지를 "없는 페이지"로 기록할 수 있었습니다.
+  const s = await getDongSummary(params.code, dong);
   if (!s) notFound();
 
   const full = `${s.group}광역시 ${s.regionName} ${s.dong}`;

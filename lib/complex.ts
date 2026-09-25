@@ -1,6 +1,7 @@
 import { REGIONS } from "@/lib/regions";
 import { yyyymm } from "@/lib/molit";
 import { getDb } from "@/lib/db";
+import { fetchAll } from "@/lib/fetchAll";
 
 /**
  * 단지 하나에 대한 실거래 자료를 모으는 곳.
@@ -312,20 +313,25 @@ export async function loadComplexTrend(opts: {
   const fromStr = `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}-01`;
 
   // 이 단지(+평형)의 3년치 거래를 표에서 직접 가져와, 필요한 통계는 여기서 계산합니다.
-  let query = db
-    .from("deals")
-    .select(
-      "deal_type, deal_date, floor, area_m2, dong, build_year, price_manwon, deposit_manwon, monthly_rent_manwon, cancel_date, dealing_type, register_date, apt_dong"
-    )
-    .eq("region_code", region.code)
-    .eq("complex", complex)
-    .gte("deal_date", fromStr);
-
-  // 같은 단지라도 평형이 다르면 가격대가 크게 달라서, 특정 거래로 들어온 경우
-  // 같은 평형(오차 0.5㎡ 이내)끼리만 비교합니다.
-  if (targetArea !== null && Number.isFinite(targetArea)) {
-    query = query.gte("area_m2", targetArea - 0.5).lte("area_m2", targetArea + 0.5);
-  }
+  //
+  // 데이터베이스는 한 번에 1000건까지만 돌려줍니다. 예전에는 limit(1000) 한 번으로 받아서
+  // 삼익비치·엘시티 같은 대단지는 최근 1년 남짓만 들어오고 "3년 최고가·거래 건수"가 틀렸습니다.
+  // 이제 1000건씩 나눠 끝까지 받습니다.
+  const hasArea = targetArea !== null && Number.isFinite(targetArea);
+  const makeQuery = (f: number, t: number) => {
+    let q = db
+      .from("deals")
+      .select(
+        "deal_type, deal_date, floor, area_m2, dong, build_year, price_manwon, deposit_manwon, monthly_rent_manwon, cancel_date, dealing_type, register_date, apt_dong"
+      )
+      .eq("region_code", region.code)
+      .eq("complex", complex)
+      .gte("deal_date", fromStr);
+    // 같은 단지라도 평형이 다르면 가격대가 크게 달라서, 특정 거래로 들어온 경우
+    // 같은 평형(오차 0.5㎡ 이내)끼리만 비교합니다.
+    if (hasArea) q = q.gte("area_m2", (targetArea as number) - 0.5).lte("area_m2", (targetArea as number) + 0.5);
+    return q.order("deal_date", { ascending: false }).order("id", { ascending: false }).range(f, t);
+  };
 
   // 이 단지가 가진 평형(타입) 목록 — 화면에서 타입을 바꿔가며 볼 수 있도록 항상 함께 내려줍니다.
   const typesQuery = db
@@ -334,14 +340,17 @@ export async function loadComplexTrend(opts: {
     .eq("region_code", region.code)
     .eq("complex", complex);
 
-  const [{ data, error }, typesRes] = await Promise.all([
-    query.order("deal_date", { ascending: false }).limit(1000),
-    typesQuery,
-  ]);
-
-  if (error) throw new ComplexError(`데이터베이스 조회 실패: ${error.message}`, 500);
-
-  const rows = (data ?? []) as DealRow[];
+  let rows: DealRow[];
+  let typesRes;
+  try {
+    [rows, typesRes] = await Promise.all([
+      fetchAll<DealRow>(makeQuery, { hardCap: 20000, parallel: 3 }),
+      typesQuery,
+    ]);
+  } catch (err) {
+    throw new ComplexError(`데이터베이스 조회 실패: ${err instanceof Error ? err.message : String(err)}`, 500);
+  }
+  if (typesRes.error) throw new ComplexError(`데이터베이스 조회 실패: ${typesRes.error.message}`, 500);
   const types = Array.from(
     new Set((typesRes.data ?? []).map((t: { area_m2: number | string }) => Number(t.area_m2)))
   ).sort((a, b) => a - b);
@@ -372,12 +381,18 @@ export async function loadComplexTrend(opts: {
   const validSales = allSales.filter((t) => !t.cancelDate);
   const validJeonse = allJeonse.filter((t) => !t.cancelDate);
   const latestSale = validSales[0] ?? null;
-  const previousSale = validSales[1] ?? null;
-  const highSale = validSales.length
-    ? validSales.reduce((max, cur) => (cur.priceManwon > max.priceManwon ? cur : max))
+  // 직전 거래·3년 최고/최저·회복율은 "최근 거래와 같은 평형"끼리만 견줍니다.
+  // 단지 전체 페이지에서 평형을 섞으면 "24억(대형) 대비 8억(소형) → 회복율 33%" 같은
+  // 의미 없는 숫자가 나오기 때문입니다. (평형별 페이지에서는 원래 한 평형만 들어옵니다.)
+  const sameArea = latestSale
+    ? validSales.filter((t) => Math.round(t.areaM2) === Math.round(latestSale.areaM2))
+    : [];
+  const previousSale = sameArea[1] ?? null;
+  const highSale = sameArea.length
+    ? sameArea.reduce((max, cur) => (cur.priceManwon > max.priceManwon ? cur : max))
     : null;
-  const lowSale = validSales.length
-    ? validSales.reduce((min, cur) => (cur.priceManwon < min.priceManwon ? cur : min))
+  const lowSale = sameArea.length
+    ? sameArea.reduce((min, cur) => (cur.priceManwon < min.priceManwon ? cur : min))
     : null;
   const recoveryPct =
     latestSale && highSale && highSale.priceManwon !== 0
@@ -389,7 +404,11 @@ export async function loadComplexTrend(opts: {
       ? ((saleChangeManwon as number) / previousSale.priceManwon) * 100
       : null;
 
-  const latestJeonse = validJeonse[0] ?? null;
+  // 전세도 가능하면 같은 평형의 최근 전세와 견줘 갭을 계산합니다.
+  const latestJeonse =
+    (latestSale && validJeonse.find((t) => Math.round(t.areaM2) === Math.round(latestSale.areaM2))) ||
+    validJeonse[0] ||
+    null;
   const gapManwon = latestSale && latestJeonse ? latestSale.priceManwon - latestJeonse.priceManwon : null;
   const gapPct =
     latestSale && gapManwon !== null && latestSale.priceManwon !== 0
@@ -613,7 +632,7 @@ export async function getDongSummary(regionCode: string, dong: string): Promise<
   from.setFullYear(from.getFullYear() - 1);
   const fromStr = `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}-01`;
 
-  const [complexes, dealsRes] = await Promise.all([
+  const [complexes, dealsRes, countRes] = await Promise.all([
     listComplexes(regionCode),
     db
       .from("deals")
@@ -624,7 +643,19 @@ export async function getDongSummary(regionCode: string, dong: string): Promise<
       .gte("deal_date", fromStr)
       .order("price_manwon", { ascending: false })
       .limit(600),
+    // 최근 1년 매매 건수는 따로 셉니다. 위 목록은 비싼 순 600건까지만 받아서, 우동처럼 거래가 많은
+    // 동은 건수가 600에서 멈춰 버렸습니다.
+    db
+      .from("deals")
+      .select("id", { count: "exact", head: true })
+      .eq("region_code", regionCode)
+      .eq("dong", dong)
+      .eq("deal_type", "sale")
+      .is("cancel_date", null)
+      .gte("deal_date", fromStr),
   ]);
+  // 조회 오류를 "거래 없음"으로 보여주지 않고 그대로 던집니다 (페이지가 500 → 마지막 정상 화면 유지).
+  if (dealsRes.error) throw new ComplexError(`동 거래 조회 실패: ${dealsRes.error.message}`, 500);
 
   const mine = complexes.filter((c) => c.dong === dong);
   if (mine.length === 0) return null;
@@ -649,7 +680,7 @@ export async function getDongSummary(regionCode: string, dong: string): Promise<
     complexes: mine.sort((a, b) => a.complex.localeCompare(b.complex, "ko")),
     topSales,
     topSales84,
-    saleCount12m: rows.length,
+    saleCount12m: countRes.error || countRes.count === null ? rows.length : countRes.count,
   };
 }
 

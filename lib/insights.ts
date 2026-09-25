@@ -160,7 +160,10 @@ type JRow = {
   deposit_manwon: number | null;
 };
 
-/** 최근 3개월, 같은 단지·같은 평형의 매매 중간값과 전세 중간값을 견줍니다 (각각 2건 이상). */
+export const MIN_DEALS = 3;
+export const MIN_SALE_MANWON = 10000;
+
+/** 최근 3개월, 같은 단지·같은 평형의 매매 중간값과 전세 중간값을 견줍니다 (각각 3건 이상, 매매 1억 이상). */
 export async function getJeonseRate(): Promise<JeonseRate> {
   const db = getDb();
   const today = kstToday();
@@ -195,11 +198,14 @@ export async function getJeonseRate(): Promise<JeonseRate> {
 
   const out: JeonseRateRow[] = [];
   for (const b of bucket.values()) {
-    if (b.sale.length < 2 || b.jeonse.length < 2) continue;
+    // 매매·전세 각 3건 이상, 매매 중간값 1억 이상인 곳만 봅니다. 기준이 느슨하면 매매 5천만원대
+    // 초소형 구축이 표를 채워서, 사람들이 실제로 궁금해하는 단지가 보이지 않았습니다.
+    if (b.sale.length < MIN_DEALS || b.jeonse.length < MIN_DEALS) continue;
     const region = REGION_BY_CODE.get(b.code);
     if (!region) continue;
     const s = median(b.sale) as number;
     const j = median(b.jeonse) as number;
+    if (s < MIN_SALE_MANWON) continue;
     const rate = (j / s) * 100;
     // 100%를 크게 넘거나 30% 아래는 층·동이 전혀 다른 거래끼리 묶인 경우가 많아 뺍니다.
     if (rate < 30 || rate > 110) continue;

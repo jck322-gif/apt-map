@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fmtManwon, areaDetail, typeLabel } from "@/lib/format";
+import { fmtManwon, areaDetail, typeLabel, pickJosa } from "@/lib/format";
 import { complexHref, complexAreaHref, type ComplexTrend, type ComplexListRow } from "@/lib/complex";
 import FavoriteButton from "@/components/FavoriteButton";
 import InteriorLinks from "@/components/InteriorLinks";
@@ -89,6 +89,13 @@ export default function ComplexDetail({
   nearby?: ComplexListRow[];
 }) {
   const commentary = buildCommentary(data, selectedArea);
+  // 단지 전체 페이지에서는 직전·최고·최저를 "최근 거래와 같은 평형" 기준으로 계산하므로 표에 밝혀 둡니다.
+  const sameAreaTag =
+    !selectedArea && data.stats.latestSale && data.types.length > 1 ? (
+      <span className="muted-small"> ({Math.round(data.stats.latestSale.areaM2)}㎡)</span>
+    ) : null;
+  const linkableArea = (a: number) =>
+    data.types.length > 1 ? data.types.find((t) => Math.round(t) === Math.round(a)) ?? null : null;
   const ins = data.insights;
   const s = data.stats;
   const name = data.complex;
@@ -131,7 +138,8 @@ export default function ComplexDetail({
 
       <p className="guide-summary">
         {name}
-        {areaSuffix}은(는) {where}에 있는 아파트입니다. 최근 3년간 국토교통부에 신고된 거래는 매매{" "}
+        {areaSuffix}
+        {pickJosa(areaSuffix ? "제곱미터" : name, "은", "는")} {where}에 있는 아파트입니다. 최근 3년간 국토교통부에 신고된 거래는 매매{" "}
         {data.counts.sale}건, 전세 {data.counts.jeonse}건, 월세 {data.counts.monthly}건입니다.
         {s.latestSale && (
           <>
@@ -144,7 +152,8 @@ export default function ComplexDetail({
       </p>
 
       {/* 평형 고르기 — 누르면 그 평형 거래만 보여주는 페이지로 갑니다. */}
-      {data.types.length > 0 && (
+      {/* 평형이 하나뿐이면 평형별 페이지가 이 페이지와 똑같아져 검색엔진이 중복으로 봅니다 — 탭을 숨깁니다. */}
+      {data.types.length > 1 && (
         <section className="brief-section">
           <h2 className="brief-h2">
             평형 <span className="brief-count">{data.types.length}개 타입</span>
@@ -204,7 +213,7 @@ export default function ComplexDetail({
                 </td>
               </tr>
               <tr>
-                <th className="c-name">직전 거래</th>
+                <th className="c-name">직전 거래{sameAreaTag}</th>
                 <td>
                   {s.previousSale
                     ? `${fmtManwon(s.previousSale.priceManwon)} · ${s.previousSale.floor}층 · ${
@@ -214,7 +223,7 @@ export default function ComplexDetail({
                 </td>
               </tr>
               <tr>
-                <th className="c-name">3년 최고가</th>
+                <th className="c-name">3년 최고가{sameAreaTag}</th>
                 <td>
                   {s.highSale
                     ? `${fmtManwon(s.highSale.priceManwon)} · ${s.highSale.floor}층 · ${s.highSale.dateLabel}`
@@ -225,7 +234,7 @@ export default function ComplexDetail({
                 </td>
               </tr>
               <tr>
-                <th className="c-name">3년 최저가</th>
+                <th className="c-name">3년 최저가{sameAreaTag}</th>
                 <td>
                   {s.lowSale
                     ? `${fmtManwon(s.lowSale.priceManwon)} · ${s.lowSale.floor}층 · ${s.lowSale.dateLabel}`
@@ -296,7 +305,13 @@ export default function ComplexDetail({
                 {ins.areaStats.map((a) => (
                   <tr key={a.areaM2}>
                     <th className="c-name">
-                      <Link href={complexAreaHref(data.code, name, a.areaM2)}>{Math.round(a.areaM2)}㎡</Link>
+                      {linkableArea(a.areaM2) !== null ? (
+                        <Link href={complexAreaHref(data.code, name, linkableArea(a.areaM2) as number)}>
+                          {Math.round(a.areaM2)}㎡
+                        </Link>
+                      ) : (
+                        <>{Math.round(a.areaM2)}㎡</>
+                      )}
                     </th>
                     <td>
                       {a.latest ? (

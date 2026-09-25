@@ -13,9 +13,9 @@ import { getRegionSummary, type RegionSummary } from "@/lib/regionSummary";
 // 거래 요약(최근 30일)이 들어가서 하루 네 번 새로 만듭니다.
 export const revalidate = 21600;
 
-export function generateStaticParams() {
-  return REGIONS.map((r) => ({ code: r.code }));
-}
+// 배포(빌드) 때 21개 페이지를 미리 만들지 않고, 처음 요청이 왔을 때 만들어 저장합니다.
+// 목록 조회가 실패하면 이제 오류를 던지는데, 빌드 중에 데이터베이스가 잠깐 느리면 배포 자체가
+// 실패하게 되기 때문입니다. (한 번 만들어진 뒤에는 revalidate 주기마다 새로 만듭니다.)
 
 /**
  * 검색 결과에 뜨는 제목과 설명.
@@ -61,12 +61,10 @@ export default async function RegionComplexListPage({ params }: { params: { code
   const region = REGIONS.find((r) => r.code === params.code);
   if (!region) notFound();
 
-  let rows: ComplexListRow[];
-  try {
-    rows = await listComplexes(region.code);
-  } catch {
-    rows = [];
-  }
+  // 목록을 못 불러오면 빈 화면을 내보내지 않고 오류(500)로 넘깁니다. 빈 목록 화면은 21개 구·군이
+  // 전부 똑같아서, 구글이 그 순간에 들르면 "중복 페이지"로 분류합니다. 오류를 던지면 Next.js가
+  // 마지막으로 성공한 페이지를 계속 보여주고, 구글은 나중에 다시 옵니다.
+  const rows: ComplexListRow[] = await listComplexes(region.code);
 
   const full = `${region.group}광역시 ${region.name}`;
 

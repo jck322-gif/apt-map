@@ -18,6 +18,19 @@ export const metadata: Metadata = {
 };
 
 const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
+/** "2024-04-15" → "24.04" */
+const ym = (d: string) => `${d.slice(2, 4)}.${d.slice(5, 7)}`;
+
+/**
+ * 직전 최고가 거래가 1년 반 넘게 전이면 "오랜만의 거래"로 봅니다.
+ * 그 사이 거래가 없던 구축은 몇 년 치 상승분이 한 번에 붙어 오른 폭이 커 보이기 때문에,
+ * 표에 따로 표시하고 맨 위 요약 문장에서도 뺍니다.
+ */
+function isStale(r: WeeklyRecord): boolean {
+  if (!r.prevDealDate) return false;
+  const gapDays = (Date.parse(r.dealDate) - Date.parse(r.prevDealDate)) / 86400000;
+  return gapDays > 548;
+}
 
 function Table({ rows }: { rows: WeeklyRecord[] }) {
   return (
@@ -51,7 +64,11 @@ function Table({ rows }: { rows: WeeklyRecord[] }) {
               </td>
               <td className="c-area">{Math.round(r.areaM2)}㎡</td>
               <td className="c-price">{fmtManwon(r.priceManwon)}</td>
-              <td className="c-price">{r.prevPriceManwon > 0 ? fmtManwon(r.prevPriceManwon) : "-"}</td>
+              <td className="c-price">
+                {r.prevPriceManwon > 0 ? fmtManwon(r.prevPriceManwon) : "-"}
+                {r.prevDealDate && <span className="t5-loc">{ym(r.prevDealDate)} 거래</span>}
+                {isStale(r) && <span className="stat-pill">오랜만의 거래</span>}
+              </td>
               <td className="num-up">
                 +{fmtManwon(r.gainManwon)}
                 {r.gainPct > 0 && <span className="muted-small"> ({r.gainPct.toFixed(1)}%)</span>}
@@ -74,7 +91,9 @@ export default async function Page() {
 
   const busan = data?.rows.filter((r) => r.group === "부산").slice(0, 20) ?? [];
   const ulsan = data?.rows.filter((r) => r.group === "울산").slice(0, 10) ?? [];
-  const topPct = data ? [...data.rows].sort((a, b) => b.gainPct - a.gainPct)[0] : undefined;
+  // 요약 문장에는 "오랜만의 거래"를 뺀 신고가만 씁니다 (몇 년 만의 거래로 부풀려진 1위를 피하려고).
+  const headline = busan.find((r) => !isStale(r));
+  const topPct = data ? [...data.rows].filter((r) => !isStale(r)).sort((a, b) => b.gainPct - a.gainPct)[0] : undefined;
 
   return (
     <div className="wrap">
@@ -95,16 +114,16 @@ export default async function Page() {
               최근 7일 동안 국토교통부에 새로 신고된 거래 중 신고가(같은 단지·같은 평형의 3년 내 최고가를 넘은
               거래)는 부산 <strong>{data.totalByGroup["부산"]}건</strong>, 울산{" "}
               <strong>{data.totalByGroup["울산"]}건</strong>입니다.
-              {busan[0] && (
+              {headline && (
                 <>
                   {" "}
-                  부산에서 가장 크게 오른 곳은{" "}
-                  <Link href={complexHref(busan[0].regionCode, busan[0].complex)}>{busan[0].complex}</Link>(
-                  {busan[0].regionName}) 전용 {Math.round(busan[0].areaM2)}㎡로, 직전 최고가보다{" "}
-                  {fmtManwon(busan[0].gainManwon)} 높은 {fmtManwon(busan[0].priceManwon)}에 거래됐습니다.
+                  부산에서 가장 크게 오른 곳(몇 년 만의 거래 제외)은{" "}
+                  <Link href={complexHref(headline.regionCode, headline.complex)}>{headline.complex}</Link>(
+                  {headline.regionName}) 전용 {Math.round(headline.areaM2)}㎡로, 직전 최고가보다{" "}
+                  {fmtManwon(headline.gainManwon)} 높은 {fmtManwon(headline.priceManwon)}에 거래됐습니다.
                 </>
               )}
-              {topPct && topPct.gainPct > 0 && topPct !== busan[0] && (
+              {topPct && topPct.gainPct > 0 && topPct !== headline && (
                 <>
                   {" "}
                   오른 비율로 보면{" "}
