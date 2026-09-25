@@ -748,7 +748,7 @@ export default function ComplexTrendModal({
           </>
         )}
 
-        <p className="empty-note" style={{ padding: "10px 0 0", fontSize: 12 }}>
+        <p className="empty-note" style={{ padding: "10px 0 0", fontSize: 13.5 }}>
           매매 3년 최고/최저·직전거래·전세는 이 단지의 실거래 신고 자료를 기준으로 계산했어요.
           국토부에는 계약 후 최대 30일까지 신고할 수 있어, 최근 거래는 이후에도 추가될 수 있습니다.
           세대수 정보는 국토부 실거래가 API에 포함되어 있지 않아 표시하지 않았어요.

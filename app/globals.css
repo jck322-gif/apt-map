@@ -75,19 +75,19 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 .live-badge { order: 2; }
 .brand-tagline {
   order: 3; flex: 1 0 100%; margin: 2px 0 0; text-align: center;
-  font-size: 13px; font-weight: 700; color: var(--ink-soft);
+  font-size: 14.5px; font-weight: 700; color: var(--ink-soft);
 }
 .brand-tagline .accent { color: var(--teal); }
 @media (min-width: 720px) {
-  .brand-tagline { order: 2; flex: 1 1 auto; margin: 0; font-size: 14.5px; }
+  .brand-tagline { order: 2; flex: 1 1 auto; margin: 0; font-size: 15.5px; }
   .live-badge { order: 3; }
 }
 .live-badge {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.04em;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; letter-spacing: 0.04em;
   padding: 3px 8px; border-radius: 20px; background: var(--teal); color: #fff; font-weight: 700; flex-shrink: 0;
 }
 .fav-badge {
-  order: 2; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.02em;
+  order: 2; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; letter-spacing: 0.02em;
   padding: 3px 8px; border-radius: 20px; border: 1px solid var(--line-strong); background: var(--surface);
   color: var(--ink-soft); font-weight: 700; flex-shrink: 0; text-decoration: none;
 }
@@ -100,18 +100,18 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 .complex-title-row .guide-title { margin: 0; }
 .fav-btn {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; font-family: "Noto Sans KR", sans-serif;
-  font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 20px; cursor: pointer;
+  font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 20px; cursor: pointer;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
 }
 .fav-btn:hover { border-color: var(--coral); color: var(--coral); }
 .fav-btn.is-saved { background: var(--coral); border-color: var(--coral); color: #fff; }
 .fav-btn-compact {
-  padding: 3px 7px; font-size: 13px; border-radius: 8px; gap: 0;
+  padding: 3px 7px; font-size: 14.5px; border-radius: 8px; gap: 0;
 }
 .top5-table .c-fav { width: 30px; padding-left: 2px; padding-right: 8px; }
 .top5-table .c-fav .fav-btn-compact { padding: 2px 5px; }
 
-.fav-empty { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.fav-empty { color: var(--muted); font-size: 15px; line-height: 1.6; }
 .fav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .fav-item {
   display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line);
@@ -119,10 +119,10 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 }
 .fav-item-main { flex: 1; min-width: 0; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 2px; }
 .fav-item-name { font-weight: 700; color: var(--ink); }
-.fav-item-where { font-size: 12px; color: var(--muted); }
-.fav-item-meta { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.fav-item-where { font-size: 13.5px; color: var(--muted); }
+.fav-item-meta { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted); flex-shrink: 0; }
 .fav-item-remove {
-  flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--muted); background: none;
+  flex-shrink: 0; font-size: 13.5px; font-weight: 700; color: var(--muted); background: none;
   border: 1px solid var(--line-strong); border-radius: 20px; padding: 5px 10px; cursor: pointer;
 }
 .fav-item-remove:hover { border-color: var(--rise); color: var(--rise); }
@@ -130,17 +130,17 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 .interior-list { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .interior-link {
   display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--line);
-  border-radius: 10px; background: var(--surface); text-decoration: none; color: var(--ink); font-size: 13.5px;
+  border-radius: 10px; background: var(--surface); text-decoration: none; color: var(--ink); font-size: 15px;
 }
 .interior-link:hover { border-color: var(--teal); background: var(--surface-2); color: var(--teal-deep); }
 .interior-badge {
-  flex-shrink: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 700;
+  flex-shrink: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
   padding: 3px 7px; border-radius: 20px; background: var(--surface-2); color: var(--ink-soft);
 }
 .interior-go { margin-left: auto; flex-shrink: 0; color: var(--muted); }
 .interior-search-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .interior-search-btn {
-  font-size: 12.5px; font-weight: 700; padding: 7px 12px; border-radius: 20px;
+  font-size: 14px; font-weight: 700; padding: 7px 12px; border-radius: 20px;
   border: 1px dashed var(--line-strong); background: var(--surface); color: var(--ink-soft); text-decoration: none;
 }
 .interior-search-btn:hover { border-color: var(--teal); color: var(--teal-deep); }
@@ -152,9 +152,9 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
   box-shadow: var(--shadow);
 }
 .interior-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-.interior-card-name { font-size: 15px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.interior-card-name { font-size: 16px; font-weight: 800; color: var(--ink); text-decoration: none; }
 .interior-card-name:hover { color: var(--teal-deep); }
-.interior-card-loc { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.interior-card-loc { font-size: 13.5px; color: var(--muted); flex-shrink: 0; }
 .interior-card .interior-list { margin: 0; }
 
 .stage-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -164,42 +164,42 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 }
 .stage-legend-num {
   flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--teal); color: #fff;
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; font-weight: 700;
   display: inline-flex; align-items: center; justify-content: center;
 }
-.stage-legend-name { flex-shrink: 0; font-weight: 700; font-size: 13.5px; color: var(--ink); min-width: 84px; }
-.stage-legend-desc { font-size: 12.5px; color: var(--muted); }
+.stage-legend-name { flex-shrink: 0; font-weight: 700; font-size: 15px; color: var(--ink); min-width: 84px; }
+.stage-legend-desc { font-size: 14px; color: var(--muted); }
 
 .redev-list { display: flex; flex-direction: column; gap: 10px; }
 .redev-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
 .redev-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-.redev-card-name { font-size: 15px; font-weight: 800; color: var(--ink); }
+.redev-card-name { font-size: 16px; font-weight: 800; color: var(--ink); }
 .redev-card-type {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
   padding: 2px 8px; border-radius: 20px; background: var(--surface-2); color: var(--ink-soft);
 }
-.redev-card-loc { font-size: 12px; color: var(--muted); margin-left: auto; }
-.redev-card-stage { font-size: 13.5px; margin: 0 0 4px; }
+.redev-card-loc { font-size: 13.5px; color: var(--muted); margin-left: auto; }
+.redev-card-stage { font-size: 15px; margin: 0 0 4px; }
 .redev-card-stage strong { color: var(--teal-deep); }
 .redev-card-stage-unknown { color: var(--muted); }
-.redev-card-checked { color: var(--muted); font-size: 12px; }
-.redev-card-note { font-size: 12.5px; color: var(--muted); margin: 0 0 8px; }
+.redev-card-checked { color: var(--muted); font-size: 13.5px; }
+.redev-card-note { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
 .stage-legend-details { cursor: default; }
 .stage-legend-summary {
   cursor: pointer; display: inline-flex; align-items: center; gap: 6px; list-style: none;
   user-select: none;
 }
 .stage-legend-summary::-webkit-details-marker { display: none; }
-.stage-legend-summary::before { content: "▸"; font-size: 12px; color: var(--muted); transition: transform 0.15s; }
+.stage-legend-summary::before { content: "▸"; font-size: 13.5px; color: var(--muted); transition: transform 0.15s; }
 .stage-legend-details[open] .stage-legend-summary::before { transform: rotate(90deg); }
-.redev-card-link { font-size: 12.5px; font-weight: 700; color: var(--teal-deep); text-decoration: none; }
+.redev-card-link { font-size: 14px; font-weight: 700; color: var(--teal-deep); text-decoration: none; }
 .redev-card-link:hover { text-decoration: underline; }
 
 .deal-tabs {
   display: flex; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 3px; margin-bottom: 10px;
 }
 .deal-tab {
-  flex: 1; font-family: "Noto Sans KR", sans-serif; font-size: 13px; font-weight: 700; padding: 7px 0;
+  flex: 1; font-family: "Noto Sans KR", sans-serif; font-size: 14.5px; font-weight: 700; padding: 7px 0;
   border-radius: 8px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
   text-align: center; text-decoration: none; display: block;
 }
@@ -208,7 +208,7 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 
 .more-menu { position: relative; flex-shrink: 0; }
 .more-menu-btn {
-  font-family: "Noto Sans KR", sans-serif; font-size: 13px; font-weight: 700; padding: 7px 12px;
+  font-family: "Noto Sans KR", sans-serif; font-size: 14.5px; font-weight: 700; padding: 7px 12px;
   border-radius: 8px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
   white-space: nowrap;
 }
@@ -222,8 +222,8 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
   display: flex; flex-direction: column; gap: 1px; padding: 8px 12px; border-radius: 8px;
   text-decoration: none; color: var(--ink);
 }
-.more-menu-item-label { font-size: 13.5px; font-weight: 700; }
-.more-menu-item-desc { font-size: 11.5px; color: var(--muted); }
+.more-menu-item-label { font-size: 15px; font-weight: 700; }
+.more-menu-item-desc { font-size: 13px; color: var(--muted); }
 .more-menu-item:hover { background: var(--surface-2); }
 .more-menu-item[aria-current="page"] { background: var(--teal); }
 .more-menu-item[aria-current="page"] .more-menu-item-label { color: #fff; }
@@ -236,22 +236,22 @@ a.brand:hover h1 { color: var(--teal-deep); }
 .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .chips { display: flex; gap: 6px; }
 .chip {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; padding: 6px 12px; border-radius: 20px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; padding: 6px 12px; border-radius: 20px;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft); cursor: pointer;
 }
 .chip[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 700; }
 .update-btn {
   margin-left: auto; display: flex; align-items: center; gap: 6px; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 12px; font-weight: 700; padding: 7px 13px; border-radius: 20px; border: none; background: var(--coral);
+  font-size: 13.5px; font-weight: 700; padding: 7px 13px; border-radius: 20px; border: none; background: var(--coral);
   color: #fff; cursor: pointer;
 }
 .update-btn:disabled { opacity: 0.6; cursor: default; }
 .spin { display: inline-block; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.last-updated { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted); margin-top: 8px; }
+.last-updated { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 
 .banner {
-  margin: 12px 16px 0; padding: 10px 12px; border-radius: 8px; font-size: 12.5px;
+  margin: 12px 16px 0; padding: 10px 12px; border-radius: 8px; font-size: 14px;
 }
 .banner.info { background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-soft); }
 .banner.error { background: var(--rise-soft); border: 1px solid var(--rise); color: var(--rise); }
@@ -273,13 +273,13 @@ section.block { padding: 20px 16px 0; }
 }
 .entry-card:hover { border-color: var(--teal); background: var(--surface-2); }
 .entry-card-label { font-family: "Noto Serif KR", serif; font-size: 18px; font-weight: 800; color: var(--ink); }
-.entry-card-desc { font-size: 12.5px; color: var(--muted); }
+.entry-card-desc { font-size: 14px; color: var(--muted); }
 .entry-card-go {
-  margin-top: 4px; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px;
+  margin-top: 4px; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px;
   font-weight: 700; color: var(--teal-deep);
 }
 .block h2 {
-  font-size: 13px; font-family: "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.04em;
+  font-size: 14.5px; font-family: "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.04em;
   text-transform: uppercase; color: var(--muted); margin: 0 0 10px;
 }
 
@@ -287,12 +287,12 @@ section.block { padding: 20px 16px 0; }
 .hero-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .hero-heading h2 { margin: 0; }
 .hero-date {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--teal);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--teal);
   font-weight: 700;
 }
 .hero-range-tabs { display: flex; gap: 6px; margin: 8px 0 6px; }
 .hero-range-tab {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; padding: 5px 12px; border-radius: 20px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; padding: 5px 12px; border-radius: 20px;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft); cursor: pointer;
 }
 .hero-range-tab[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 700; }
@@ -301,7 +301,7 @@ section.block { padding: 20px 16px 0; }
   .recent-table { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 }
 .recent-col-heading {
-  font-family: "Noto Serif KR", serif; font-size: 14px; font-weight: 800; color: var(--ink);
+  font-family: "Noto Serif KR", serif; font-size: 15px; font-weight: 800; color: var(--ink);
   margin-bottom: 8px; padding-left: 10px; border-left: 3px solid var(--teal);
 }
 /* 한 화면에 4줄 정도만 보이고 나머지는 스크롤로 보게 합니다
@@ -319,28 +319,28 @@ section.block { padding: 20px 16px 0; }
 .recent-row:hover, .recent-row:active { background: var(--surface-2); }
 .recent-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .recent-loc {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--muted);
 }
 .recent-complex {
-  font-size: 13.5px; font-weight: 700; color: var(--ink);
+  font-size: 15px; font-weight: 700; color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .recent-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
 .recent-price {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700; color: var(--teal-deep);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700; color: var(--teal-deep);
   white-space: nowrap;
 }
-.recent-date { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.recent-date { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
 
 .rank-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
 .rank-card {
   flex: 0 0 auto; min-width: 118px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
   padding: 12px; box-shadow: var(--shadow); cursor: pointer;
 }
-.rank-card .rank-no { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--teal); font-weight: 700; }
-.rank-card .rank-name { font-size: 13.5px; font-weight: 700; margin: 4px 0 6px; }
+.rank-card .rank-no { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--teal); font-weight: 700; }
+.rank-card .rank-name { font-size: 15px; font-weight: 700; margin: 4px 0 6px; }
 .rank-card .rank-count { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.rank-card .rank-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
+.rank-card .rank-unit { font-size: 12.5px; color: var(--muted); margin-left: 2px; }
 
 /* ── 가격 TOP 5 표 ─────────────────────────────────────────
    부산 / 울산을 나란히, 좁은 화면에서는 위아래로 놓습니다.
@@ -354,9 +354,9 @@ section.block { padding: 20px 16px 0; }
   overflow-x: auto; border: 1px solid var(--line); border-radius: 12px;
   background: var(--surface); box-shadow: var(--shadow);
 }
-.top5-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.top5-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 .top5-table th {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
   letter-spacing: .03em; color: var(--muted); text-align: left; white-space: nowrap;
   padding: 9px 8px; border-bottom: 1px solid var(--line); background: var(--surface-2);
 }
@@ -377,7 +377,7 @@ section.block { padding: 20px 16px 0; }
 .rank-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 20px; height: 20px; border-radius: 6px;
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700;
   background: var(--surface-2); color: var(--ink-soft);
 }
 .rank-badge.first { background: var(--teal); color: #fff; }
@@ -385,17 +385,17 @@ section.block { padding: 20px 16px 0; }
 .t5-complex { display: block; font-weight: 700; color: var(--ink); line-height: 1.35; }
 .t5-loc {
   display: block; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 10.5px; color: var(--muted); margin-top: 1px;
+  font-size: 12px; color: var(--muted); margin-top: 1px;
 }
 .top5-table .c-area {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-soft);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; color: var(--ink-soft);
 }
 .top5-table .c-price {
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 .top5-table .c-date {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--muted);
 }
 
 /* 부산 · 울산을 각각 확대해서 나란히 보여주는 지도 2단 구성 */
@@ -404,7 +404,7 @@ section.block { padding: 20px 16px 0; }
   .map-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 }
 .map-col-heading {
-  font-family: "Noto Serif KR", serif; font-size: 14px; font-weight: 800; color: var(--ink);
+  font-family: "Noto Serif KR", serif; font-size: 15px; font-weight: 800; color: var(--ink);
   margin-bottom: 8px; padding-left: 10px; border-left: 3px solid var(--teal);
 }
 .map-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
@@ -412,18 +412,18 @@ svg.map { display: block; width: 100%; height: auto; }
 .node { cursor: pointer; }
 .node.dim { opacity: 0.22; }
 .node.selected circle { stroke: var(--ink); stroke-width: 2.5; }
-.node-label { font-family: "Noto Sans KR", sans-serif; font-size: 9px; fill: var(--ink-soft); }
+.node-label { font-family: "Noto Sans KR", sans-serif; font-size: 11px; fill: var(--ink-soft); }
 .legend {
   display: flex; gap: 14px; align-items: center; padding: 10px 14px; margin-top: 12px;
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-  font-size: 11px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12.5px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
 .legend span { white-space: nowrap; }
 
 /* 섹션 제목 밑에 붙는 한 줄 설명 (지도의 숫자가 무슨 값인지 알려줄 때 등) */
 .section-note {
-  margin: -4px 0 12px; font-size: 12.5px; line-height: 1.55; color: var(--muted);
+  margin: -4px 0 12px; font-size: 14px; line-height: 1.55; color: var(--muted);
 }
 .section-note strong { color: var(--ink); font-weight: 700; }
 
@@ -431,11 +431,11 @@ svg.map { display: block; width: 100%; height: auto; }
 .group-section:first-child { margin-top: 0; }
 .group-heading {
   display: flex; align-items: baseline; gap: 6px; margin: 0 0 4px; padding-left: 10px;
-  font-size: 15.5px; font-weight: 800; font-family: "Noto Serif KR", serif; color: var(--ink);
+  font-size: 16.5px; font-weight: 800; font-family: "Noto Serif KR", serif; color: var(--ink);
   border-left: 3px solid var(--teal);
 }
 .group-heading .group-count {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700; color: var(--muted);
 }
 
 .region-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
@@ -455,7 +455,7 @@ svg.map { display: block; width: 100%; height: auto; }
   100% { box-shadow: 0 0 0 3px var(--rise-soft); }
 }
 .picked-badge {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
   padding: 2px 7px; border-radius: 20px; background: var(--coral); color: #fff;
   flex-shrink: 0; white-space: nowrap;
 }
@@ -465,20 +465,20 @@ svg.map { display: block; width: 100%; height: auto; }
   text-align: left; cursor: pointer; color: var(--ink); font-family: inherit;
 }
 .region-head .grp {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
   background: var(--surface-2); padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
 }
 .region-name-wrap { flex: 1; display: flex; align-items: center; gap: 7px; min-width: 0; }
-.region-head .nm { font-size: 14.5px; font-weight: 700; }
-.region-head .cnt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.region-head .nm { font-size: 15.5px; font-weight: 700; }
+.region-head .cnt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .trend {
   display: inline-flex; align-items: center; gap: 2px; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; flex-shrink: 0;
+  font-size: 13px; font-weight: 700; padding: 2px 7px; border-radius: 20px; flex-shrink: 0;
 }
 .trend.up { background: var(--rise-soft); color: var(--rise); }
 .trend.down { background: var(--fall-soft); color: var(--fall); }
 .trend.flat { background: var(--surface-2); color: var(--muted); }
-.chev { color: var(--muted); font-size: 11px; transition: transform 0.15s ease; flex-shrink: 0; }
+.chev { color: var(--muted); font-size: 12.5px; transition: transform 0.15s ease; flex-shrink: 0; }
 .region-row.open .chev { transform: rotate(180deg); }
 
 .listing-panel { max-height: 0; overflow: hidden; transition: max-height 0.2s ease; border-top: 1px solid transparent; }
@@ -487,19 +487,19 @@ svg.map { display: block; width: 100%; height: auto; }
 .dong-group { padding: 10px 14px; border-bottom: 1px solid var(--line); }
 .dong-group:last-child { border-bottom: none; }
 .dong-heading {
-  font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px;
+  font-size: 14px; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px;
   display: flex; align-items: baseline; gap: 6px;
 }
 .dong-heading .dong-count {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 400; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 400; color: var(--muted);
 }
 .complex-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .complex-chip {
-  font-family: "Noto Sans KR", sans-serif; font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  font-family: "Noto Sans KR", sans-serif; font-size: 13.5px; padding: 6px 10px; border-radius: 8px;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer;
 }
 .complex-chip .complex-chip-count {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--muted); margin-left: 3px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--muted); margin-left: 3px;
 }
 .complex-chip.open { background: var(--teal-deep); border-color: var(--teal-deep); color: #fff; }
 .complex-chip.open .complex-chip-count { color: rgba(255,255,255,0.85); }
@@ -507,46 +507,46 @@ svg.map { display: block; width: 100%; height: auto; }
 
 .listing { padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--surface); }
 .listing:last-child { border-bottom: none; }
-.listing .l-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; }
-.listing .l-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+.listing .l-top { display: flex; justify-content: space-between; gap: 8px; font-size: 14.5px; font-weight: 700; }
+.listing .l-meta { font-size: 13.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
 .listing .l-price { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; color: var(--ink); }
-.empty-note { padding: 12px 14px; font-size: 12.5px; color: var(--muted); }
+.empty-note { padding: 12px 14px; font-size: 14px; color: var(--muted); }
 
 .toast {
   position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px); background: var(--ink); color: var(--paper);
-  font-size: 13px; padding: 10px 18px; border-radius: 24px; box-shadow: var(--shadow); opacity: 0; pointer-events: none;
+  font-size: 14.5px; padding: 10px 18px; border-radius: 24px; box-shadow: var(--shadow); opacity: 0; pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease; z-index: 40; white-space: nowrap;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-footer.end { padding: 28px 16px 0 16px; font-size: 12px; color: var(--muted); }
+footer.end { padding: 28px 16px 0 16px; font-size: 13.5px; color: var(--muted); }
 footer.end p { margin: 0 0 12px; }
 .footer-links { display: flex; gap: 14px; flex-wrap: wrap; padding-bottom: 24px; }
-.footer-links a { color: var(--teal-deep); text-decoration: underline; font-size: 12px; }
+.footer-links a { color: var(--teal-deep); text-decoration: underline; font-size: 13.5px; }
 
 /* 소개/개인정보처리방침/문의 같은 정적 페이지 */
 .static-page { padding: 24px 0 60px; }
 .static-page .back-link {
   display: inline-block; margin-bottom: 16px; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 12.5px; color: var(--teal-deep); text-decoration: none;
+  font-size: 14px; color: var(--teal-deep); text-decoration: none;
 }
 .static-page h1 {
   font-family: "Noto Serif KR", serif; font-size: 22px; color: var(--ink); margin: 0 0 18px;
 }
 .static-page section { margin-bottom: 22px; }
 .static-page h2 {
-  font-family: "Noto Serif KR", serif; font-size: 15px; color: var(--ink); margin: 0 0 8px;
+  font-family: "Noto Serif KR", serif; font-size: 16px; color: var(--ink); margin: 0 0 8px;
   padding-bottom: 6px; border-bottom: 1px solid var(--line);
 }
 .static-page p {
-  font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0 0 10px;
+  font-size: 15px; line-height: 1.7; color: var(--ink-soft); margin: 0 0 10px;
 }
 .static-page a { color: var(--teal-deep); }
-.static-page .contact-email { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14px; font-weight: 700; }
+.static-page .contact-email { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700; }
 
 /* 단지/동 검색 */
 .search-input {
-  width: 100%; box-sizing: border-box; font-family: "Noto Sans KR", sans-serif; font-size: 14px;
+  width: 100%; box-sizing: border-box; font-family: "Noto Sans KR", sans-serif; font-size: 15px;
   padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface);
   color: var(--ink);
 }
@@ -563,15 +563,15 @@ footer.end p { margin: 0 0 12px; }
 .search-result-row:last-child { border-bottom: none; }
 .search-count {
   padding: 9px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2);
-  font-size: 11.5px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 13px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 .search-type {
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--muted);
 }
 /* 사람들이 흔히 부르는 "84㎡ 타입" 표기 — 눈에 먼저 들어오도록 강조합니다. */
 .type-badge {
-  display: inline-block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px;
+  display: inline-block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px;
   font-weight: 800; padding: 2px 7px; border-radius: 6px;
   background: var(--teal); color: #fff; white-space: nowrap; margin-right: 6px;
 }
@@ -581,7 +581,7 @@ footer.end p { margin: 0 0 12px; }
 /* 단지 가격 추이 보기 버튼 */
 .trend-open-btn {
   display: block; width: 100%; margin: 10px 10px 0; padding: 9px 12px; border-radius: 8px;
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700;
   background: var(--surface-2); border: 1px dashed var(--teal); color: var(--teal-deep); cursor: pointer;
   text-align: left; width: calc(100% - 20px);
 }
@@ -604,11 +604,11 @@ footer.end p { margin: 0 0 12px; }
 }
 .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
 .modal-title { margin: 0; font-family: "Noto Serif KR", serif; font-size: 21px; color: var(--ink); }
-.modal-address { margin: 5px 0 0; font-size: 13.5px; color: var(--ink-soft); }
-.modal-subtitle { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); }
+.modal-address { margin: 5px 0 0; font-size: 15px; color: var(--ink-soft); }
+.modal-subtitle { margin: 3px 0 0; font-size: 14px; color: var(--muted); }
 .modal-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 .modal-chip {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700;
   padding: 3px 9px; border-radius: 20px; background: var(--surface-2); color: var(--ink-soft);
   white-space: nowrap;
 }
@@ -629,7 +629,7 @@ footer.end p { margin: 0 0 12px; }
 .compare-toggle {
   display: inline-flex; align-items: center; gap: 6px; margin: 8px 4px 0;
   padding: 5px 11px; border-radius: 20px; border: 1px solid var(--line-strong);
-  background: var(--surface); color: var(--ink-soft); font-size: 12px; font-weight: 700; cursor: pointer;
+  background: var(--surface); color: var(--ink-soft); font-size: 13.5px; font-weight: 700; cursor: pointer;
 }
 .compare-toggle[aria-pressed="true"] { border-color: var(--coral); color: var(--coral); }
 .compare-swatch {
@@ -642,7 +642,7 @@ footer.end p { margin: 0 0 12px; }
 .chart-legend { display: flex; gap: 12px; align-items: center; }
 .legend-item {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 12px; font-weight: 700; color: var(--ink-soft);
+  font-size: 13.5px; font-weight: 700; color: var(--ink-soft);
 }
 .legend-swatch { width: 16px; height: 0; display: inline-block; }
 .legend-swatch.sale { border-top: 3px solid var(--teal); }
@@ -650,7 +650,7 @@ footer.end p { margin: 0 0 12px; }
 .chart-legend-row .compare-toggle { margin: 0; }
 .modal-close {
   flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong);
-  background: var(--surface); color: var(--ink-soft); font-size: 15px; cursor: pointer;
+  background: var(--surface); color: var(--ink-soft); font-size: 16px; cursor: pointer;
 }
 
 /* 차트(왼쪽) + 실거래 통계 카드(오른쪽) — 좁은 화면에서는 위/아래로 쌓임 */
@@ -665,7 +665,7 @@ footer.end p { margin: 0 0 12px; }
 /* 행마다 내용 길이가 달라도 높이가 들쭉날쭉하지 않도록 최소 높이를 고정합니다. */
 .stat-row {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 8px 14px; min-height: 56px; border-bottom: 1px solid var(--line); font-size: 13.5px;
+  padding: 8px 14px; min-height: 56px; border-bottom: 1px solid var(--line); font-size: 15px;
 }
 .stat-row:last-child { border-bottom: none; }
 .stat-row.main { background: var(--surface-2); min-height: 76px; }
@@ -679,14 +679,14 @@ footer.end p { margin: 0 0 12px; }
   color: var(--ink); line-height: 1.2;
 }
 .stat-change {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14px; font-weight: 700;
   padding: 3px 9px; border-radius: 10px; white-space: nowrap;
 }
 .stat-change.up { background: var(--rise-soft); color: var(--rise); }
 .stat-change.down { background: var(--fall-soft); color: var(--fall); }
 .stat-pill {
   display: inline-block; margin-left: 6px; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
   background: var(--surface-2); color: var(--teal-deep); white-space: nowrap;
 }
 
@@ -699,7 +699,7 @@ footer.end p { margin: 0 0 12px; }
 /* 눈금선은 데이터보다 뒤로 물러나 있어야 합니다 (점선 + 옅게) */
 .trend-grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; opacity: .8; }
 .trend-axis-label {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 600; fill: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14.5px; font-weight: 600; fill: var(--muted);
 }
 .trend-line { fill: none; stroke: var(--teal); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 /* 곡선 아래 옅은 채움 — 값의 흐름이 한눈에 들어오게 합니다 */
@@ -712,7 +712,7 @@ footer.end p { margin: 0 0 12px; }
 /* 최근 값 라벨 — 흰 판 위에 글자를 올려 선·격자와 겹쳐도 읽히게 합니다 */
 .trend-last-plate { fill: var(--surface); stroke: var(--teal); stroke-width: 1.2; opacity: .96; }
 .trend-last-label {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700;
   fill: var(--teal-deep);
 }
 .trend-dot { fill: var(--teal); stroke: var(--surface); stroke-width: 1.8; }
@@ -723,7 +723,7 @@ footer.end p { margin: 0 0 12px; }
 .trend-crosshair { stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .trend-tooltip {
   margin: 8px 4px 2px; padding: 9px 12px; border-radius: 8px; background: var(--surface-2); color: var(--ink);
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700; text-align: center;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14.5px; font-weight: 700; text-align: center;
 }
 /* 단지가 가진 타입(평형) 선택 줄 */
 .type-picker {
@@ -732,28 +732,28 @@ footer.end p { margin: 0 0 12px; }
   background: var(--surface-2);
 }
 .type-picker-label {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700;
   color: var(--muted); padding-top: 6px; flex-shrink: 0;
 }
 .type-picker-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
 .type-chip {
   display: flex; flex-direction: column; align-items: center; gap: 1px;
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700;
   padding: 5px 11px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
 }
 .type-chip:hover { border-color: var(--teal); }
 .type-chip[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
-.type-chip-sub { font-size: 10px; font-weight: 400; opacity: 0.75; }
+.type-chip-sub { font-size: 11.5px; font-weight: 400; opacity: 0.75; }
 
 .trend-table { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .trend-table-head {
   padding: 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line);
-  font-size: 11.5px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 13px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 .trend-table-row {
   display: flex; align-items: center; gap: 12px; padding: 0 14px; min-height: 46px; width: 100%;
-  border: none; border-bottom: 1px solid var(--line); font-size: 13.5px;
+  border: none; border-bottom: 1px solid var(--line); font-size: 15px;
   background: transparent; color: inherit; font-family: inherit; text-align: left; cursor: pointer;
 }
 .trend-table-row:disabled { cursor: default; opacity: 0.7; }
@@ -766,21 +766,21 @@ footer.end p { margin: 0 0 12px; }
 .month-deals { background: var(--paper); border-bottom: 1px solid var(--line); }
 .month-deal-row {
   display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 26px;
-  border-bottom: 1px dashed var(--line); font-size: 12.5px;
+  border-bottom: 1px dashed var(--line); font-size: 14px;
 }
 .month-deal-row:last-child { border-bottom: none; }
 .month-deal-date {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--muted);
   width: 66px; flex-shrink: 0;
 }
 .month-deal-price {
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; color: var(--ink); flex: 1;
 }
-.month-deal-meta { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.month-deal-meta { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
 /* 신고가 · 직거래 · 취소 표시 */
 .flag {
-  display: inline-block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px;
+  display: inline-block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px;
   font-weight: 800; padding: 1px 6px; border-radius: 5px; margin-right: 5px; white-space: nowrap;
   vertical-align: middle;
 }
@@ -790,13 +790,13 @@ footer.end p { margin: 0 0 12px; }
 .struck { text-decoration: line-through; opacity: 0.6; }
 .table-legend {
   display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 6px;
-  font-size: 10.5px; color: var(--muted);
+  font-size: 12px; color: var(--muted);
 }
 .table-legend .flag { margin-right: 2px; margin-left: 8px; }
 .table-legend .flag:first-child { margin-left: 0; }
 .trend-table-month { width: 50px; flex-shrink: 0; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; }
 .trend-table-value { flex: 1; font-weight: 700; color: var(--ink); }
-.trend-table-count { color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
+.trend-table-count { color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14px; }
 
 
 /* ── 아파트 비교 페이지 ───────────────────────────────── */
@@ -804,11 +804,11 @@ footer.end p { margin: 0 0 12px; }
 .cmp-chip {
   display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px 6px 11px;
   border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface);
-  font-size: 12.5px; color: var(--ink);
+  font-size: 14px; color: var(--ink);
 }
 .cmp-chip-name { font-weight: 700; }
 .cmp-chip-area {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted);
   font-weight: 600;
 }
 /* 선 색과 모양(실선/점선)을 그대로 보여주는 표식 — 색만으로 구분하지 않기 위한 것 */
@@ -818,7 +818,7 @@ footer.end p { margin: 0 0 12px; }
 }
 .cmp-remove {
   width: 20px; height: 20px; border-radius: 50%; border: none; background: var(--surface-2);
-  color: var(--ink-soft); font-size: 11px; line-height: 1; cursor: pointer; flex-shrink: 0;
+  color: var(--ink-soft); font-size: 12.5px; line-height: 1; cursor: pointer; flex-shrink: 0;
 }
 .cmp-remove:hover { background: var(--rise-soft); color: var(--rise); }
 
@@ -831,17 +831,17 @@ footer.end p { margin: 0 0 12px; }
 }
 .cmp-chart { width: 100%; height: auto; display: block; }
 .cmp-axis-label {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 600;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; font-weight: 600;
   fill: var(--muted);
 }
 /* 클릭한 달의 가격을 그래프 위에 띄우는 라벨 */
 .cmp-value-label {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700;
 }
 
-.cmp-table .c-price { font-size: 12.5px; }
+.cmp-table .c-price { font-size: 14px; }
 .cmp-delta {
-  display: block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+  display: block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
   font-weight: 700; margin-top: 2px;
 }
 .cmp-delta.up { color: var(--rise); }
@@ -861,20 +861,20 @@ footer.end p { margin: 0 0 12px; }
 }
 .dealmap-brand {
   display: flex; align-items: center; gap: 7px; text-decoration: none; color: inherit;
-  font-family: "Noto Serif KR", serif; font-weight: 700; font-size: 15px; margin-right: 4px;
+  font-family: "Noto Serif KR", serif; font-weight: 700; font-size: 16px; margin-right: 4px;
 }
 .dealmap-tabs { display: flex; gap: 5px; }
-.dealmap-tabs .chip { padding: 5px 10px; font-size: 11.5px; }
+.dealmap-tabs .chip { padding: 5px 10px; font-size: 13px; }
 .dealmap-count {
   margin-left: auto; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 11.5px; color: var(--muted); font-weight: 600;
+  font-size: 13px; color: var(--muted); font-weight: 600;
 }
 
 .dealmap-body { position: relative; flex: 1; min-height: 0; display: flex; }
 .dealmap-canvas { flex: 1; min-width: 0; height: 100%; }
 .dealmap-fallback {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 24px; text-align: center; color: var(--ink-soft); font-size: 13.5px;
+  gap: 10px; padding: 24px; text-align: center; color: var(--ink-soft); font-size: 15px;
 }
 
 /* 동을 눌렀을 때 열리는 거래 목록 */
@@ -896,10 +896,10 @@ footer.end p { margin: 0 0 12px; }
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   padding: 12px 14px; border-bottom: 1px solid var(--line);
 }
-.dealmap-panel-head strong { font-size: 15px; font-family: "Noto Serif KR", serif; }
+.dealmap-panel-head strong { font-size: 16px; font-family: "Noto Serif KR", serif; }
 .dealmap-panel-sub {
   display: block; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 11px; color: var(--muted); margin-top: 2px;
+  font-size: 12.5px; color: var(--muted); margin-top: 2px;
 }
 .dealmap-panel-list { overflow-y: auto; flex: 1; }
 .dealmap-panel-list .recent-row { border-radius: 0; }
@@ -907,7 +907,7 @@ footer.end p { margin: 0 0 12px; }
 .dealmap-hint {
   position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
   padding: 9px 15px; border-radius: 20px; background: var(--ink); color: var(--paper);
-  font-size: 12.5px; font-weight: 700; box-shadow: var(--shadow); z-index: 6;
+  font-size: 14px; font-weight: 700; box-shadow: var(--shadow); z-index: 6;
   max-width: calc(100% - 32px); text-align: center;
 }
 
@@ -918,7 +918,7 @@ footer.end p { margin: 0 0 12px; }
   display: inline-flex; align-items: center; gap: 4px;
   padding: 5px 10px; border-radius: 20px; border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--ink); text-decoration: none;
-  font-size: 11.5px; font-weight: 700; box-shadow: var(--shadow);
+  font-size: 13px; font-weight: 700; box-shadow: var(--shadow);
 }
 .map-expand:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
 
@@ -935,16 +935,16 @@ footer.end p { margin: 0 0 12px; }
 }
 .guide-card:hover { border-color: var(--teal); background: var(--surface-2); }
 .guide-card-title {
-  font-family: "Noto Serif KR", serif; font-size: 16px; font-weight: 800; color: var(--ink);
+  font-family: "Noto Serif KR", serif; font-size: 17px; font-weight: 800; color: var(--ink);
   line-height: 1.45;
 }
-.guide-card-summary { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.guide-card-summary { font-size: 14.5px; color: var(--muted); line-height: 1.6; }
 .guide-card-meta {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted);
 }
 
 .guide-back {
-  display: inline-block; margin-bottom: 12px; font-size: 12.5px; font-weight: 700;
+  display: inline-block; margin-bottom: 12px; font-size: 14px; font-weight: 700;
   color: var(--teal-deep); text-decoration: none;
 }
 .guide-title {
@@ -952,16 +952,16 @@ footer.end p { margin: 0 0 12px; }
   margin: 0 0 8px; color: var(--ink); letter-spacing: -0.01em;
 }
 .guide-meta {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--muted);
   margin: 0 0 14px;
 }
 .guide-summary {
-  font-size: 14.5px; line-height: 1.75; color: var(--ink-soft); margin: 0 0 4px;
+  font-size: 15.5px; line-height: 1.75; color: var(--ink-soft); margin: 0 0 4px;
   padding: 13px 15px; background: var(--surface-2); border-radius: 10px;
 }
 
 /* 본문 — 읽기 편하도록 줄 간격을 넉넉히 잡습니다 */
-.guide-body { font-size: 15px; line-height: 1.85; color: var(--ink); max-width: 760px; }
+.guide-body { font-size: 16px; line-height: 1.85; color: var(--ink); max-width: 760px; }
 .guide-body h2 {
   font-family: "Noto Serif KR", serif; font-size: 19px; font-weight: 800; color: var(--ink);
   margin: 32px 0 10px; padding-left: 11px; border-left: 4px solid var(--teal);
@@ -972,17 +972,17 @@ footer.end p { margin: 0 0 12px; }
 .guide-body li { margin-bottom: 8px; }
 .guide-body .guide-note {
   padding: 13px 15px; border-radius: 10px; background: var(--fall-soft);
-  border-left: 4px solid var(--fall); font-size: 14px; color: var(--ink);
+  border-left: 4px solid var(--fall); font-size: 15px; color: var(--ink);
 }
 .guide-body .top5-table-wrap { margin: 0 0 18px; max-width: 100%; }
-.guide-table td { font-size: 13.5px; line-height: 1.6; }
+.guide-table td { font-size: 15px; line-height: 1.6; }
 .guide-table td:first-child { font-weight: 700; white-space: nowrap; }
 
 .guide-sources {
   margin-top: 28px; padding: 14px 16px; border-radius: 10px; background: var(--surface-2);
-  font-size: 13px; color: var(--ink-soft);
+  font-size: 14.5px; color: var(--ink-soft);
 }
-.guide-sources strong { display: block; margin-bottom: 6px; font-size: 12.5px; color: var(--ink); }
+.guide-sources strong { display: block; margin-bottom: 6px; font-size: 14px; color: var(--ink); }
 .guide-sources ul { margin: 0; padding-left: 18px; }
 .guide-sources li { margin-bottom: 4px; }
 .guide-sources a { color: var(--teal-deep); }
@@ -1007,7 +1007,7 @@ footer.end p { margin: 0 0 12px; }
   flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   background: var(--surface-2); color: var(--teal-deep);
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 16px; font-weight: 700;
 }
 .cat-box[open] .cat-no { background: var(--teal); color: #fff; }
 .cat-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
@@ -1015,13 +1015,13 @@ footer.end p { margin: 0 0 12px; }
   font-family: "Noto Serif KR", serif; font-size: 17.5px; font-weight: 800; color: var(--ink);
   line-height: 1.35;
 }
-.cat-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.cat-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
 .cat-count {
   flex-shrink: 0; font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 12px; font-weight: 700; color: var(--muted);
+  font-size: 13.5px; font-weight: 700; color: var(--muted);
 }
 .cat-chev {
-  flex-shrink: 0; color: var(--muted); font-size: 13px; transition: transform .18s ease;
+  flex-shrink: 0; color: var(--muted); font-size: 14.5px; transition: transform .18s ease;
 }
 .cat-box[open] .cat-chev { transform: rotate(180deg); }
 
@@ -1034,10 +1034,10 @@ footer.end p { margin: 0 0 12px; }
   background: var(--surface); text-decoration: none; color: inherit;
 }
 .cat-item:hover { background: var(--surface-2); }
-.cat-item-title { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.5; }
-.cat-item-summary { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.cat-item-title { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.5; }
+.cat-item-summary { font-size: 14px; color: var(--muted); line-height: 1.6; }
 .cat-item-meta {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted);
 }
 
 
@@ -1050,25 +1050,25 @@ footer.end p { margin: 0 0 12px; }
   text-transform: none; letter-spacing: normal;
 }
 .brief-count {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 700;
   color: var(--muted);
 }
 .brief-regions {
-  margin: 10px 2px 0; font-size: 12.5px; line-height: 1.75; color: var(--muted);
+  margin: 10px 2px 0; font-size: 14px; line-height: 1.75; color: var(--muted);
   font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 .brief-regions strong {
   display: block; margin-bottom: 3px; font-family: "Noto Sans KR", sans-serif;
-  font-size: 12px; color: var(--ink-soft);
+  font-size: 13.5px; color: var(--ink-soft);
 }
 .brief-dates { display: flex; flex-wrap: wrap; gap: 8px; }
 .brief-date-chip {
   display: inline-flex; align-items: baseline; gap: 6px; padding: 8px 13px;
   border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface);
-  text-decoration: none; color: var(--ink); font-size: 13px; font-weight: 700;
+  text-decoration: none; color: var(--ink); font-size: 14.5px; font-weight: 700;
 }
 .brief-date-chip span {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted);
   font-weight: 600;
 }
 .brief-date-chip:hover { border-color: var(--teal); background: var(--surface-2); }
@@ -1079,16 +1079,16 @@ footer.end p { margin: 0 0 12px; }
   margin: 14px 0 4px; padding: 11px 13px;
   background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
 }
-.card-actions-label { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin-right: 2px; }
+.card-actions-label { font-size: 14px; font-weight: 700; color: var(--ink-soft); margin-right: 2px; }
 .card-btn {
   padding: 7px 14px; border-radius: 8px; border: 1px solid var(--teal);
-  background: var(--teal); color: #fff; font-family: inherit; font-size: 13px; font-weight: 700;
+  background: var(--teal); color: #fff; font-family: inherit; font-size: 14.5px; font-weight: 700;
   cursor: pointer;
 }
 .card-btn:hover { background: var(--teal-deep); border-color: var(--teal-deep); }
 .card-btn.ghost { background: var(--surface); color: var(--teal); }
 .card-btn.ghost:hover { background: var(--surface); color: var(--teal-deep); border-color: var(--teal-deep); }
-.card-actions-msg { font-size: 12px; color: var(--muted); flex-basis: 100%; }
+.card-actions-msg { font-size: 13.5px; color: var(--muted); flex-basis: 100%; }
 @media (max-width: 520px) {
   .card-actions-label { flex-basis: 100%; }
 }
@@ -1096,11 +1096,11 @@ footer.end p { margin: 0 0 12px; }
 /* 팝업 오른쪽 위 사이트 이름 — 팝업을 캡처해 공유할 때 출처가 함께 남도록 */
 .modal-header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .modal-brand {
-  font-family: "Noto Serif KR", serif; font-size: 16px; font-weight: 700;
+  font-family: "Noto Serif KR", serif; font-size: 17px; font-weight: 700;
   color: var(--teal); letter-spacing: -0.01em; white-space: nowrap;
 }
 @media (max-width: 420px) {
-  .modal-brand { font-size: 14px; }
+  .modal-brand { font-size: 15px; }
 }
 
 /* ── 단지 페이지 (/apt) ─────────────────────────────────────────────── */
@@ -1111,7 +1111,7 @@ footer.end p { margin: 0 0 12px; }
   display: flex; align-items: center; justify-content: center; min-height: 42px;
   padding: 8px 4px; border-radius: 9px;
   border: 1px solid var(--line-strong); background: var(--surface);
-  color: var(--ink); text-decoration: none; font-size: 13.5px; font-weight: 700;
+  color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 700;
   white-space: nowrap;
 }
 .region-link:hover { border-color: var(--teal); background: var(--surface-2); color: var(--teal-deep); }
@@ -1121,11 +1121,11 @@ footer.end p { margin: 0 0 12px; }
 .complex-search-input {
   flex: 1; min-width: 0; padding: 11px 14px; border-radius: 10px;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
-  font-family: inherit; font-size: 14px;
+  font-family: inherit; font-size: 15px;
 }
 .complex-search-input:focus { outline: none; border-color: var(--teal); }
 .complex-search-count {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px;
   color: var(--muted); white-space: nowrap; flex-shrink: 0;
 }
 
@@ -1135,12 +1135,12 @@ footer.end p { margin: 0 0 12px; }
   border: 1px solid var(--line); background: var(--surface); text-decoration: none;
 }
 .complex-link:hover { border-color: var(--teal); background: var(--surface-2); }
-.complex-link-name { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+.complex-link-name { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.35; }
 .complex-link-meta {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--muted);
 }
 
-.crumbs { display: flex; gap: 6px; align-items: center; font-size: 12.5px; margin-bottom: 12px; }
+.crumbs { display: flex; gap: 6px; align-items: center; font-size: 14px; margin-bottom: 12px; }
 .crumbs a { color: var(--teal); text-decoration: none; font-weight: 700; }
 .crumbs a:hover { text-decoration: underline; }
 .crumbs span { color: var(--muted); }
@@ -1149,18 +1149,18 @@ footer.end p { margin: 0 0 12px; }
 .c-price.struck { text-decoration: line-through; opacity: 0.6; }
 
 /* 평형 고르기 (단지 페이지) */
-.type-help { margin: 0 0 10px; font-size: 12.5px; color: var(--muted); }
+.type-help { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
 .area-tabs { display: flex; flex-wrap: wrap; gap: 7px; }
 .area-tab {
   display: flex; flex-direction: column; align-items: center; gap: 1px;
   padding: 8px 13px; border-radius: 9px; text-decoration: none;
   border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
-  font-size: 13.5px; font-weight: 700; line-height: 1.25;
+  font-size: 15px; font-weight: 700; line-height: 1.25;
 }
 .area-tab:hover { border-color: var(--teal); background: var(--surface-2); }
 .area-tab[aria-current="page"] { background: var(--teal); border-color: var(--teal); color: #fff; }
 .area-tab-sub {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; font-weight: 600;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 600;
   color: var(--muted);
 }
 .area-tab[aria-current="page"] .area-tab-sub { color: rgba(255,255,255,0.85); }
@@ -1173,7 +1173,7 @@ footer.end p { margin: 0 0 12px; }
 
 /* 그래프가 계약일 기준임을 알리는 한 줄 (팝업·단지 페이지 공통) */
 .chart-basis-note {
-  margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted);
+  margin: 8px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted);
 }
 .chart-basis-note strong { color: var(--ink-soft); }
 
@@ -1185,7 +1185,7 @@ footer.end p { margin: 0 0 12px; }
 /* 오늘의 신고가 — 금액 아래에 직전 최고가와 상승폭을 작게 붙입니다 */
 .rec-prev {
   display: block; margin-top: 2px;
-  font-size: 11px; font-weight: 500; line-height: 1.4;
+  font-size: 12.5px; font-weight: 500; line-height: 1.4;
   color: var(--muted); white-space: nowrap;
 }
 .rec-prev b { color: var(--rise); font-weight: 700; }
@@ -1197,13 +1197,13 @@ footer.end p { margin: 0 0 12px; }
 }
 .rank-nav a {
   padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
-  font-size: 13px; font-weight: 600; color: var(--ink-soft); text-decoration: none;
+  font-size: 14.5px; font-weight: 600; color: var(--ink-soft); text-decoration: none;
   background: var(--surface);
 }
 .rank-nav a:hover { border-color: var(--teal); color: var(--teal); }
 .rank-group { margin-top: 16px; }
 .rank-group-title {
-  margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--ink);
+  margin: 0 0 8px; font-size: 15px; font-weight: 700; color: var(--ink);
   padding-left: 8px; border-left: 3px solid var(--teal);
 }
 
@@ -1211,7 +1211,7 @@ footer.end p { margin: 0 0 12px; }
 .subscription-region-tabs { display: flex; gap: 6px; margin: 10px 0 4px; }
 .subscription-region-tab {
   padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-strong);
-  background: var(--surface); color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: none;
+  background: var(--surface); color: var(--ink); font-size: 14.5px; font-weight: 700; text-decoration: none;
 }
 .subscription-region-tab:hover { border-color: var(--teal); color: var(--teal); }
 .subscription-region-tab[aria-current="page"] { background: var(--teal); border-color: var(--teal); color: #fff; }
@@ -1224,10 +1224,10 @@ footer.end p { margin: 0 0 12px; }
 .subscription-nav-btn {
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line);
-  background: var(--surface); color: var(--ink); text-decoration: none; font-size: 16px; font-weight: 700;
+  background: var(--surface); color: var(--ink); text-decoration: none; font-size: 17px; font-weight: 700;
 }
 .subscription-nav-btn:hover { border-color: var(--teal); color: var(--teal); }
-.subscription-month { font-size: 15.5px; font-weight: 800; color: var(--ink); min-width: 96px; text-align: center; }
+.subscription-month { font-size: 16.5px; font-weight: 800; color: var(--ink); min-width: 96px; text-align: center; }
 
 .subscription-calendar {
   border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface);
@@ -1235,7 +1235,7 @@ footer.end p { margin: 0 0 12px; }
 .subscription-weekdays, .subscription-week { display: grid; grid-template-columns: repeat(7, 1fr); }
 .subscription-weekdays {
   border-bottom: 1px solid var(--line); background: var(--surface-2);
-  font-size: 12px; font-weight: 700; color: var(--muted);
+  font-size: 13.5px; font-weight: 700; color: var(--muted);
 }
 .subscription-weekdays span { padding: 7px 4px; text-align: center; }
 .subscription-weekdays span.is-sun { color: #dc2626; }
@@ -1243,16 +1243,16 @@ footer.end p { margin: 0 0 12px; }
 
 .subscription-cell {
   min-height: 74px; padding: 4px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
-  display: flex; flex-direction: column; gap: 2px; font-size: 11px; overflow: hidden;
+  display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; overflow: hidden;
 }
 .subscription-week .subscription-cell:last-child { border-right: none; }
 .subscription-cell.is-empty { background: var(--surface-2); }
 .subscription-cell.is-sun .subscription-daynum { color: #dc2626; }
 .subscription-cell.is-sat .subscription-daynum { color: #2563eb; }
-.subscription-daynum { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
+.subscription-daynum { font-size: 13px; font-weight: 700; color: var(--ink-soft); }
 
 .subscription-badge {
-  display: block; padding: 1.5px 5px; border-radius: 5px; font-size: 10px; font-weight: 700;
+  display: block; padding: 1.5px 5px; border-radius: 5px; font-size: 11.5px; font-weight: 700;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.6;
 }
 .subscription-badge-notice { background: #f1f5f9; color: #475569; }
@@ -1262,24 +1262,24 @@ footer.end p { margin: 0 0 12px; }
 .subscription-badge-winner { background: #fce7f3; color: #9d174d; }
 /* 공식 청약홈 공고 전, SNS 등에서 미리 안내된 "예정" 일정 — 점선 테두리로 확정 일정과 구분 */
 .subscription-badge.is-manual { background: transparent; border: 1.3px dashed currentColor; }
-.subscription-more { font-size: 10px; color: var(--muted); padding-left: 5px; }
+.subscription-more { font-size: 11.5px; color: var(--muted); padding-left: 5px; }
 
 @media (max-width: 560px) {
-  .subscription-cell { min-height: 56px; font-size: 10px; }
-  .subscription-badge { font-size: 9px; }
+  .subscription-cell { min-height: 56px; font-size: 11.5px; }
+  .subscription-badge { font-size: 11px; }
 }
 
 /* 재개발 — 단계 필터 · 진행 트랙 · 상세 팝업 */
 .redev-filter { margin: 14px 0 4px; }
-.redev-filter-title { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+.redev-filter-title { display: block; font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
 .redev-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .redev-chip {
   padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line-strong);
-  background: var(--surface); color: var(--ink-soft); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  background: var(--surface); color: var(--ink-soft); font-size: 14px; font-weight: 700; cursor: pointer;
 }
 .redev-chip:hover { border-color: var(--teal); color: var(--teal); }
 .redev-chip.is-active { background: var(--teal); border-color: var(--teal); color: #fff; }
-.redev-count { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.redev-count { margin: 10px 0 0; font-size: 14px; color: var(--muted); font-weight: 700; }
 
 .redev-card-btn {
   width: 100%; text-align: left; cursor: pointer; font: inherit; appearance: none;
@@ -1298,11 +1298,11 @@ footer.end p { margin: 0 0 12px; }
 }
 .stage-track-dot.is-done { background: var(--teal); border-color: var(--teal); }
 .stage-track-dot.is-current { width: 15px; height: 15px; background: var(--teal-deep); border-color: var(--teal-deep); }
-.stage-track-label { font-size: 9.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+.stage-track-label { font-size: 11px; color: var(--muted); margin-top: 3px; white-space: nowrap; }
 .stage-track-label.is-current { color: var(--teal-deep); font-weight: 800; }
 .stage-track-lg .stage-track-dot { width: 14px; height: 14px; }
 .stage-track-lg .stage-track-dot.is-current { width: 19px; height: 19px; }
-.stage-track-lg .stage-track-label { font-size: 11px; }
+.stage-track-lg .stage-track-label { font-size: 12.5px; }
 
 .redev-modal-overlay {
   position: fixed; inset: 0; background: rgba(15, 23, 20, 0.55); z-index: 200;
@@ -1320,13 +1320,13 @@ footer.end p { margin: 0 0 12px; }
 .redev-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .redev-modal-close {
   border: none; background: var(--surface-2); border-radius: 999px; width: 28px; height: 28px;
-  font-size: 14px; cursor: pointer; color: var(--ink-soft); flex-shrink: 0;
+  font-size: 15px; cursor: pointer; color: var(--ink-soft); flex-shrink: 0;
 }
 .redev-modal-close:hover { color: var(--ink); }
 .redev-modal-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .redev-modal-btn {
   padding: 8px 14px; border-radius: 9px; background: var(--teal); color: #fff;
-  font-size: 13px; font-weight: 700; text-decoration: none;
+  font-size: 14.5px; font-weight: 700; text-decoration: none;
 }
 .redev-modal-btn:hover { background: var(--teal-deep); }
 .redev-modal-btn-outline {
@@ -1336,33 +1336,33 @@ footer.end p { margin: 0 0 12px; }
 
 .redev-modal-facts { display: flex; gap: 18px; margin: 4px 0 10px; }
 .redev-modal-fact { display: flex; flex-direction: column; gap: 1px; }
-.redev-modal-fact-label { font-size: 11px; color: var(--muted); font-weight: 700; }
-.redev-modal-fact-value { font-size: 14px; color: var(--ink); font-weight: 800; }
+.redev-modal-fact-label { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.redev-modal-fact-value { font-size: 15px; color: var(--ink); font-weight: 800; }
 
 .redev-modal-history { margin: 6px 0 4px; }
-.redev-modal-history-title { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+.redev-modal-history-title { display: block; font-size: 13.5px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
 .redev-modal-history-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .redev-modal-history-item {
   display: flex; gap: 10px; align-items: baseline; padding: 8px 10px;
   background: var(--surface-2); border-radius: 8px;
 }
 .redev-modal-history-date {
-  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; font-weight: 700;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; font-weight: 700;
   color: var(--teal-deep); flex-shrink: 0; min-width: 58px;
 }
-.redev-modal-history-label { font-size: 13px; color: var(--ink-soft); }
+.redev-modal-history-label { font-size: 14.5px; color: var(--ink-soft); }
 
 /* 재개발 — 지도 · 단계 배지 */
 .redev-map-wrap { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); margin: 10px 0 4px; }
-.redev-map-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 12px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--ink-soft); }
+.redev-map-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
 .redev-map-legend-item { display: inline-flex; align-items: center; gap: 5px; }
 .redev-map-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .redev-stage-badge {
-  padding: 2px 9px; border-radius: 999px; color: #fff; font-size: 11px; font-weight: 800; white-space: nowrap;
+  padding: 2px 9px; border-radius: 999px; color: #fff; font-size: 12.5px; font-weight: 800; white-space: nowrap;
 }
 .redev-filter-desc {
   margin: 8px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--surface-2);
-  font-size: 12.5px; color: var(--ink-soft); line-height: 1.5;
+  font-size: 14px; color: var(--ink-soft); line-height: 1.5;
 }
 .redev-filter-desc strong { color: var(--teal-deep); }
 
@@ -1390,21 +1390,21 @@ a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
 
 /* 단지 목록(/apt) — 단지명으로 찾기 */
 .apt-search { margin: 18px 0 6px; }
-.apt-search-label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 8px; color: var(--ink); }
+.apt-search-label { display: block; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: var(--ink); }
 .apt-search .complex-search { margin-bottom: 10px; }
 .apt-search-results { margin-bottom: 14px; }
 .apt-search-list { list-style: none; padding: 0; margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
 .apt-search-list li + li { border-top: 1px solid var(--line); }
 .apt-search-item { display: flex; flex-direction: column; gap: 2px; padding: 11px 14px; color: var(--ink); text-decoration: none; }
 .apt-search-item:hover { background: var(--surface-2); }
-.apt-search-name { font-weight: 700; font-size: 15px; }
-.apt-search-meta { font-size: 13px; color: var(--muted); }
+.apt-search-name { font-weight: 700; font-size: 16px; }
+.apt-search-meta { font-size: 14.5px; color: var(--muted); }
 
 /* 표 안의 행 제목(평형·항목 이름) — 머리줄처럼 회색 칸이 아니라 본문과 같은 흰 칸에,
    작은 고정폭 글씨 대신 본문 글씨로 보여줍니다. 링크는 사이트 색(청록)으로. */
 .top5-table tbody th {
   background: var(--surface);
-  font-family: inherit; font-size: 13px; letter-spacing: 0;
+  font-family: inherit; font-size: 14.5px; letter-spacing: 0;
   padding: 10px 8px; border-bottom: 1px solid var(--line);
 }
 .top5-table tbody tr:last-child th { border-bottom: none; }
@@ -1413,3 +1413,6 @@ a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
   color: var(--teal); font-weight: 700; text-decoration: none;
 }
 .top5-table tbody th a:hover, .top5-table td a:hover { text-decoration: underline; }
+/* 칸이 많은 표(평형별 매매가 등)는 휴대폰에서 금액이 "6억 9,500 / 만원"처럼 두 줄로 쪼개지지 않게
+   한 줄로 두고, 표 전체를 옆으로 밀어 볼 수 있게 합니다. */
+.nowrap-table th, .nowrap-table td { white-space: nowrap; }

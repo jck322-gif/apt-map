@@ -290,7 +290,7 @@ export default function ComplexDetail({
         <section className="brief-section">
           <h2 className="brief-h2">평형별 매매가 (최근 12개월)</h2>
           <div className="top5-table-wrap">
-            <table className="top5-table">
+            <table className="top5-table nowrap-table">
               <thead>
                 <tr>
                   <th className="c-name">평형</th>

@@ -525,13 +525,13 @@ export default function Dashboard({
           <strong>일부 지역 데이터를 가져오지 못했습니다 ({data.errors.length}개 지역)</strong>
           <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
             {data.errors.slice(0, 3).map((e, i) => (
-              <li key={i} style={{ fontSize: 13, wordBreak: "break-all" }}>
+              <li key={i} style={{ fontSize: 14.5, wordBreak: "break-all" }}>
                 {e.region}: {e.message}
               </li>
             ))}
           </ul>
           {data.errors.length > 3 && (
-            <p style={{ margin: "4px 0 0", fontSize: 12 }}>
+            <p style={{ margin: "4px 0 0", fontSize: 13.5 }}>
               (나머지 {data.errors.length - 3}개 지역도 같은 원인일 가능성이 높습니다)
             </p>
           )}
