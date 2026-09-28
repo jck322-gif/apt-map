@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
 import { GUIDES } from "@/lib/guides";
 import { INSIGHT_PAGES } from "@/lib/insightPages";
+import { REPORTS } from "@/lib/reports";
 import { SITE_URL } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
 import { listAllComplexesForSitemap, listDongs, complexHref, dongHref } from "@/lib/complex";
+import { THIN_COMPLEX_MIN, THIN_DONG_MIN_COMPLEXES } from "@/lib/thin";
 
 // 단지 수가 많아 매 요청마다 DB를 훑지 않도록 하루에 한 번만 다시 만듭니다.
 export const revalidate = 86400;
@@ -33,6 +35,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.8,
     })),
+    { url: `${SITE_URL}/report`, lastModified: REPORTS[0] ? new Date(REPORTS[0].published) : now, changeFrequency: "weekly", priority: 0.8 },
+    ...REPORTS.map((r) => ({
+      url: `${SITE_URL}/report/${r.slug}`,
+      lastModified: new Date(r.published),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     { url: `${SITE_URL}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/interior`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
@@ -41,6 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/privacy`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${SITE_URL}/terms`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
   ];
 
   // 정보글은 각 글의 갱신일을 그대로 씁니다
@@ -59,12 +69,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // 단지별 페이지 — 거래가 3건 이상인 단지만 올립니다.
+  // 단지별 페이지 — 거래가 5건 이상인 단지만 올립니다 (단지 페이지의 noindex 기준과 같습니다).
   // (거래 1~2건짜리 단지까지 넣으면 내용이 얇은 페이지를 무더기로 제출하는 셈이라 오히려 손해입니다.
   //  목록 페이지에는 전부 링크가 있으니 검색엔진이 알아서 찾아갑니다.)
   let complexPages: MetadataRoute.Sitemap = [];
   try {
-    const rows = await listAllComplexesForSitemap(3);
+    const rows = await listAllComplexesForSitemap(THIN_COMPLEX_MIN);
     complexPages = rows.map((c) => ({
       url: `${SITE_URL}${complexHref(c.regionCode, c.complex)}`,
       lastModified: c.lastDealDate ? new Date(c.lastDealDate) : now,
@@ -82,7 +92,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const lists = await Promise.all(REGIONS.map((r) => listDongs(r.code).then((ds) => ({ r, ds }))));
     dongPages = lists.flatMap(({ r, ds }) =>
       ds
-        .filter((d) => d.dong !== "기타")
+        // 단지가 3곳 미만인 동은 목록이 얇아 올리지 않습니다 (동 페이지는 그대로 열립니다).
+        .filter((d) => d.dong !== "기타" && d.complexCount >= THIN_DONG_MIN_COMPLEXES)
         .map((d) => ({
           url: `${SITE_URL}${dongHref(r.code, d.dong)}`,
           lastModified: now,

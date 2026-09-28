@@ -35,7 +35,7 @@ export default function GuideBody({ body }: { body: Block[] }) {
           case "table":
             return (
               <div className="top5-table-wrap" key={i}>
-                <table className="top5-table guide-table">
+                <table className={`top5-table guide-table${b.nowrap ? " nowrap-table" : ""}`}>
                   <thead>
                     <tr>
                       {b.head.map((h, j) => (

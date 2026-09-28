@@ -14,7 +14,7 @@ export type Block =
   | { t: "ul"; items: string[] }
   | { t: "ol"; items: string[] }
   | { t: "note"; text: string } // 강조 상자
-  | { t: "table"; head: string[]; rows: string[][] };
+  | { t: "table"; head: string[]; rows: string[][]; /** 칸 안에서 줄바꿈하지 않고 옆으로 밀어 보기 (숫자 표) */ nowrap?: boolean };
 
 export type Guide = {
   slug: string;

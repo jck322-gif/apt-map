@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { THIN_COMPLEX_MIN, NOINDEX } from "@/lib/thin";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
@@ -80,6 +81,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description,
     alternates: { canonical: canonicalFor(region.code, name, area, data.types) },
     openGraph: { title: `${name} ${label} 실거래가 — ${region.name}`, description, type: "article" },
+    // 이 평형 거래가 몇 건 없으면 검색엔진에는 올리지 않습니다 (lib/thin.ts).
+    ...(data.counts.sale + data.counts.jeonse + data.counts.monthly < THIN_COMPLEX_MIN ? { robots: NOINDEX } : {}),
   };
 }
 

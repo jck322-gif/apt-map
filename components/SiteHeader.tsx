@@ -20,6 +20,7 @@ export default function SiteHeader({
     | "apt"
     | "rank"
     | "insight"
+    | "report"
     | "compare"
     | "guide"
     | "interior"
@@ -45,7 +46,7 @@ export default function SiteHeader({
         <p className="brand-tagline">
           부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
         </p>
-        <span className="live-badge">실시간 연동</span>
+        <span className="live-badge">매일 갱신</span>
         <FavoritesLink />
       </div>
 

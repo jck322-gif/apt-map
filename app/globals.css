@@ -525,7 +525,7 @@ footer.end p { margin: 0 0 12px; }
 .footer-links a { color: var(--teal-deep); text-decoration: underline; font-size: 13.5px; }
 
 /* 소개/개인정보처리방침/문의 같은 정적 페이지 */
-.static-page { padding: 24px 0 60px; }
+.static-page { padding: 24px 16px 60px; }
 .static-page .back-link {
   display: inline-block; margin-bottom: 16px; font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: 14px; color: var(--teal-deep); text-decoration: none;
@@ -1431,3 +1431,24 @@ a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
 .copy-box-head strong { font-size: 15px; }
 .copy-btn { margin-left: auto; border: none; background: var(--teal); color: #fff; font-weight: 700; font-size: 14px; padding: 7px 16px; border-radius: 8px; cursor: pointer; }
 .copy-box-text { margin: 0; padding: 12px 14px; white-space: pre-wrap; word-break: break-all; font-family: inherit; font-size: 15px; line-height: 1.65; }
+
+/* ───── 공통 바닥글 (components/SiteFooter.tsx) ───── */
+.site-footer { border-top: 1px solid var(--line); background: var(--surface); margin-top: 8px; }
+.site-footer-inner { max-width: 560px; margin: 0 auto; padding: 22px 16px 30px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+@media (min-width: 720px) { .site-footer-inner { max-width: 900px; } }
+@media (min-width: 1100px) { .site-footer-inner { max-width: 1180px; } }
+.site-footer-inner p { margin: 0 0 8px; }
+.site-footer-inner a { color: var(--teal-deep); }
+.site-footer-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 12px; }
+.site-footer-links a { font-size: 13.5px; text-decoration: underline; }
+.site-footer-copy { margin-top: 10px !important; font-size: 12.5px; }
+
+/* ───── 주간 리포트 ───── */
+.report-card-meta { font-size: 13px; color: var(--muted); }
+.report-pager { display: grid; gap: 10px; }
+@media (min-width: 720px) { .report-pager { grid-template-columns: 1fr 1fr; } }
+.static-page ul { padding-left: 20px; margin: 0 0 10px; font-size: 15px; line-height: 1.7; color: var(--ink-soft); }
+.static-page li { margin-bottom: 6px; }
+
+/* 글 페이지(상식·리포트)의 본문도 섹션과 같은 좌우 여백을 둡니다 (휴대폰에서 글자가 화면 끝에 붙지 않게). */
+article.block { padding: 20px 16px 0; }

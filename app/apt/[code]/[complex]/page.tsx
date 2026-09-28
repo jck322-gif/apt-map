@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { THIN_COMPLEX_MIN, NOINDEX } from "@/lib/thin";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
@@ -34,6 +35,10 @@ async function load(code: string, complexRaw: string): Promise<ComplexTrend | nu
   }
 }
 
+function totalDeals(d: { counts: { sale: number; jeonse: number; monthly: number } }): number {
+  return d.counts.sale + d.counts.jeonse + d.counts.monthly;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -58,6 +63,8 @@ export async function generateMetadata({
     description,
     alternates: { canonical: complexHref(region.code, name) },
     openGraph: { title: `${name} 실거래가 — ${region.name}`, description, type: "article" },
+    // 3년 동안 거래가 몇 건 없는 단지는 내용이 얇아 검색엔진에는 올리지 않습니다 (lib/thin.ts).
+    ...(data && totalDeals(data) < THIN_COMPLEX_MIN ? { robots: NOINDEX } : {}),
   };
 }
 

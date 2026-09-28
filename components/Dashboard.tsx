@@ -463,7 +463,7 @@ export default function Dashboard({
           <p className="brand-tagline">
             부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
           </p>
-          <span className="live-badge">실시간 연동</span>
+          <span className="live-badge">매일 갱신</span>
           <FavoritesLink />
         </div>
 
@@ -1026,11 +1026,6 @@ export default function Dashboard({
           데이터 출처: 국토교통부 아파트매매/전월세 실거래 상세 자료(공공데이터포털). 개념도는 실제
           행정구역 경계와 다를 수 있는 단순화된 표시입니다.
         </p>
-        <nav className="footer-links">
-          <Link href="/about">사이트 소개</Link>
-          <Link href="/privacy">개인정보처리방침</Link>
-          <Link href="/contact">문의</Link>
-        </nav>
       </footer>
 
       {trendTarget && (

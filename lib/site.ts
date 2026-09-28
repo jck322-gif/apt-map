@@ -6,6 +6,16 @@ export const SITE_TAGLINE = "부산 · 울산 아파트 실거래가 포털";
 // ★ 문의받으실 이메일 주소를 여기에 적어주세요. 소개·문의·개인정보처리방침 페이지에 함께 반영됩니다.
 export const CONTACT_EMAIL = "jck322@gmail.com";
 
+// 소개 페이지 "운영자"에 표시할 이름. 비워 두면 "개인이 운영합니다"로만 나옵니다.
+// 실명·닉네임 등 공개해도 괜찮은 이름을 적으면 소개 페이지에 함께 표시됩니다.
+export const OPERATOR_NAME = "";
+
+// 소개(운영자·편집 원칙) 페이지 최종 수정일
+export const ABOUT_UPDATED = "2026년 9월 28일";
+
+// 이용약관 시행일자
+export const TERMS_EFFECTIVE_DATE = "2026년 9월 28일";
+
 // 개인정보처리방침에 표시되는 시행일자
 export const PRIVACY_EFFECTIVE_DATE = "2026년 8월 28일";
 
