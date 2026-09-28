@@ -1416,3 +1416,18 @@ a.t5-complex:hover { color: var(--teal); text-decoration: underline; }
 /* 칸이 많은 표(평형별 매매가 등)는 휴대폰에서 금액이 "6억 9,500 / 만원"처럼 두 줄로 쪼개지지 않게
    한 줄로 두고, 표 전체를 옆으로 밀어 볼 수 있게 합니다. */
 .nowrap-table th, .nowrap-table td { white-space: nowrap; }
+
+/* 운영자용 공유 세트 페이지(/share) */
+.share-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 10px 0 14px; }
+@media (min-width: 720px) { .share-grid { grid-template-columns: repeat(4, 1fr); } }
+.share-grid.story { grid-template-columns: minmax(0, 240px); }
+.share-fig { margin: 0; }
+.share-fig img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; background: var(--surface-2); }
+.share-fig figcaption { font-size: 14px; margin-top: 6px; display: flex; justify-content: space-between; }
+.share-fig figcaption a { color: var(--teal); font-weight: 700; }
+.share-date { margin-right: 10px; color: var(--teal); font-weight: 700; }
+.copy-box { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin: 10px 0; overflow: hidden; }
+.copy-box-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface-2); }
+.copy-box-head strong { font-size: 15px; }
+.copy-btn { margin-left: auto; border: none; background: var(--teal); color: #fff; font-weight: 700; font-size: 14px; padding: 7px 16px; border-radius: 8px; cursor: pointer; }
+.copy-box-text { margin: 0; padding: 12px 14px; white-space: pre-wrap; word-break: break-all; font-family: inherit; font-size: 15px; line-height: 1.65; }
