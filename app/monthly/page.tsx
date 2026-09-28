@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Dashboard from "@/components/Dashboard";
+import HomeFeature from "@/components/HomeFeature";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
 import { getDashboardData } from "@/lib/dashboardData";
@@ -20,5 +21,5 @@ export default async function Page() {
     // Dashboard가 initialData 없이도 뜨고, 브라우저에서 한 번 더 시도합니다.
   }
 
-  return <Dashboard staticRegions={REGIONS} mode="monthly" initialData={initialData} />;
+  return <Dashboard staticRegions={REGIONS} mode="monthly" initialData={initialData} featured={<HomeFeature />} />;
 }

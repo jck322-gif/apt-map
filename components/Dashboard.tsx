@@ -187,6 +187,7 @@ export default function Dashboard({
   staticRegions,
   mode,
   initialData = null,
+  featured = null,
 }: {
   staticRegions: Region[];
   mode: "home" | DealType;
@@ -197,6 +198,8 @@ export default function Dashboard({
    * 실행 없이 읽는 최초 HTML에도 실제 데이터가 그대로 들어있다는 뜻입니다.
    */
   initialData?: ApiResponse | null;
+  /** 서버에서 그린 "이번 주 리포트" 카드 등 — 오늘의 실거래 바로 아래에 끼워 넣습니다. */
+  featured?: React.ReactNode;
 }) {
   const isHome = mode === "home";
   // 홈에서도 "오늘의 실거래"와 지도는 매매 기준으로 보여줍니다.
@@ -637,6 +640,8 @@ export default function Dashboard({
           ))}
         </div>
       </section>
+
+      {featured}
 
       <section className="block">
         <h2>지역 지도</h2>

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { GUIDES } from "@/lib/guides";
 import { INSIGHT_PAGES } from "@/lib/insightPages";
 import { REPORTS } from "@/lib/reports";
+import { CALC_PAGES } from "@/lib/calcPages";
 import { SITE_URL } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
 import { listAllComplexesForSitemap, listDongs, complexHref, dongHref } from "@/lib/complex";
@@ -41,6 +42,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(r.published),
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    { url: `${SITE_URL}/calc`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    ...CALC_PAGES.map((p) => ({
+      url: `${SITE_URL}/calc/${p.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
     })),
     { url: `${SITE_URL}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },

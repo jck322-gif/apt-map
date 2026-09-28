@@ -16,6 +16,7 @@ const MORE_ITEMS: { key: string; label: string; desc: string; href: string }[] =
   { key: "rank", label: "랭킹", desc: "신고가·상승률 순위", href: "/rank" },
   { key: "report", label: "리포트", desc: "주간 부산·울산 시장 정리", href: "/report" },
   { key: "insight", label: "분석", desc: "신고가·전세가율·지역 흐름", href: "/insight" },
+  { key: "calc", label: "계산기", desc: "취득세·중개수수료·대출", href: "/calc" },
   { key: "compare", label: "비교", desc: "단지 최대 4개 가격 비교", href: "/compare" },
   { key: "guide", label: "상식", desc: "실거래가 읽는 법 등", href: "/guide" },
   { key: "interior", label: "집구경", desc: "내부 구조·인테리어 참고", href: "/interior" },

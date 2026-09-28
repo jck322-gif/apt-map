@@ -21,6 +21,7 @@ export default function SiteHeader({
     | "rank"
     | "insight"
     | "report"
+    | "calc"
     | "compare"
     | "guide"
     | "interior"

@@ -14,6 +14,7 @@ export default function SiteFooter() {
           <Link href="/about">사이트 소개·운영자</Link>
           <Link href="/about#editorial">편집 원칙</Link>
           <Link href="/report">주간 리포트</Link>
+          <Link href="/calc">계산기</Link>
           <Link href="/terms">이용약관</Link>
           <Link href="/privacy">
             <strong>개인정보처리방침</strong>

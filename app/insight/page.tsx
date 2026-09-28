@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { SITE_NAME } from "@/lib/site";
 import { INSIGHT_PAGES } from "@/lib/insightPages";
+import { REPORTS } from "@/lib/reports";
 
 export const metadata: Metadata = {
   title: `부산 · 울산 아파트 실거래 분석 | ${SITE_NAME}`,
@@ -22,6 +23,14 @@ export default function Page() {
           새로 계산한 것입니다. 숫자는 자동으로 바뀌고, 계산 방법과 주의할 점은 각 페이지에 함께 적었습니다.
         </p>
         <ul className="insight-list">
+          {REPORTS[0] && (
+            <li>
+              <Link href={`/report/${REPORTS[0].slug}`} className="insight-card">
+                <strong>주간 리포트 — {REPORTS[0].title}</strong>
+                <span>숫자에 운영자의 해석을 붙인 한 주 정리입니다. ({REPORTS[0].period})</span>
+              </Link>
+            </li>
+          )}
           {INSIGHT_PAGES.map((p) => (
             <li key={p.slug}>
               <Link href={`/insight/${p.slug}`} className="insight-card">

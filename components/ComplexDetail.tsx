@@ -259,6 +259,25 @@ export default function ComplexDetail({
             </tbody>
           </table>
         </div>
+        {s.latestSale && (
+          <p className="calc-links">
+            최근 매매가 {fmtManwon(s.latestSale.priceManwon)} 기준으로 계산해 보기:{" "}
+            <Link
+              href={`/calc/acquisition-tax?price=${s.latestSale.priceManwon}&area=${s.latestSale.areaM2}`}
+              rel="nofollow"
+            >
+              취득세
+            </Link>
+            {" · "}
+            <Link href={`/calc/brokerage-fee?price=${s.latestSale.priceManwon}`} rel="nofollow">
+              중개수수료
+            </Link>
+            {" · "}
+            <Link href={`/calc/loan?price=${s.latestSale.priceManwon}`} rel="nofollow">
+              대출 이자·한도
+            </Link>
+          </p>
+        )}
       </section>
 
       <section className="brief-section">
