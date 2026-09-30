@@ -21,9 +21,9 @@ export const revalidate = 86400;
 const MONTHS = 3;
 
 export const metadata: Metadata = {
-  title: `부산 · 울산 아파트 순위 — 국평 신고가 · 평당가 · 거래량 TOP | ${SITE_NAME}`,
+  title: `부산 아파트 순위 · 울산 아파트 순위 — 신고가 · 평당가 · 거래량 TOP | ${SITE_NAME}`,
   description:
-    "최근 3개월 부산·울산 아파트 실거래 순위입니다. 국민평형(전용 84㎡) 신고가, 신고가 상승액, 국평 최고가, 평당가 TOP, 거래량이 많은 단지를 국토교통부 자료로 정리했습니다.",
+    "최근 3개월 부산 아파트 순위와 울산 아파트 순위. 거래량 순위, 국민평형(84㎡) 신고가, 평당가 TOP 단지를 국토교통부 실거래가로 매일 정리했습니다.",
   alternates: { canonical: "/rank" },
 };
 

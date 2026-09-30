@@ -71,7 +71,8 @@ header.app-header {
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px;
 }
 .brand { display: flex; align-items: center; gap: 9px; order: 1; flex: 1 1 auto; min-width: 0; }
-h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+h1, .brand-name { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+.brand-name { color: var(--ink); }
 .live-badge { order: 2; }
 .brand-tagline {
   order: 3; flex: 1 0 100%; margin: 2px 0 0; text-align: center;
@@ -231,7 +232,7 @@ h1 { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 0; font-weigh
 
 /* 로고·사이트명 전체가 홈으로 가는 링크입니다. */
 a.brand { text-decoration: none; color: inherit; }
-a.brand:hover h1 { color: var(--teal-deep); }
+a.brand:hover h1, a.brand:hover .brand-name { color: var(--teal-deep); }
 
 .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .chips { display: flex; gap: 6px; }

@@ -17,7 +17,7 @@ export default function Page() {
       <SiteHeader current="report" />
 
       <section className="block">
-        <h2>주간 리포트</h2>
+        <h1 className="guide-title">부산·울산 아파트 주간 리포트</h1>
         <p className="section-note">
           매주 월요일, 지난 한 주 동안 새로 신고된 부산·울산 아파트 실거래를 정리합니다. 자동으로 뽑는 표와 달리
           숫자 뒤의 사정(몇 년 만의 거래인지, 층이 다른지, 거래량은 어떤지)을 사람이 읽고 해석을 붙인 글입니다.

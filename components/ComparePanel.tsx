@@ -428,7 +428,7 @@ export default function ComparePanel() {
       <SiteHeader current="compare" />
 
       <section className="block">
-        <h2>아파트 실거래가 비교</h2>
+        <h1 className="guide-title">아파트 실거래가 비교</h1>
         <p className="section-note">
           단지를 <strong>최대 {MAX_ITEMS}개</strong>까지 담아 최근 1년 {valueName} 흐름을 한 그래프에서
           견줘볼 수 있습니다. 같은 단지라도 평형마다 가격이 달라, 평형(타입)별로 담깁니다.

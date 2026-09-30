@@ -42,7 +42,9 @@ export default function SiteHeader({
       <div className="brand-row">
         <Link href="/" className="brand" aria-label={`${SITE_NAME} 홈으로`}>
           <Logo size={34} />
-          <h1>{SITE_NAME}</h1>
+          {/* 사이트 이름은 제목(h1)이 아니라 일반 글자로 둡니다. 페이지마다 본문에 제목(h1)이 따로 있어서,
+              여기까지 h1이면 한 페이지에 제목이 두 개가 됩니다 (네이버 사이트 진단 "H1 2개 이상" 경고). */}
+          <span className="brand-name">{SITE_NAME}</span>
         </Link>
         <p className="brand-tagline">
           부산 · 울산 아파트 <span className="accent">실거래가</span> 포털

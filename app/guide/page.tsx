@@ -26,7 +26,7 @@ export default function Page() {
       <SiteHeader current="guide" />
 
       <section className="block">
-        <h2>부동산 상식</h2>
+        <h1 className="guide-title">부동산 상식</h1>
         <p className="section-note">
           실거래가 자료를 매일 다루면서 정리한 글 {GUIDES.length}편입니다. 궁금한 묶음을 눌러보세요.
         </p>
