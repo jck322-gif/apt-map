@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   // 이미지는 각 페이지의 openGraph 이미지를 그대로 씁니다.
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
+  // 새 글(주간 리포트·상식)을 알리는 RSS 주소 — 네이버 서치어드바이저에도 제출합니다.
+  alternates: { types: { "application/rss+xml": `${SITE_URL}/rss.xml` } },
   // Google Search Console 소유권 확인용 값입니다. 비밀번호가 아니라 공개되어도 되는 값이며,
   // 이 값이 사라지면 소유권 확인이 풀리므로 지우지 마세요.
   verification: {
