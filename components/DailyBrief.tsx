@@ -23,7 +23,7 @@ export default function DailyBriefView({
           ← 브리핑 목록
         </Link>
 
-        <h1 className="guide-title">부산 · 울산 실거래 브리핑 — {koDate(brief.date)}</h1>
+        <h1 className="guide-title">부산 · 울산 아파트 실거래 순위 — {koDate(brief.date)}</h1>
         <p className="guide-meta">{koDateLong(brief.date)} 국토교통부 신고분 기준</p>
 
         {total === 0 ? (

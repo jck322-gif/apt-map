@@ -10,8 +10,8 @@ export const revalidate = 3600;
 export function generateMetadata({ params }: { params: { date: string } }): Metadata {
   if (!isValidDate(params.date)) return { title: `실거래 브리핑 | ${SITE_NAME}` };
   return {
-    title: `${koDate(params.date)} 부산·울산 실거래 브리핑 | ${SITE_NAME}`,
-    description: `${koDateLong(params.date)} 국토교통부에 신고된 부산·울산 아파트 실거래를 정리했습니다. 최고가 거래와 구·군별 신고 건수를 확인하세요.`,
+    title: `${koDate(params.date)} 부산·울산 아파트 실거래가 순위 TOP · 신고가 | ${SITE_NAME}`,
+    description: `${koDateLong(params.date)} 국토교통부에 신고된 부산·울산 아파트 실거래를 정리했습니다. 가격 순위 TOP10, 신고가, 구·군별 신고 건수를 확인하세요.`,
     alternates: { canonical: `/daily/${params.date}` },
   };
 }

@@ -131,8 +131,9 @@ function line(i: ShareItem): string {
 /** X 본문 — 280 한도 안에 들어가도록 줄 수를 줄여 가며 맞춥니다. 링크는 첫 댓글로 따로 답니다. */
 export function xText(s: ShareSet): string {
   const total = s.recordCount["부산"] + s.recordCount["울산"];
-  const head = `🏢 ${s.md} 부산·울산 아파트 ${total > 0 ? `신고가 ${total}건` : `실거래 ${s.saleCount}건`}`;
-  const tags = "#부산아파트 #울산아파트 #실거래가 #신고가";
+  // 네이버·X 검색에서 "아파트 순위", "TOP"으로 찾는 사람이 많아 머리말에 넣습니다.
+  const head = `🏢 ${s.md} 부산·울산 아파트 실거래 TOP5${total > 0 ? ` · 신고가 ${total}건` : ""}`;
+  const tags = "#부산아파트 #울산아파트 #아파트순위 #실거래가";
   const all = [...s.busan.map((i) => ({ i, g: "부산" })), ...s.ulsan.map((i) => ({ i, g: "울산" }))];
   for (let n = Math.min(all.length, 5); n >= 1; n--) {
     const body = all
@@ -153,30 +154,41 @@ export function instaCaption(s: ShareSet): string {
   const total = s.recordCount["부산"] + s.recordCount["울산"];
   const top = [...s.busan.slice(0, 3), ...s.ulsan.slice(0, 2)];
   return [
-    `${s.dateLabel} 국토부에 새로 뜬 부산·울산 아파트 실거래 정리 🏢`,
-    total > 0 ? `매매 ${s.saleCount}건 중 신고가만 ${total}건!` : `매매 ${s.saleCount}건 신고`,
+    `${s.dateLabel} 부산·울산 아파트 실거래 순위 TOP5 🏢`,
+    total > 0 ? `국토부에 새로 뜬 매매 ${s.saleCount}건 중 신고가만 ${total}건!` : `국토부에 새로 뜬 매매 ${s.saleCount}건`,
     "",
     ...top.map((i) => `📍 ${line(i)} · ${i.regionName}`),
     "",
     "단지별 가격 흐름·전체 거래는 프로필 링크 👉 부울아파트",
     "",
-    "#부산아파트 #울산아파트 #부산실거래가 #울산실거래가 #아파트신고가 #아파트시세 #부산부동산 #울산부동산 #부울아파트",
+    "#부산아파트 #울산아파트 #부산아파트순위 #울산아파트순위 #부산실거래가 #울산실거래가 #아파트신고가 #부산부동산 #울산부동산 #부울아파트",
   ].join("\n");
 }
 
+/**
+ * 블로그 제목 — 네이버에서 실제로 많이 찾는 "부산 아파트 순위", "실거래가 TOP"을 맨 앞에 두고,
+ * 뒤에 그날 가장 눈에 띄는 단지를 붙입니다. (네이버 서치어드바이저 검색어 1·2위가 "울산 아파트 순위",
+ * "부산 아파트 거래량 순위"였습니다.)
+ * 예: "부산 아파트 실거래가 순위 TOP5 (9월 30일) | 더샵센텀파크1차 18.6억, 신고가 10건"
+ */
 export function blogTitle(s: ShareSet): string {
   const a = s.busan[0];
-  const b = s.busan[1] ?? s.ulsan[0];
-  const part = (i: ShareItem | undefined, withRecord: boolean) =>
-    i ? `${i.complex} ${eok(i.priceManwon)}${withRecord && i.gainManwon ? " 신고가" : ""}` : "";
-  return [part(a, true), part(b, false)].filter(Boolean).join(", ") + ` | ${s.dateLabel} 부산 아파트 실거래가`;
+  const total = s.recordCount["부산"] + s.recordCount["울산"];
+  const lead = `부산 아파트 실거래가 순위 TOP5 (${s.dateLabel})`;
+  const tail = [
+    a ? `${a.complex} ${eok(a.priceManwon)}${a.gainManwon ? " 신고가" : ""}` : "",
+    total > 0 ? `신고가 ${total}건` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+  return tail ? `${lead} | ${tail}` : lead;
 }
 
 export function blogIntro(s: ShareSet): string {
   const total = s.recordCount["부산"] + s.recordCount["울산"];
   const a = s.busan[0];
   return [
-    `${s.dateLabel} 오늘 국토부에 새로 뜬 실거래 정리`,
+    `${s.dateLabel} 부산·울산 아파트 실거래가 순위 TOP5 정리`,
     `부산·울산 합쳐서 매매만 ${s.saleCount}건${total > 0 ? `, 신고가도 ${total}건이나 떴다` : ""}.`,
     a
       ? `가장 눈에 띈 건 ${a.complex}(${a.regionName} ${a.dong}) ${Math.round(a.areaM2)}㎡ ${a.floor}층 ${fmtManwon(
@@ -193,14 +205,14 @@ export function blogIntro(s: ShareSet): string {
 export function cafeText(s: ShareSet): string {
   const total = s.recordCount["부산"] + s.recordCount["울산"];
   return [
-    `[${s.dateLabel} 신고분] 부산·울산 아파트 실거래 정리`,
+    `[${s.dateLabel} 신고분] 부산·울산 아파트 실거래 순위 TOP5${total > 0 ? ` · 신고가 ${total}건` : ""}`,
     "",
     `국토부 실거래가 공개시스템에 오늘 새로 올라온 매매 ${s.saleCount}건 중${total > 0 ? ` 신고가(3년 내 최고가 경신) ${total}건` : ""}을 정리했습니다.`,
     "",
-    "■ 부산",
+    "■ 부산 TOP5",
     ...s.busan.map((i) => `- ${i.regionName} ${i.dong} ${line(i)}, ${i.floor}층`),
     "",
-    "■ 울산",
+    "■ 울산 TOP5",
     ...s.ulsan.map((i) => `- ${i.regionName} ${i.dong} ${line(i)}, ${i.floor}층`),
     "",
     "※ 계약일 기준 자료이며, 해제(취소)된 거래는 뺐습니다. 투자 권유가 아닌 정보 공유입니다.",
