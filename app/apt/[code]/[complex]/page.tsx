@@ -6,7 +6,7 @@ import ComplexDetail from "@/components/ComplexDetail";
 import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { fmtManwon } from "@/lib/format";
+import { eokShort, ymdMonthLabel, fmtManwon } from "@/lib/format";
 import { loadComplexTrend, listNearbyComplexes, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
 
 // 단지 페이지는 하루에 한 번만 다시 만듭니다.
@@ -52,17 +52,27 @@ export async function generateMetadata({
   const latest = data?.stats.latestSale;
   const where = `${region.group}광역시 ${region.name}${data?.dong ? ` ${data.dong}` : ""}`;
 
+  // 검색 결과 제목에 최근 거래가와 시점을 넣습니다. 비슷한 제목의 대형 사이트들 사이에서
+  // "지금 얼마인지"가 바로 보여야 눌러 봅니다. (예: "삼익비치 실거래가 19.6억(131㎡·26년 9월) — 수영구 남천동")
+  const m12 = data?.insights.volume.m12 ?? 0;
+  const high = data?.stats.highSale;
+  const title = latest
+    ? `${name} 실거래가 ${eokShort(latest.priceManwon)}(${Math.round(latest.areaM2)}㎡·${ymdMonthLabel(latest.ymd)}) — ${region.name}${data?.dong ? ` ${data.dong}` : ""}`
+    : `${name} 실거래가 — ${region.name}`;
+
   const description = latest
-    ? `${where} ${name} 실거래가. 가장 최근 매매는 ${latest.dateLabel} ${fmtManwon(
-        latest.priceManwon
-      )}(${Math.round(latest.areaM2)}㎡, ${latest.floor}층)입니다. 최근 3년치 매매·전세·월세 실거래 이력과 월별 가격 흐름을 국토교통부 자료로 정리했습니다.`
+    ? `${where} ${name} 최근 매매 ${latest.dateLabel} ${fmtManwon(latest.priceManwon)}(${Math.round(
+        latest.areaM2
+      )}㎡ ${latest.floor}층).${m12 > 0 ? ` 최근 1년 매매 ${m12}건.` : ""}${
+        high && high !== latest ? ` 같은 평형 3년 최고가 ${fmtManwon(high.priceManwon)}.` : ""
+      } 매매·전세·월세 실거래 이력과 가격 흐름을 국토교통부 자료로 매일 갱신합니다.`
     : `${where} ${name}의 매매·전세·월세 실거래가를 국토교통부 자료로 정리했습니다.`;
 
   return {
-    title: `${name} 실거래가 — ${region.name} | ${SITE_NAME}`,
+    title: `${title} | ${SITE_NAME}`,
     description,
     alternates: { canonical: complexHref(region.code, name) },
-    openGraph: { title: `${name} 실거래가 — ${region.name}`, description, type: "article" },
+    openGraph: { title, description, type: "article" },
     // 3년 동안 거래가 몇 건 없는 단지는 내용이 얇아 검색엔진에는 올리지 않습니다 (lib/thin.ts).
     ...(data && totalDeals(data) < THIN_COMPLEX_MIN ? { robots: NOINDEX } : {}),
   };

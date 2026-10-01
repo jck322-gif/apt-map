@@ -54,3 +54,16 @@ export function pickJosa(word: string, withBatchim: string, without: string): st
   // 한글이 아니면(숫자·영문) 받침이 있는 쪽으로 읽히는 경우가 많아 그쪽을 씁니다.
   return withBatchim;
 }
+
+/** 만원 → 검색 제목용 짧은 금액: "19.6억", "10.37억", "9,500만" */
+export function eokShort(manwon: number): string {
+  if (manwon < 10000) return `${Math.round(manwon).toLocaleString()}만`;
+  return `${Math.round((manwon / 10000) * 100) / 100}억`;
+}
+
+/** 20260916 → "26년 9월" */
+export function ymdMonthLabel(ymd: number): string {
+  const y = Math.floor(ymd / 10000);
+  const m = Math.floor(ymd / 100) % 100;
+  return `${String(y).slice(2)}년 ${m}월`;
+}

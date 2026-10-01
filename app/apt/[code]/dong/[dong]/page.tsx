@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
-import { fmtManwon } from "@/lib/format";
+import { eokShort, fmtManwon } from "@/lib/format";
 import { getDongSummary, complexHref, type DongDeal } from "@/lib/complex";
 
 export const revalidate = 86400;
@@ -28,12 +28,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const full = `${region.group}광역시 ${region.name} ${dong}`;
   let extra = "";
+  let topLabel = "";
   let thin = false;
   try {
     const s = await getDongSummary(params.code, dong);
     // 단지도 몇 곳 없고 1년 매매도 몇 건 없는 동은 검색엔진에 올리지 않습니다 (lib/thin.ts).
     if (s) thin = s.complexes.length < THIN_DONG_MIN_COMPLEXES && s.saleCount12m < THIN_DONG_MIN_SALES;
     if (s?.topSales[0]) {
+      topLabel = ` · 최고 ${eokShort(s.topSales[0].priceManwon)}(${s.topSales[0].complex})`;
       extra = ` 최근 1년 이 동에서 가장 비싼 매매는 ${s.topSales[0].complex} ${Math.round(
         s.topSales[0].areaM2
       )}㎡ ${fmtManwon(s.topSales[0].priceManwon)}입니다.`;
@@ -43,7 +45,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 
   return {
-    title: `${dong} 아파트 실거래가 — ${region.name} | ${SITE_NAME}`,
+    title: `${dong} 아파트 실거래가 순위${topLabel} — ${region.name} | ${SITE_NAME}`,
     description: `${full}의 아파트 실거래가입니다. 단지 목록, 최근 1년 최고가 거래, 국평(84㎡) 최고가를 국토교통부 자료로 정리했습니다.${extra}`,
     alternates: { canonical: `/apt/${region.code}/dong/${encodeURIComponent(dong)}` },
     ...(thin ? { robots: NOINDEX } : {}),
