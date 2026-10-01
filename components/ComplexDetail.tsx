@@ -3,6 +3,8 @@ import { fmtManwon, areaDetail, typeLabel, pickJosa } from "@/lib/format";
 import { complexHref, complexAreaHref, type ComplexTrend, type ComplexListRow } from "@/lib/complex";
 import FavoriteButton from "@/components/FavoriteButton";
 import InteriorLinks from "@/components/InteriorLinks";
+import ComplexChartButton from "@/components/ComplexChartButton";
+import PriceTrendChart from "@/components/PriceTrendChart";
 
 /**
  * 단지 상세 화면 본문.
@@ -101,6 +103,7 @@ export default function ComplexDetail({
   const name = data.complex;
   const where = `${data.group}광역시 ${data.regionName}${data.dong ? ` ${data.dong}` : ""}`;
   const monthsNewestFirst = [...data.points].reverse();
+  const hasChart = data.points.filter((p) => p.avgPriceManwon !== null).length >= 2;
   const areaSuffix = selectedArea ? ` ${Math.round(selectedArea)}㎡` : "";
 
   return (
@@ -182,24 +185,62 @@ export default function ComplexDetail({
         </section>
       )}
 
-      {commentary.length > 0 && (
-        <section className="brief-section">
-          <h2 className="brief-h2">
-            {name}
-            {areaSuffix} 실거래 해설
-          </h2>
-          {commentary.map((t, idx) => (
-            <p key={idx} className="complex-commentary">
-              {t}
-            </p>
-          ))}
-        </section>
-      )}
-
-      {/* 핵심 숫자 — 검색엔진이 글자로 읽을 수 있게 표로 둡니다 */}
+      {/* 핵심 숫자 — 왼쪽 가격 그래프, 오른쪽 매매 요약 (홈 화면 팝업과 같은 배치). 휴대폰에서는 위아래로 쌓입니다.
+          표는 검색엔진이 글자로 읽을 수 있게 그대로 둡니다. */}
       <section className="brief-section">
         <h2 className="brief-h2">매매 요약{selectedArea ? ` — ${typeLabel(selectedArea)}` : ""}</h2>
-        <div className="top5-table-wrap">
+        <div className="summary-grid">
+          <div className="summary-chart">
+            {hasChart ? (
+              <>
+                <PriceTrendChart points={data.points} />
+                <p className="chart-basis-note">
+                  {selectedArea ? `${typeLabel(selectedArea)} ` : "전체 평형 "}최근 12개월 월별 매매 평균가 · 계약일 기준
+                  {!selectedArea && data.types.length > 1 ? " (위에서 평형을 고르면 그 평형만 볼 수 있어요)" : ""}
+                </p>
+                <ComplexChartButton
+                  code={data.code}
+                  regionName={data.regionName}
+                  complex={name}
+                  areaM2={selectedArea ?? s.latestSale?.areaM2}
+                  label="📈 전세 함께 보기 · 카드 이미지 저장"
+                />
+              </>
+            ) : (
+              <p className="empty-note">최근 12개월 매매 거래가 없어 그래프를 그릴 수 없습니다.</p>
+            )}
+          </div>
+          <div className="summary-side">
+            {s.latestSale && (
+              <div className="summary-hero">
+                <span className="summary-hero-label">매매 실거래가</span>
+                <strong className="summary-hero-price">{fmtManwon(s.latestSale.priceManwon)}</strong>
+                {s.previousSale && (
+                  <span
+                    className={`summary-hero-change ${
+                      s.latestSale.priceManwon > s.previousSale.priceManwon
+                        ? "up"
+                        : s.latestSale.priceManwon < s.previousSale.priceManwon
+                        ? "down"
+                        : "flat"
+                    }`}
+                  >
+                    {s.latestSale.priceManwon > s.previousSale.priceManwon
+                      ? "▲"
+                      : s.latestSale.priceManwon < s.previousSale.priceManwon
+                      ? "▼"
+                      : "−"}{" "}
+                    {fmtManwon(Math.abs(s.latestSale.priceManwon - s.previousSale.priceManwon))} (
+                    {(
+                      (Math.abs(s.latestSale.priceManwon - s.previousSale.priceManwon) / s.previousSale.priceManwon) *
+                      100
+                    ).toFixed(1)}
+                    %) · 직전 거래 대비
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="top5-table-wrap">
           <table className="top5-table">
             <tbody>
               <tr>
@@ -278,7 +319,23 @@ export default function ComplexDetail({
             </Link>
           </p>
         )}
+          </div>
+        </div>
       </section>
+
+      {commentary.length > 0 && (
+        <section className="brief-section">
+          <h2 className="brief-h2">
+            {name}
+            {areaSuffix} 실거래 해설
+          </h2>
+          {commentary.map((t, idx) => (
+            <p key={idx} className="complex-commentary">
+              {t}
+            </p>
+          ))}
+        </section>
+      )}
 
       <section className="brief-section">
         <h2 className="brief-h2">매매 거래량</h2>

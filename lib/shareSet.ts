@@ -2,6 +2,8 @@ import type { DailyBrief, Group } from "@/lib/daily";
 import { koDate } from "@/lib/daily";
 import { fmtManwon } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
+import { complexHref } from "@/lib/complex";
+import { REPORTS } from "@/lib/reports";
 
 /**
  * "오늘의 공유 세트" — 그날 신고분으로 인스타·X·블로그·카페에 올릴 이미지와 글을 한 번에 만듭니다.
@@ -9,6 +11,7 @@ import { SITE_URL } from "@/lib/site";
  */
 
 export type ShareItem = {
+  regionCode: string;
   complex: string;
   regionName: string;
   group: Group;
@@ -51,6 +54,7 @@ function pick(brief: DailyBrief, group: Group): ShareItem[] {
     .filter((r) => r.group === group)
     .sort((a, b) => b.priceManwon - a.priceManwon)
     .map((r) => ({
+      regionCode: r.regionCode,
       complex: r.complex,
       regionName: r.regionName,
       group: r.group,
@@ -70,6 +74,7 @@ function pick(brief: DailyBrief, group: Group): ShareItem[] {
     if (seen.has(d.complex)) continue;
     seen.add(d.complex);
     out.push({
+      regionCode: d.regionCode,
       complex: d.complex,
       regionName: d.regionName,
       group: d.group,
@@ -109,6 +114,27 @@ export function trackedUrl(path: string, source: "x" | "instagram" | "naver_blog
     .replace(/-/g, "")}`;
 }
 
+/*
+ * 링크는 홈이 아니라 "그 글에 나온 단지 페이지"와 "그날 날짜 브리핑"으로 겁니다.
+ * 블로그·카페 글은 오래 남기 때문에, 내용이 바뀌지 않는 주소(단지 페이지, /daily/날짜, 리포트)를 걸어야
+ * 나중에 누르는 사람도 같은 내용을 보고, 구글도 그 페이지를 중요한 페이지로 봅니다.
+ */
+export function complexUrl(i: ShareItem, source: Parameters<typeof trackedUrl>[1]): string {
+  return trackedUrl(complexHref(i.regionCode, i.complex), source);
+}
+
+export function dailyUrl(s: ShareSet, source: Parameters<typeof trackedUrl>[1]): string {
+  return trackedUrl(`/daily/${s.date}`, source);
+}
+
+/** 이 날짜 기준 10일 안에 발행한 주간 리포트가 있으면 그 리포트 */
+export function recentReport(s: ShareSet): { title: string; slug: string } | null {
+  const r = REPORTS[0];
+  if (!r) return null;
+  const days = (Date.parse(s.date) - Date.parse(r.published)) / 86400000;
+  return days >= 0 && days <= 10 ? { title: r.title, slug: r.slug } : null;
+}
+
 /** X 글자 수 — 한글·한자 등은 2자로, 링크는 23자로 셉니다 (X 규칙). 280이 한도입니다. */
 export function xWeight(text: string): number {
   let n = 0;
@@ -146,8 +172,14 @@ export function xText(s: ShareSet): string {
   return `${head}\n\n${tags}`;
 }
 
-export function xReply(): string {
-  return `단지별 시세·전체 실거래는 여기서 👉 ${trackedUrl("/daily", "x")}`;
+export function xReply(s: ShareSet): string {
+  const a = s.busan[0];
+  return [
+    a ? `${a.complex} 거래 이력·가격 흐름 👉 ${complexUrl(a, "x")}` : "",
+    `오늘 신고된 전체 실거래 👉 ${dailyUrl(s, "x")}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 export function instaCaption(s: ShareSet): string {
@@ -196,7 +228,7 @@ export function blogIntro(s: ShareSet): string {
         )}${a.gainManwon ? `. 직전 최고가보다 ${fmtManwon(a.gainManwon)} 올랐다` : ""}.`
       : "",
     "",
-    `단지별 전체 거래는 👉 ${trackedUrl("/daily", "naver_blog")}`,
+    ...linkLines(s, "naver_blog"),
   ]
     .filter((l, idx, arr) => !(l === "" && arr[idx - 1] === ""))
     .join("\n");
@@ -216,6 +248,22 @@ export function cafeText(s: ShareSet): string {
     ...s.ulsan.map((i) => `- ${i.regionName} ${i.dong} ${line(i)}, ${i.floor}층`),
     "",
     "※ 계약일 기준 자료이며, 해제(취소)된 거래는 뺐습니다. 투자 권유가 아닌 정보 공유입니다.",
-    `출처: 국토교통부 실거래가 · 정리: 부울아파트(${trackedUrl("/daily", "cafe")})`,
+    "",
+    ...linkLines(s, "cafe"),
+    "",
+    "출처: 국토교통부 실거래가 · 정리: 부울아파트",
   ].join("\n");
+}
+
+/** 블로그·카페 글 끝에 붙이는 링크 묶음 — 부산·울산 1위 단지 페이지, 그날 브리핑, (있으면) 이번 주 리포트 */
+function linkLines(s: ShareSet, source: "naver_blog" | "cafe"): string[] {
+  const out: string[] = [];
+  const a = s.busan[0];
+  const b = s.ulsan[0];
+  if (a) out.push(`📍 ${a.complex} 실거래가·가격 흐름 👉 ${complexUrl(a, source)}`);
+  if (b) out.push(`📍 ${b.complex} 실거래가·가격 흐름 👉 ${complexUrl(b, source)}`);
+  out.push(`📋 ${s.dateLabel} 신고된 전체 실거래 👉 ${dailyUrl(s, source)}`);
+  const r = recentReport(s);
+  if (r) out.push(`📝 이번 주 시장 정리(주간 리포트) 👉 ${trackedUrl(`/report/${r.slug}`, source)}`);
+  return out;
 }

@@ -112,14 +112,14 @@ export default async function SharePage({ searchParams }: { searchParams: { date
               </figcaption>
             </figure>
           </div>
-          <CopyBox label="링크 스티커에 넣을 주소" text={trackedUrl("/daily", "instagram")} />
+          <CopyBox label="링크 스티커에 넣을 주소" text={trackedUrl(`/daily/${s.date}`, "instagram")} />
         </section>
 
         <section className="brief-section">
           <h2 className="brief-h2">③ X (이미지 1장 + 글, 링크는 첫 댓글)</h2>
           <p className="section-note">이미지는 ①의 부산 TOP5나 표지를 쓰면 됩니다.</p>
           <CopyBox label="X 본문" text={x} hint={`${xWeight(x)}/280자`} />
-          <CopyBox label="X 첫 댓글" text={xReply()} />
+          <CopyBox label="X 첫 댓글" text={xReply(s)} />
         </section>
 
         <section className="brief-section">
