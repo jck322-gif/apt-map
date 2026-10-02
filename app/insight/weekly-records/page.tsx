@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import InsightNav from "@/components/InsightNav";
 import { SITE_NAME } from "@/lib/site";
-import { fmtManwon, pickJosa } from "@/lib/format";
+import { fmtManwon, pickJosa, aptLabel } from "@/lib/format";
 import { complexHref } from "@/lib/complex";
 import { getWeeklyRecords, type WeeklyRecords, type WeeklyRecord } from "@/lib/insights";
 
@@ -55,7 +55,7 @@ function Table({ rows }: { rows: WeeklyRecord[] }) {
               <td className="c-name">
                 <span className="t5-complex">
                   <Link href={complexHref(r.regionCode, r.complex)} className="t5-complex-link">
-                    {r.complex}
+                    {aptLabel(r.complex)}
                   </Link>
                 </span>
                 <span className="t5-loc">
@@ -118,7 +118,7 @@ export default async function Page() {
                 <>
                   {" "}
                   부산에서 가장 크게 오른 곳(몇 년 만의 거래 제외)은{" "}
-                  <Link href={complexHref(headline.regionCode, headline.complex)}>{headline.complex}</Link>(
+                  <Link href={complexHref(headline.regionCode, headline.complex)}>{aptLabel(headline.complex)}</Link>(
                   {headline.regionName}) 전용 {Math.round(headline.areaM2)}㎡로, 직전 최고가보다{" "}
                   {fmtManwon(headline.gainManwon)} 높은 {fmtManwon(headline.priceManwon)}에 거래됐습니다.
                 </>
@@ -127,7 +127,7 @@ export default async function Page() {
                 <>
                   {" "}
                   오른 비율로 보면{" "}
-                  <Link href={complexHref(topPct.regionCode, topPct.complex)}>{topPct.complex}</Link>(
+                  <Link href={complexHref(topPct.regionCode, topPct.complex)}>{aptLabel(topPct.complex)}</Link>(
                   {topPct.regionName}){pickJosa(topPct.complex, "이", "가")} {topPct.gainPct.toFixed(1)}%로 가장 컸습니다.
                 </>
               )}

@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
-import { eokShort, fmtManwon } from "@/lib/format";
+import { eokShort, fmtManwon, aptLabel } from "@/lib/format";
 import { getDongSummary, complexHref, type DongDeal } from "@/lib/complex";
 
 export const revalidate = 86400;
@@ -74,7 +74,7 @@ function DealTable({ rows, code, caption }: { rows: DongDeal[]; code: string; ca
               </td>
               <td className="c-name">
                 <Link href={complexHref(code, d.complex)} className="t5-complex-link">
-                  {d.complex}
+                  {aptLabel(d.complex)}
                 </Link>
                 <span className="t5-loc">{d.floor}층</span>
               </td>
@@ -152,7 +152,7 @@ export default async function DongPage({ params }: { params: Params }) {
           <div className="complex-grid">
             {s.complexes.map((c) => (
               <Link key={c.complex} href={complexHref(c.regionCode, c.complex)} className="complex-link">
-                <span className="complex-link-name">{c.complex}</span>
+                <span className="complex-link-name">{aptLabel(c.complex)}</span>
                 <span className="complex-link-meta">
                   {c.buildYear ? `${c.buildYear}년 · ` : ""}
                   거래 {c.totalCount}건

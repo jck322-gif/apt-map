@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
-import { fmtManwon, fmtManwonShort, areaDetail } from "@/lib/format";
+import { fmtManwon, fmtManwonShort, areaDetail, aptLabel } from "@/lib/format";
 
 type DealType = "sale" | "jeonse" | "monthly";
 
@@ -485,7 +485,7 @@ export default function ComparePanel() {
                         {r.regionName} · {r.dong}
                       </span>
                       <span className="recent-complex">
-                        {r.complex} · {areaDetail(r.areaM2)}
+                        {aptLabel(r.complex)} · {areaDetail(r.areaM2)}
                       </span>
                     </div>
                     <div className="recent-side">
@@ -524,7 +524,7 @@ export default function ComparePanel() {
                     }}
                   />
                   <span className="cmp-chip-name">
-                    {it.complex} <span className="cmp-chip-area">{Math.round(it.areaM2)}㎡</span>
+                    {aptLabel(it.complex)} <span className="cmp-chip-area">{Math.round(it.areaM2)}㎡</span>
                   </span>
                   <button
                     className="cmp-remove"
@@ -541,7 +541,7 @@ export default function ComparePanel() {
           {items.some((it) => it.loading) && <div className="empty-note">불러오는 중…</div>}
           {items.filter((it) => it.error).map((it) => (
             <div className="banner error" key={it.id} style={{ margin: "8px 0 0" }}>
-              <strong>{it.complex}</strong> — {it.error}
+              <strong>{aptLabel(it.complex)}</strong> — {it.error}
             </div>
           ))}
 
@@ -581,7 +581,7 @@ export default function ComparePanel() {
                               borderTopStyle: SERIES[si % SERIES.length].dash ? "dashed" : "solid",
                             }}
                           />
-                          {s.it.complex}
+                          {aptLabel(s.it.complex)}
                         </span>
                         <span className="t5-loc">
                           {s.it.regionName} · 전용 {s.it.areaM2}㎡

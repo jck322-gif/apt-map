@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Region } from "@/lib/regions";
-import { fmtManwon, typeLabel, areaDetail } from "@/lib/format";
+import { fmtManwon, typeLabel, areaDetail, aptLabel } from "@/lib/format";
 import KakaoMap from "@/components/KakaoMap";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
@@ -612,7 +612,7 @@ export default function Dashboard({
                         <span className="recent-complex">
                           {l.isCancelled && <span className="flag cancel">취소</span>}
                           {l.isDirect && <span className="flag direct">직거래</span>}
-                          {l.complex} · {typeLabel(l.areaM2)} · {l.floor}층
+                          {aptLabel(l.complex)} · {typeLabel(l.areaM2)} · {l.floor}층
                         </span>
                       </div>
                       <div className="recent-side">
@@ -765,7 +765,7 @@ export default function Dashboard({
                       <span className="recent-loc">
                         {l.group} {l.regionName} · {l.dong}
                       </span>
-                      <span className="recent-complex">{l.complex}</span>
+                      <span className="recent-complex">{aptLabel(l.complex)}</span>
                       <span className="search-type">
                         <span className="type-badge">{typeLabel(l.areaM2)}</span>
                         {areaDetail(l.areaM2)} · {l.floor}층
@@ -838,7 +838,7 @@ export default function Dashboard({
                                 e.preventDefault();
                               }}
                             >
-                              {l.complex}
+                              {aptLabel(l.complex)}
                             </Link>
                             <span className="t5-loc">
                               {l.regionName} · {l.dong} · {l.floor}층
@@ -955,7 +955,7 @@ export default function Dashboard({
                                       setOpenComplex((prev) => (prev === key ? null : key))
                                     }
                                   >
-                                    {complex} <span className="complex-chip-count">{items.length}</span>
+                                    {aptLabel(complex)} <span className="complex-chip-count">{items.length}</span>
                                   </button>
                                 );
                               })}
@@ -971,17 +971,17 @@ export default function Dashboard({
                                       setTrendTarget({ code: r.code, regionName: r.name, complex })
                                     }
                                   >
-                                    {complex} 가격 추이 보기 (최근 6개월)
+                                    {aptLabel(complex)} 가격 추이 보기 (최근 6개월)
                                   </button>
                                   <Link href={complexHref(r.code, complex)} className="complex-page-link">
-                                    {complex} 실거래가 전체 보기 →
+                                    {aptLabel(complex)} 실거래가 전체 보기 →
                                   </Link>
                                   {items.map((l, i) => (
                                     <div className="listing" key={i}>
                                       <div className="l-top">
                                         <span>
                                           <span className="type-badge">{typeLabel(l.areaM2)}</span>
-                                          {l.complex}
+                                          {aptLabel(l.complex)}
                                         </span>
                                         <span className="l-price">{listingPriceLabel(l)}</span>
                                       </div>

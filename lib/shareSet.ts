@@ -1,6 +1,6 @@
 import type { DailyBrief, Group } from "@/lib/daily";
 import { koDate } from "@/lib/daily";
-import { fmtManwon } from "@/lib/format";
+import { fmtManwon, aptLabel } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import { complexHref } from "@/lib/complex";
 import { REPORTS } from "@/lib/reports";
@@ -151,7 +151,7 @@ export function xWeight(text: string): number {
 
 function line(i: ShareItem): string {
   const g = i.gainManwon ? ` (${gainShort(i.gainManwon)})` : "";
-  return `${i.complex} ${Math.round(i.areaM2)}㎡ ${eok(i.priceManwon)}${g}`;
+  return `${aptLabel(i.complex)} ${Math.round(i.areaM2)}㎡ ${eok(i.priceManwon)}${g}`;
 }
 
 /** X 본문 — 280 한도 안에 들어가도록 줄 수를 줄여 가며 맞춥니다. 링크는 첫 댓글로 따로 답니다. */
@@ -175,7 +175,7 @@ export function xText(s: ShareSet): string {
 export function xReply(s: ShareSet): string {
   const a = s.busan[0];
   return [
-    a ? `${a.complex} 거래 이력·가격 흐름 👉 ${complexUrl(a, "x")}` : "",
+    a ? `${aptLabel(a.complex)} 거래 이력·가격 흐름 👉 ${complexUrl(a, "x")}` : "",
     `오늘 신고된 전체 실거래 👉 ${dailyUrl(s, "x")}`,
   ]
     .filter(Boolean)
@@ -208,7 +208,7 @@ export function blogTitle(s: ShareSet): string {
   const total = s.recordCount["부산"] + s.recordCount["울산"];
   const lead = `부산 아파트 실거래가 순위 TOP5 (${s.dateLabel})`;
   const tail = [
-    a ? `${a.complex} ${eok(a.priceManwon)}${a.gainManwon ? " 신고가" : ""}` : "",
+    a ? `${aptLabel(a.complex)} ${eok(a.priceManwon)}${a.gainManwon ? " 신고가" : ""}` : "",
     total > 0 ? `신고가 ${total}건` : "",
   ]
     .filter(Boolean)
@@ -223,7 +223,7 @@ export function blogIntro(s: ShareSet): string {
     `${s.dateLabel} 부산·울산 아파트 실거래가 순위 TOP5 정리`,
     `부산·울산 합쳐서 매매만 ${s.saleCount}건${total > 0 ? `, 신고가도 ${total}건이나 떴다` : ""}.`,
     a
-      ? `가장 눈에 띈 건 ${a.complex}(${a.regionName} ${a.dong}) ${Math.round(a.areaM2)}㎡ ${a.floor}층 ${fmtManwon(
+      ? `가장 눈에 띈 건 ${aptLabel(a.complex)}(${a.regionName} ${a.dong}) ${Math.round(a.areaM2)}㎡ ${a.floor}층 ${fmtManwon(
           a.priceManwon
         )}${a.gainManwon ? `. 직전 최고가보다 ${fmtManwon(a.gainManwon)} 올랐다` : ""}.`
       : "",
@@ -260,8 +260,8 @@ function linkLines(s: ShareSet, source: "naver_blog" | "cafe"): string[] {
   const out: string[] = [];
   const a = s.busan[0];
   const b = s.ulsan[0];
-  if (a) out.push(`📍 ${a.complex} 실거래가·가격 흐름 👉 ${complexUrl(a, source)}`);
-  if (b) out.push(`📍 ${b.complex} 실거래가·가격 흐름 👉 ${complexUrl(b, source)}`);
+  if (a) out.push(`📍 ${aptLabel(a.complex)} 실거래가·가격 흐름 👉 ${complexUrl(a, source)}`);
+  if (b) out.push(`📍 ${aptLabel(b.complex)} 실거래가·가격 흐름 👉 ${complexUrl(b, source)}`);
   out.push(`📋 ${s.dateLabel} 신고된 전체 실거래 👉 ${dailyUrl(s, source)}`);
   const r = recentReport(s);
   if (r) out.push(`📝 이번 주 시장 정리(주간 리포트) 👉 ${trackedUrl(`/report/${r.slug}`, source)}`);

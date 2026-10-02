@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { getDailyBrief, getLatestBriefDate, isValidDate } from "@/lib/daily";
 import { buildShareSet, eok, gainShort, type ShareItem, type ShareSet } from "@/lib/shareSet";
 import { loadKoreanFonts } from "@/lib/ogFonts";
+import { aptLabel } from "@/lib/format";
 
 /**
  * 인스타그램·X에 올릴 카드뉴스 이미지.
@@ -80,7 +81,7 @@ function Rows({ items, rowGap }: { items: ShareItem[]; rowGap: number }) {
               >
                 {idx + 1}
               </div>
-              <div style={{ display: "flex", fontSize: 34, fontWeight: 800, color: C.ink }}>{i.complex}</div>
+              <div style={{ display: "flex", fontSize: 34, fontWeight: 800, color: C.ink }}>{aptLabel(i.complex)}</div>
             </div>
             <div style={{ display: "flex", fontSize: 22, color: C.muted, margin: "4px 0 12px 64px" }}>
               {`${i.group} ${i.regionName} ${i.dong} · ${Math.round(i.areaM2)}m² · ${i.floor}층 · ${Number(
@@ -222,7 +223,7 @@ function coverSlide(s: ShareSet) {
       {best && (
         <div style={{ display: "flex", flexDirection: "column", background: "white", borderRadius: 22, padding: "30px 34px" }}>
           <div style={{ display: "flex", fontSize: 24, color: C.muted }}>오늘 가장 비싼 거래</div>
-          <div style={{ display: "flex", fontSize: 44, fontWeight: 800, marginTop: 8 }}>{best.complex}</div>
+          <div style={{ display: "flex", fontSize: 44, fontWeight: 800, marginTop: 8 }}>{aptLabel(best.complex)}</div>
           <div style={{ display: "flex", alignItems: "baseline", marginTop: 6 }}>
             <div style={{ display: "flex", fontSize: 64, fontWeight: 800, color: C.red }}>{`${eok(best.priceManwon)}원`}</div>
             <div style={{ display: "flex", fontSize: 26, color: C.muted, marginLeft: 18 }}>

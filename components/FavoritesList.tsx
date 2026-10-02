@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getFavorites, removeFavorite, subscribeFavorites, type FavoriteItem } from "@/lib/favorites";
+import { aptLabel } from "@/lib/format";
 
 function formatSavedAt(ts: number): string {
   const d = new Date(ts);
@@ -41,7 +42,7 @@ export default function FavoritesList() {
       {items.map((f) => (
         <li key={f.href} className="fav-item">
           <Link href={f.href} className="fav-item-main">
-            <span className="fav-item-name">{f.complex}</span>
+            <span className="fav-item-name">{aptLabel(f.complex)}</span>
             <span className="fav-item-where">
               {f.group}광역시 {f.regionName}
             </span>

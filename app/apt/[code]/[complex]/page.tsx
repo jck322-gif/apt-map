@@ -6,7 +6,7 @@ import ComplexDetail from "@/components/ComplexDetail";
 import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { eokShort, ymdMonthLabel, fmtManwon } from "@/lib/format";
+import { eokShort, ymdMonthLabel, fmtManwon, aptLabel } from "@/lib/format";
 import { loadComplexTrend, listNearbyComplexes, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
 
 // 단지 페이지는 하루에 한 번만 다시 만듭니다.
@@ -46,7 +46,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const region = REGIONS.find((r) => r.code === params.code);
   const name = decodeName(params.complex);
-  if (!region) return { title: `${name} 실거래가 | ${SITE_NAME}` };
+  const label = aptLabel(name);
+  if (!region) return { title: `${label} 실거래가 | ${SITE_NAME}` };
 
   const data = await load(params.code, params.complex);
   const latest = data?.stats.latestSale;
@@ -57,16 +58,16 @@ export async function generateMetadata({
   const m12 = data?.insights.volume.m12 ?? 0;
   const high = data?.stats.highSale;
   const title = latest
-    ? `${name} 실거래가 ${eokShort(latest.priceManwon)}(${Math.round(latest.areaM2)}㎡·${ymdMonthLabel(latest.ymd)}) — ${region.name}${data?.dong ? ` ${data.dong}` : ""}`
-    : `${name} 실거래가 — ${region.name}`;
+    ? `${label} 실거래가 ${eokShort(latest.priceManwon)}(${Math.round(latest.areaM2)}㎡·${ymdMonthLabel(latest.ymd)}) — ${region.name}${data?.dong ? ` ${data.dong}` : ""}`
+    : `${label} 실거래가 — ${region.name}`;
 
   const description = latest
-    ? `${where} ${name} 최근 매매 ${latest.dateLabel} ${fmtManwon(latest.priceManwon)}(${Math.round(
+    ? `${where} ${label} 최근 매매 ${latest.dateLabel} ${fmtManwon(latest.priceManwon)}(${Math.round(
         latest.areaM2
       )}㎡ ${latest.floor}층).${m12 > 0 ? ` 최근 1년 매매 ${m12}건.` : ""}${
         high && high !== latest ? ` 같은 평형 3년 최고가 ${fmtManwon(high.priceManwon)}.` : ""
       } 매매·전세·월세 실거래 이력과 가격 흐름을 국토교통부 자료로 매일 갱신합니다.`
-    : `${where} ${name}의 매매·전세·월세 실거래가를 국토교통부 자료로 정리했습니다.`;
+    : `${where} ${label}의 매매·전세·월세 실거래가를 국토교통부 자료로 정리했습니다.`;
 
   return {
     title: `${title} | ${SITE_NAME}`,
@@ -106,7 +107,7 @@ export default async function ComplexPage({ params }: { params: { code: string; 
           {
             "@type": "ListItem",
             position: 3,
-            name,
+            name: aptLabel(name),
             item: `${SITE_URL}${complexHref(region.code, name)}`,
           },
         ],

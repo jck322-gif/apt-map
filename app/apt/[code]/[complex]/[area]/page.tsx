@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
-import { fmtManwon, typeLabel, eokShort, ymdMonthLabel } from "@/lib/format";
+import { fmtManwon, typeLabel, eokShort, ymdMonthLabel, aptLabel } from "@/lib/format";
 import { loadComplexTrend, complexAreaHref, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
 
 // 평형별 페이지 — 같은 단지라도 평형에 따라 가격대가 완전히 달라서, 주소를 따로 둡니다.
@@ -60,10 +60,11 @@ function canonicalFor(code: string, name: string, area: number, types: number[])
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const region = REGIONS.find((r) => r.code === params.code);
   const name = decodeName(params.complex);
-  if (!region) return { title: `${name} 실거래가 | ${SITE_NAME}` };
+  const shown = aptLabel(name);
+  if (!region) return { title: `${shown} 실거래가 | ${SITE_NAME}` };
 
   const res = await load(params);
-  if (!res) return { title: `${name} 실거래가 — ${region.name} | ${SITE_NAME}` };
+  if (!res) return { title: `${shown} 실거래가 — ${region.name} | ${SITE_NAME}` };
 
   const { data, area } = res;
   const latest = data.stats.latestSale;
@@ -72,13 +73,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const m12 = data.insights.volume.m12;
   const title = latest
-    ? `${name} ${Math.round(area)}㎡ 실거래가 ${eokShort(latest.priceManwon)}(${ymdMonthLabel(latest.ymd)}) — ${region.name}${data.dong ? ` ${data.dong}` : ""}`
-    : `${name} ${Math.round(area)}㎡ 실거래가 — ${region.name}`;
+    ? `${shown} ${Math.round(area)}㎡ 실거래가 ${eokShort(latest.priceManwon)}(${ymdMonthLabel(latest.ymd)}) — ${region.name}${data.dong ? ` ${data.dong}` : ""}`
+    : `${shown} ${Math.round(area)}㎡ 실거래가 — ${region.name}`;
   const description = latest
-    ? `${where} ${name} ${label} 최근 매매 ${latest.dateLabel} ${fmtManwon(latest.priceManwon)}(${latest.floor}층).${
+    ? `${where} ${shown} ${label} 최근 매매 ${latest.dateLabel} ${fmtManwon(latest.priceManwon)}(${latest.floor}층).${
         m12 > 0 ? ` 이 평형 최근 1년 매매 ${m12}건.` : ""
       }${data.stats.highSale ? ` 3년 최고가 ${fmtManwon(data.stats.highSale.priceManwon)}.` : ""} 최근 3년 실거래 이력과 가격 흐름을 국토교통부 자료로 정리했습니다.`
-    : `${where} ${name} ${label}의 실거래가를 국토교통부 자료로 정리했습니다.`;
+    : `${where} ${shown} ${label}의 실거래가를 국토교통부 자료로 정리했습니다.`;
 
   return {
     title: `${title} | ${SITE_NAME}`,

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { REGIONS } from "@/lib/regions";
 import { loadKakaoSdk } from "@/lib/kakaoSdk";
-import { fmtManwon, typeLabel } from "@/lib/format";
+import { fmtManwon, typeLabel, aptLabel } from "@/lib/format";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
@@ -442,7 +442,7 @@ export default function DealMap({ initialArea }: { initialArea: Area }) {
                     <span className="recent-complex">
                       {l.isCancelled && <span className="flag cancel">취소</span>}
                       {l.isDirect && <span className="flag direct">직거래</span>}
-                      {l.complex}
+                      {aptLabel(l.complex)}
                     </span>
                     <span className="recent-loc">
                       {typeLabel(l.areaM2)} · {l.floor}층

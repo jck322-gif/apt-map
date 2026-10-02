@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { getAllInteriorEntries } from "@/lib/interiorLinks";
 import { SITE_NAME } from "@/lib/site";
+import { aptLabel } from "@/lib/format";
 
 export const revalidate = 86400;
 
@@ -46,7 +47,7 @@ export default function InteriorPage() {
                     <div className="interior-card" key={e.href}>
                       <div className="interior-card-head">
                         <Link href={e.href} className="interior-card-name">
-                          {e.complex}
+                          {aptLabel(e.complex)}
                         </Link>
                         <span className="interior-card-loc">{e.regionName}</span>
                       </div>

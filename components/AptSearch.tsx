@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { complexHref } from "@/lib/complex";
-import { fmtManwon, pickJosa } from "@/lib/format";
+import { fmtManwon, pickJosa, aptLabel } from "@/lib/format";
 
 /**
  * 단지 목록 페이지(/apt)의 "단지명으로 찾기" 검색창.
@@ -146,7 +146,7 @@ export default function AptSearch() {
               {results.map((r) => (
                 <li key={r.key}>
                   <Link href={complexHref(r.regionCode, r.complex)} className="apt-search-item">
-                    <span className="apt-search-name">{r.complex}</span>
+                    <span className="apt-search-name">{aptLabel(r.complex)}</span>
                     <span className="apt-search-meta">
                       {r.group} {r.regionName} · {r.dong}
                       {r.latest &&

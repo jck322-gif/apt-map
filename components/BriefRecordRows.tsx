@@ -3,7 +3,7 @@
 import { useState } from "react";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import { complexHref } from "@/lib/complex";
-import { fmtManwon } from "@/lib/format";
+import { fmtManwon, aptLabel } from "@/lib/format";
 import type { RecordHigh } from "@/lib/daily";
 
 /**
@@ -56,7 +56,7 @@ export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
                   e.preventDefault();
                   open(d);
                 }}
-                title={`${d.complex} 실거래 이력 보기`}
+                title={`${aptLabel(d.complex)} 실거래 이력 보기`}
               >
                 <td className="c-rank">
                   <span className={`rank-badge${i === 0 ? " first" : ""}`}>{i + 1}</span>
@@ -72,7 +72,7 @@ export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
                         open(d);
                       }}
                     >
-                      {d.complex}
+                      {aptLabel(d.complex)}
                     </a>
                     <span className="flag high">신고가</span>
                   </span>

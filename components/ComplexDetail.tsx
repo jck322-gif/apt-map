@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fmtManwon, areaDetail, typeLabel, pickJosa } from "@/lib/format";
+import { fmtManwon, areaDetail, typeLabel, pickJosa, aptLabel } from "@/lib/format";
 import { complexHref, complexAreaHref, type ComplexTrend, type ComplexListRow } from "@/lib/complex";
 import FavoriteButton from "@/components/FavoriteButton";
 import InteriorLinks from "@/components/InteriorLinks";
@@ -115,14 +115,14 @@ export default function ComplexDetail({
         {selectedArea && (
           <>
             <span>›</span>
-            <Link href={complexHref(data.code, name)}>{name}</Link>
+            <Link href={complexHref(data.code, name)}>{aptLabel(name)}</Link>
           </>
         )}
       </nav>
 
       <div className="complex-title-row">
         <h1 className="guide-title">
-          {name}
+          {aptLabel(name)}
           {areaSuffix} 실거래가
         </h1>
         <FavoriteButton
@@ -140,9 +140,9 @@ export default function ComplexDetail({
       </p>
 
       <p className="guide-summary">
-        {name}
+        {aptLabel(name)}
         {areaSuffix}
-        {pickJosa(areaSuffix ? "제곱미터" : name, "은", "는")} {where}에 있는 아파트입니다. 최근 3년간 국토교통부에 신고된 거래는 매매{" "}
+        {pickJosa(areaSuffix ? "제곱미터" : aptLabel(name), "은", "는")} {where}에 있는 아파트입니다. 최근 3년간 국토교통부에 신고된 거래는 매매{" "}
         {data.counts.sale}건, 전세 {data.counts.jeonse}건, 월세 {data.counts.monthly}건입니다.
         {s.latestSale && (
           <>
@@ -326,7 +326,7 @@ export default function ComplexDetail({
       {commentary.length > 0 && (
         <section className="brief-section">
           <h2 className="brief-h2">
-            {name}
+            {aptLabel(name)}
             {areaSuffix} 실거래 해설
           </h2>
           {commentary.map((t, idx) => (
@@ -512,7 +512,7 @@ export default function ComplexDetail({
         </section>
       )}
 
-      <InteriorLinks complex={name} />
+      <InteriorLinks complex={aptLabel(name)} />
 
       <p className="section-note" style={{ marginTop: 22 }}>
         이 페이지의 모든 숫자는 국토교통부 실거래가 공개시스템에 신고된 자료입니다. 아파트 매매는 계약 후

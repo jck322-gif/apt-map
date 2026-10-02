@@ -3,7 +3,7 @@
 import { useState } from "react";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import { complexHref } from "@/lib/complex";
-import { fmtManwon } from "@/lib/format";
+import { fmtManwon, aptLabel } from "@/lib/format";
 
 export type BriefRow = {
   regionCode: string;
@@ -62,7 +62,7 @@ export default function BriefTopRows({ rows }: { rows: BriefRow[] }) {
                   e.preventDefault();
                   open(d);
                 }}
-                title={`${d.complex} 실거래 이력 보기`}
+                title={`${aptLabel(d.complex)} 실거래 이력 보기`}
               >
                 <td className="c-rank">
                   <span className={`rank-badge${i === 0 ? " first" : ""}`}>{i + 1}</span>
@@ -78,7 +78,7 @@ export default function BriefTopRows({ rows }: { rows: BriefRow[] }) {
                         open(d);
                       }}
                     >
-                      {d.complex}
+                      {aptLabel(d.complex)}
                     </a>
                     {d.isDirect && <span className="flag direct">직거래</span>}
                   </span>

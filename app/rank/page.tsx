@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { SITE_NAME } from "@/lib/site";
-import { fmtManwon, typeLabel } from "@/lib/format";
+import { fmtManwon, typeLabel, aptLabel } from "@/lib/format";
 import { complexHref } from "@/lib/complex";
 import {
   getRanking,
@@ -48,7 +48,7 @@ function Where({ r }: { r: { regionCode: string; complex: string; regionName: st
     <>
       <span className="t5-complex">
         <Link href={complexHref(r.regionCode, r.complex)} className="t5-complex-link">
-          {r.complex}
+          {aptLabel(r.complex)}
         </Link>
       </span>
       <span className="t5-loc">

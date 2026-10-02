@@ -67,3 +67,12 @@ export function ymdMonthLabel(ymd: number): string {
   const m = Math.floor(ymd / 100) % 100;
   return `${String(y).slice(2)}년 ${m}월`;
 }
+
+/**
+ * 화면에 보이는 단지 이름. 국토교통부 자료는 이름이 같은 단지를 번지로 구분해
+ * "구서동롯데캐슬골드2단지(1049)"처럼 끝에 번지를 붙여 주는데, 화면에서는 이 번지만 뺍니다.
+ * "레이카운티(2단지)"처럼 숫자만 있는 괄호가 아니면 그대로 둡니다. 링크·검색 키는 원래 이름을 씁니다.
+ */
+export function aptLabel(name: string): string {
+  return name.replace(/\s*\(\d+(-\d+)?\)$/, "") || name;
+}

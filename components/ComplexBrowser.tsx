@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { complexHref, dongHref, type ComplexListRow } from "@/lib/complex";
+import { aptLabel } from "@/lib/format";
 
 /**
  * 한 구·군의 단지 목록 — 동별로 묶고, 각 동 안에서는 가나다순으로 보여줍니다.
@@ -78,7 +79,7 @@ export default function ComplexBrowser({ rows }: { rows: ComplexListRow[] }) {
                   href={complexHref(c.regionCode, c.complex)}
                   className="complex-link"
                 >
-                  <span className="complex-link-name">{c.complex}</span>
+                  <span className="complex-link-name">{aptLabel(c.complex)}</span>
                   <span className="complex-link-meta">
                     {c.buildYear ? `${c.buildYear}년 · ` : ""}
                     거래 {c.totalCount}건

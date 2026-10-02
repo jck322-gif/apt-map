@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fmtManwon } from "@/lib/format";
+import { fmtManwon, aptLabel } from "@/lib/format";
 import { koDate, koDateLong, type DailyBrief } from "@/lib/daily";
 import BriefTopRows from "@/components/BriefTopRows";
 import BriefRecordRows from "@/components/BriefRecordRows";
@@ -40,7 +40,7 @@ export default function DailyBriefView({
               <>
                 {" "}
                 이날 가장 비싼 거래는 {brief.highlight.regionName} {brief.highlight.dong}{" "}
-                <strong>{brief.highlight.complex}</strong> {Math.round(brief.highlight.areaM2)}㎡{" "}
+                <strong>{aptLabel(brief.highlight.complex)}</strong> {Math.round(brief.highlight.areaM2)}㎡{" "}
                 {fmtManwon(brief.highlight.priceManwon)}이었습니다.
               </>
             )}

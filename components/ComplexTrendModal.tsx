@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fmtManwon, fmtManwonShort, typeLabel, areaDetail } from "@/lib/format";
+import { fmtManwon, fmtManwonShort, typeLabel, areaDetail, aptLabel } from "@/lib/format";
 import { downloadDealCard, copyDealCard, type CardPayload, type CardRow } from "@/lib/dealCard";
 import { SITE_NAME } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
@@ -444,7 +444,7 @@ export default function ComplexTrendModal({
       <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <h3 className="modal-title">{complex}</h3>
+            <h3 className="modal-title">{aptLabel(complex)}</h3>
             {data && <p className="modal-address">{infoLine}</p>}
             <div className="modal-chips">
               {(["sale", "jeonse", "monthly"] as const).map((t) => {
