@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import CopyBox from "@/components/CopyBox";
-import RichCopy from "@/components/RichCopy";
-import { shareTablesHtml } from "@/lib/shareTables";
 import { getBriefDates, getDailyBrief, getLatestBriefDate, isValidDate } from "@/lib/daily";
 import {
   buildShareSet,
@@ -134,16 +132,6 @@ export default async function SharePage({ searchParams }: { searchParams: { date
           <h2 className="brief-h2">⑤ 부동산 카페 (정보글)</h2>
           <p className="section-note">카페마다 표현을 조금씩 바꿔 올리고, 링크가 금지된 카페에서는 마지막 줄 주소를 지우세요.</p>
           <CopyBox label="카페 글" text={cafeText(s)} />
-        </section>
-
-        <section className="brief-section">
-          <h2 className="brief-h2">⑥ 단지 링크 달린 순위표 (카페·블로그 붙여넣기용)</h2>
-          <p className="section-note">
-            [표 복사]를 누르고 카페·블로그 글쓰기 화면에 붙여 넣으면, 표 모양과 단지별 링크가 그대로 들어갑니다. 단지
-            이름을 누르면 부울아파트 단지 페이지로 갑니다.
-          </p>
-          <RichCopy label="카페용 순위표" html={shareTablesHtml(brief, "cafe")} hint="링크 꼬리표: 카페" />
-          <RichCopy label="블로그용 순위표" html={shareTablesHtml(brief, "naver_blog")} hint="링크 꼬리표: 블로그" />
         </section>
       </article>
     </div>
