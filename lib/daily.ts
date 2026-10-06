@@ -109,7 +109,14 @@ export function koDateLong(date: string): string {
 /** 최근 브리핑이 있는 날짜들 (많은 날부터가 아니라 최신순) */
 export async function getBriefDates(limit = 30): Promise<{ date: string; count: number }[]> {
   const db = getDb();
-  const { data, error } = await db.from("daily_counts").select("d, deal_type, cnt");
+  // 최신 날짜부터 가져옵니다. 순서·개수를 안 정하면 Supabase가 한 번에 1,000줄까지만 돌려줘서
+  // 최근 날짜가 잘려 나가고, /daily가 일주일 전 브리핑에 멈춰 있는 문제가 있었습니다.
+  // (한 날짜에 매매·전세·월세 최대 3줄이라 limit × 3줄이면 충분합니다.)
+  const { data, error } = await db
+    .from("daily_counts")
+    .select("d, deal_type, cnt")
+    .order("d", { ascending: false })
+    .limit(limit * 3);
   if (error || !data) return [];
 
   const byDate = new Map<string, number>();
@@ -267,6 +274,18 @@ export async function getDailyBrief(date: string): Promise<DailyBrief> {
 
 /** 브리핑을 보여줄 기본 날짜 — 자료가 있는 가장 최근 날 (없으면 오늘) */
 export async function getLatestBriefDate(): Promise<string> {
+  // 매매가 1건이라도 신고된 가장 최근 날짜. (전세 몇 건만 들어온 날을 "오늘의 브리핑"으로 보여주면
+  // 순위표가 텅 비어 보이므로, 홈 화면과 같이 매매가 있는 날을 고릅니다.)
+  const db = getDb();
+  const { data } = await db
+    .from("daily_counts")
+    .select("d")
+    .eq("deal_type", "sale")
+    .gt("cnt", 0)
+    .order("d", { ascending: false })
+    .limit(1);
+  const d = (data as { d: string }[] | null)?.[0]?.d;
+  if (d) return d;
   const dates = await getBriefDates(1);
   return dates[0]?.date ?? kstToday();
 }
