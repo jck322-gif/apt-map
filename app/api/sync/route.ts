@@ -124,6 +124,8 @@ export async function GET(request: Request) {
 
   await mapWithConcurrency(tasks, CONCURRENCY, async ({ region, ym }) => {
     const rows: DealRow[] = [];
+    // 국토부 응답을 하나라도 못 받으면 이 지역·이 달은 손대지 않습니다(아래 참고).
+    let fetchFailed = false;
 
     // --- 매매 ---
     try {
@@ -150,6 +152,7 @@ export async function GET(request: Request) {
         });
       }
     } catch (err) {
+      fetchFailed = true;
       errors.push({
         region: `${region.group} ${region.name}`,
         ym,
@@ -179,6 +182,7 @@ export async function GET(request: Request) {
         });
       }
     } catch (err) {
+      fetchFailed = true;
       errors.push({
         region: `${region.group} ${region.name}`,
         ym,
@@ -186,17 +190,45 @@ export async function GET(request: Request) {
       });
     }
 
+    // ★ 응답을 못 받았는데 "지우고 다시 넣기"를 하면 그 달 거래가 통째로 사라지고,
+    //   다음 날 받아질 때 전부 "오늘 새로 신고된 거래"로 잘못 잡힙니다. 그래서 이번에는 건너뜁니다.
+    if (fetchFailed) return;
+
     // "우리가 이 거래를 처음 본 날"(= 사실상 신고일)을 지우고 다시 넣는 과정에서 잃지 않도록,
     // 기존 행의 first_seen_at을 먼저 읽어 보관합니다.
-    const { data: existingRows } = await db
-      .from("deals")
-      .select("deal_type, deal_date, complex, area_m2, floor, price_manwon, deposit_manwon, monthly_rent_manwon, first_seen_at")
-      .eq("region_code", region.code)
-      .eq("deal_ym", ym)
-      .limit(2000);
+    // Supabase는 한 번에 최대 1,000줄만 돌려주므로 1,000줄씩 나눠 끝까지 읽습니다.
+    // (예전에는 한 번만 읽어서, 거래가 많은 구·군의 나머지 거래가 매일 "새 신고"로 잘못 잡힐 수 있었습니다.)
+    const existingRows: {
+      deal_type: string; deal_date: string; complex: string; area_m2: number | string; floor: number;
+      price_manwon: number | null; deposit_manwon: number | null; monthly_rent_manwon: number | null; first_seen_at: string | null;
+    }[] = [];
+    for (let from = 0; from < 20000; from += 1000) {
+      const { data: page, error: readError } = await db
+        .from("deals")
+        .select("deal_type, deal_date, complex, area_m2, floor, price_manwon, deposit_manwon, monthly_rent_manwon, first_seen_at")
+        .eq("region_code", region.code)
+        .eq("deal_ym", ym)
+        .order("id", { ascending: true })
+        .range(from, from + 999);
+      if (readError) {
+        errors.push({ region: `${region.group} ${region.name}`, ym, message: `기존 자료 읽기 실패: ${readError.message}` });
+        return;
+      }
+      existingRows.push(...((page ?? []) as typeof existingRows));
+      if (!page || page.length < 1000) break;
+    }
+
+    // 국토부가 오류 없이 "0건"을 돌려주는 경우도 가끔 있습니다. 원래 매매가 있던 달인데 0건이면
+    // 일시적인 이상으로 보고 이번에는 건너뜁니다. (해제 거래도 목록에 남기 때문에 진짜로 0건이 되지는 않습니다.)
+    const oldSales = existingRows.filter((e) => e.deal_type === "sale").length;
+    const newSales = rows.filter((r) => r.deal_type === "sale").length;
+    if (oldSales >= 5 && newSales === 0) {
+      errors.push({ region: `${region.group} ${region.name}`, ym, message: `매매 0건 응답 — 기존 ${oldSales}건 유지` });
+      return;
+    }
 
     const seenBefore = new Map<string, string>();
-    for (const e of existingRows ?? []) {
+    for (const e of existingRows) {
       if (e.first_seen_at) seenBefore.set(rowKey(e), e.first_seen_at as string);
     }
 
