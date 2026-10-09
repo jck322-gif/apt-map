@@ -33,6 +33,6 @@ export const ADSENSE_CLIENT = "ca-pub-4082758235605392";
 
 /**
  * 링크 미리보기(네이버 블로그·카페, 카카오톡, X 등)에 뜨는 기본 대표 이미지.
- * public/og/buulapt-og.png (1200×630). 오늘의 실거래(/daily)만 그날 신고가로 만든 이미지를 따로 씁니다.
+ * public/og/buulapt-og-v2.png (1200×630, 좌우 135px는 잘려도 되게 비워 둠). 오늘의 실거래(/daily)만 그날 신고가로 만든 이미지를 따로 씁니다.
  */
-export const OG_IMAGE = { url: "/og/buulapt-og.png", width: 1200, height: 630, alt: "부울아파트 — 부산·울산 아파트 실거래가" };
+export const OG_IMAGE = { url: "/og/buulapt-og-v2.png", width: 1200, height: 630, alt: "부울아파트 — 부산·울산 아파트 실거래가" };
