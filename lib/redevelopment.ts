@@ -80,11 +80,11 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "남구",
     group: "부산",
     stage: "사업시행인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000184/main.do",
     totalHouseholds: 3312,
     builder: "포스코이앤씨 (옛 포스코건설)",
-    note: "일반분양 3,110세대 · 임대 202세대. 2026년 9월 기준 관리처분인가는 아직 확인되지 않습니다.",
+    note: "일반분양 3,110세대 · 임대 202세대. 2026년 10월 기준 관리처분인가는 아직 확인되지 않습니다.",
     history: [
       { date: "2020.03", label: "조합설립인가" },
       { date: "2020.10", label: "시공사 선정 (포스코건설)" },
@@ -103,7 +103,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "관리처분인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000013/main.do",
     totalHouseholds: 2395,
     builder: "현대건설",
@@ -123,12 +123,12 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "사업시행인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000300/main.do",
-    totalHouseholds: 1303,
+    totalHouseholds: 1310,
     note:
-      "센텀시티역·벡스코역 인근, 지하 7층~지상 34층 20개 동 계획. 기존 시공사(DL이앤씨)와 결별 후 " +
-      "2026년 3월 대우건설이 수의계약 의향서를 내 사실상 내정됐지만, 시공사 선정 총회 결과는 아직 확인되지 않습니다.",
+      "삼호가든 재건축. 센텀시티역·벡스코역 인근, 지하 7층~지상 34층 20개 동 약 1,310세대 계획. 기존 시공사(DL이앤씨)와 " +
+      "결별 후 2026년 3월 대우건설이 수의계약 의향서를 내 사실상 내정됐지만, 10월 초까지 시공사 선정 총회 결과는 확인되지 않습니다.",
     history: [
       { date: "2021.03", label: "시공사 선정 (DL이앤씨)" },
       { date: "2024.05", label: "사업시행계획인가 (5월 15일)" },
@@ -144,7 +144,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "추진위원회",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000030168/main.do",
     totalHouseholds: 1610,
     note:
@@ -165,7 +165,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "추진위원회",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/",
     totalHouseholds: 995,
     note:
@@ -182,11 +182,13 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "조합설립",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000028/main.do",
     totalHouseholds: 937,
     builder: "DL이앤씨",
-    note: "현대그린맨션 재건축. 이후 단계는 공식 페이지에서 확인해주세요.",
+    note:
+      "현대그린맨션 재건축(약 915~937세대 계획). 2026년 4월 사업시행인가를 받았다는 민간 자료가 있지만 " +
+      "구청 고시로는 아직 확인하지 못해 단계는 조합설립으로 두었습니다. 공식 페이지에서 함께 확인해주세요.",
     history: [
       { date: "2020.02", label: "조합설립인가 (2월 24일)" },
       { date: "2022.12", label: "시공사 선정 (DL이앤씨, 약 2,978억 원)" },
@@ -201,7 +203,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "관리처분인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000030000/main.do",
     totalHouseholds: 811,
     builder: "현대건설",
@@ -209,6 +211,22 @@ const ENTRIES: RedevelopmentEntry[] = [
     history: [{ date: "2026.04", label: "관리처분계획인가 (4월 22일)" }],
     lat: 35.205,
     lng: 129.129,
+  },
+
+  // ── 연제구 ────────────────────────────────────────────────
+  {
+    name: "연산13구역",
+    type: "재개발",
+    regionCode: "26470",
+    regionName: "연제구",
+    group: "부산",
+    lastChecked: "2026.10",
+    officialUrl: "https://dynamice.busan.go.kr/",
+    builder: "HDC현대산업개발",
+    note:
+      "연제구 연산동 일원 주택재개발, 지하 3층~지상 최고 34층 계획(공사비 약 2,812억 원). 2026년 10월 3일 총회에서 " +
+      "HDC현대산업개발이 시공사로 뽑혔습니다(249표 중 208표). 세대수와 현재 인가 단계는 확인되지 않아 비워 두었습니다.",
+    history: [{ date: "2026.10", label: "시공사 선정 (HDC현대산업개발, 10월 3일)" }],
   },
 
   // ── 수영구 ────────────────────────────────────────────────
@@ -219,7 +237,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "수영구",
     group: "부산",
     stage: "사업시행인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000076/main.do",
     totalHouseholds: 2550,
     note:
@@ -240,7 +258,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "수영구",
     group: "부산",
     stage: "조합설립",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000030141/main.do",
     totalHouseholds: 966,
     builder: "HDC현대산업개발",
@@ -261,7 +279,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "수영구",
     group: "부산",
     stage: "조합설립",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000030162/main.do",
     totalHouseholds: 2090,
     builder: "GS건설",
@@ -280,7 +298,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionCode: "26500",
     regionName: "수영구",
     group: "부산",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/",
     totalHouseholds: 1859,
     note:
@@ -297,7 +315,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "수영구",
     group: "부산",
     stage: "사업시행인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000084/main.do",
     totalHouseholds: 3060,
     builder: "GS건설",
@@ -321,7 +339,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "부산진구",
     group: "부산",
     stage: "관리처분인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000149/main.do",
     totalHouseholds: 1902,
     builder: "포스코이앤씨",
@@ -330,6 +348,7 @@ const ENTRIES: RedevelopmentEntry[] = [
       { date: "2025.08", label: "관리처분계획인가 (8월 14일)" },
       { date: "2026.01", label: "사업시행 변경인가 (1월 28일)" },
       { date: "2026.08", label: "조합설립 변경인가 (8월 27일)" },
+      { date: "2026.09", label: "이주 마무리 단계 (언론 보도)" },
     ],
     lat: 35.164,
     lng: 129.062,
@@ -343,14 +362,17 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "사하구",
     group: "부산",
     stage: "관리처분인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000030004/main.do",
     totalHouseholds: 3102,
     builder: "현대건설·대우건설 컨소시엄",
-    note: "최고 39층, 아파트 3,102세대 + 오피스텔 144실 계획. 사하구 최대 규모 재개발로 착공은 아직입니다.",
+    note:
+      "최고 39층, 아파트 3,102세대 + 오피스텔 144실 계획. 사하구 최대 규모 재개발로, 2026년 10월 기준 이주가 " +
+      "막바지이고 철거·착공·분양 일정은 아직 발표되지 않았습니다.",
     history: [
       { date: "2024.09", label: "시공사 선정 (현대건설·대우건설)" },
-      { date: "2025.08", label: "관리처분계획인가 (8월 20일)" },
+      { date: "2025.08", label: "관리처분계획인가 (8월 20일) · 이주 시작" },
+      { date: "2026.10", label: "이주 막바지 (언론 보도)" },
     ],
     lat: 35.101,
     lng: 128.992,
@@ -365,16 +387,19 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "중구",
     group: "울산",
     stage: "관리처분인가",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://www.junggu.ulsan.kr/",
     totalHouseholds: 4080,
     builder: "삼성물산·현대건설 컨소시엄",
     note:
-      "울산 중구 교동 일원, 울산 최대 규모 재개발(약 4,080세대, 최고 29층). 2025년 이주를 마쳤고 2026년 착공, " +
-      "2031년 준공이 목표입니다. 착공 여부는 확인되는 대로 갱신하겠습니다.",
+      "울산 중구 교동 일원, 울산 최대 규모 재개발(약 4,080세대, 최고 29층). 2026년 착공·2031년 준공이 목표였지만 " +
+      "7월 수용재결 지연으로 사업이 멈췄다는 보도가 있었고, 9월에는 철거를 앞두고 구청이 구역 내 길고양이 중성화를 " +
+      "시작했습니다(9.22~11.30). 철거·착공 일정은 아직 발표되지 않았습니다.",
     history: [
       { date: "2024.12", label: "관리처분계획인가" },
-      { date: "2025.03", label: "이주 시작 (7월까지)" },
+      { date: "2025.03", label: "이주 시작" },
+      { date: "2026.07", label: "수용재결 지연 보도" },
+      { date: "2026.09", label: "철거 앞두고 길고양이 중성화 시작 (중구청)" },
     ],
   },
   {
@@ -383,7 +408,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionCode: "31140",
     regionName: "남구",
     group: "울산",
-    lastChecked: "2026.09",
+    lastChecked: "2026.10",
     officialUrl: "https://www.ulsannamgu.go.kr/apt/houRedevelopment/businessStatus.jsp",
     totalHouseholds: 1441,
     builder: "삼성물산",
@@ -391,6 +416,26 @@ const ENTRIES: RedevelopmentEntry[] = [
       "울산 남구 신정동 일원, 11개 동 1,441세대 계획(브랜드 '래미안 엘리미엄 울산'). 2025년 6월 시공사를 뽑았고, " +
       "현재 인가 단계는 확인되지 않아 비워 뒀습니다.",
     history: [{ date: "2025.06", label: "시공사 선정 (삼성물산, 6월 28일)" }],
+  },
+  {
+    name: "남구 B-01구역 (신정동)",
+    type: "재개발",
+    regionCode: "31140",
+    regionName: "남구",
+    group: "울산",
+    stage: "조합설립",
+    lastChecked: "2026.10",
+    officialUrl: "https://www.ulsannamgu.go.kr/apt/houRedevelopment/businessStatus.jsp",
+    builder: "현대건설",
+    note:
+      "울산 남구 신정동 일원, 최고 35층 약 1,500세대 계획(매체에 따라 1,482~1,533세대). 2011년 정비구역 지정 뒤 " +
+      "오래 멈춰 있다가 2025년 정비계획이 다시 통과됐고, 2026년 5월 조합설립인가, 9월 19일 총회에서 현대건설을 " +
+      "시공사로 뽑았습니다(약 7,110억 원).",
+    history: [
+      { date: "2025.09", label: "정비구역 지정 조건부 통과 (도시계획위원회)" },
+      { date: "2026.05", label: "조합설립인가 (5월 19일)" },
+      { date: "2026.09", label: "시공사 선정 (현대건설, 9월 19일)" },
+    ],
   },
 ];
 
