@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL, ADSENSE_CLIENT } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL, ADSENSE_CLIENT, OG_IMAGE } from "@/lib/site";
 import JsonLd from "@/components/JsonLd";
 import SiteFooter from "@/components/SiteFooter";
 import "./globals.css";
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: SITE_URL,
     siteName: SITE_NAME,
-    // 페이지마다 따로 정하지 않으면 이 사진이 뜹니다 (오늘의 신고가로 자동 생성됨).
-    images: [{ url: "/api/og/daily", width: 1080, height: 1080 }],
+    // 페이지마다 따로 정하지 않으면 이 브랜드 이미지가 뜹니다 (/daily만 그날 신고가 이미지).
+    images: [OG_IMAGE],
   },
   // X(트위터)에 링크를 붙였을 때 작은 썸네일 대신 큰 이미지 카드로 보이게 합니다.
   // 이미지는 각 페이지의 openGraph 이미지를 그대로 씁니다.

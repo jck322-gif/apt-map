@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
 import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL, OG_IMAGE } from "@/lib/site";
 import { eokShort, ymdMonthLabel, fmtManwon, aptLabel } from "@/lib/format";
 import { loadComplexTrend, listNearbyComplexes, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
 
@@ -73,7 +73,7 @@ export async function generateMetadata({
     title: `${title} | ${SITE_NAME}`,
     description,
     alternates: { canonical: complexHref(region.code, name) },
-    openGraph: { title, description, type: "article" },
+    openGraph: { title, description, type: "article", images: [OG_IMAGE] },
     // 3년 동안 거래가 몇 건 없는 단지는 내용이 얇아 검색엔진에는 올리지 않습니다 (lib/thin.ts).
     ...(data && totalDeals(data) < THIN_COMPLEX_MIN ? { robots: NOINDEX } : {}),
   };

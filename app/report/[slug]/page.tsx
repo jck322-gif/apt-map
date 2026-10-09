@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import GuideBody from "@/components/GuideBody";
 import JsonLd from "@/components/JsonLd";
 import { REPORTS, getReport } from "@/lib/reports";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL, OG_IMAGE } from "@/lib/site";
 
 export const dynamicParams = false;
 
@@ -20,7 +20,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${report.title} | ${SITE_NAME}`,
     description: report.summary,
     alternates: { canonical: `/report/${report.slug}` },
-    openGraph: { title: report.title, description: report.summary, type: "article" },
+    openGraph: { title: report.title, description: report.summary, type: "article", images: [OG_IMAGE] },
   };
 }
 

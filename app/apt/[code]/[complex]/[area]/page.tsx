@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
 import { REGIONS } from "@/lib/regions";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, OG_IMAGE } from "@/lib/site";
 import { fmtManwon, typeLabel, eokShort, ymdMonthLabel, aptLabel } from "@/lib/format";
 import { loadComplexTrend, complexAreaHref, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
 
@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `${title} | ${SITE_NAME}`,
     description,
     alternates: { canonical: canonicalFor(region.code, name, area, data.types) },
-    openGraph: { title, description, type: "article" },
+    openGraph: { title, description, type: "article", images: [OG_IMAGE] },
     // 이 평형 거래가 몇 건 없으면 검색엔진에는 올리지 않습니다 (lib/thin.ts).
     ...(data.counts.sale + data.counts.jeonse + data.counts.monthly < THIN_COMPLEX_MIN ? { robots: NOINDEX } : {}),
   };
