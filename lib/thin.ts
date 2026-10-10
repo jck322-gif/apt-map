@@ -14,4 +14,7 @@ export const THIN_DONG_MIN_COMPLEXES = 3;
 /** … 최근 1년 매매도 이보다 적으면 noindex */
 export const THIN_DONG_MIN_SALES = 10;
 
+/** 날짜별 브리핑(/daily/날짜)은 매매 신고가 이보다 적으면(주말·공휴일 등) 내용이 얇아 검색엔진에 올리지 않습니다. */
+export const THIN_DAILY_MIN_SALES = 10;
+
 export const NOINDEX = { index: false, follow: true } as const;
