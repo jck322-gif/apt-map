@@ -1603,3 +1603,8 @@ article.block { padding: 20px 16px 0; }
   .brief-table-wrap { display: none; }
   .brief-cards { display: block; }
 }
+/* 광고가 화면 폭을 넘어 페이지가 축소돼 보이지 않도록 광고 칸 폭을 본문 폭으로 묶어 둡니다 */
+.ad-slot { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
+@media (max-width: 760px) { .ad-slot-horizontal { min-height: 100px; } }
+/* 화면을 돌려도 광고가 본문 폭을 넘어 페이지 전체가 축소되지 않게 칸 밖으로 넘치는 부분을 막습니다 */
+.ad-slot { overflow: hidden; }
