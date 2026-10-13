@@ -63,7 +63,7 @@ function RecordTable({ rows }: { rows: RecordRank[] }) {
   if (rows.length === 0) return <p className="empty-note">이 기간에 신고가가 없습니다.</p>;
   return (
     <div className="top5-table-wrap">
-      <table className="top5-table">
+      <table className="top5-table rec-table">
         <thead>
           <tr>
             <th className="c-rank">#</th>
@@ -81,6 +81,10 @@ function RecordTable({ rows }: { rows: RecordRank[] }) {
               </td>
               <td className="c-name">
                 <Where r={r} />
+                {/* 휴대폰에서는 전용·계약일 칸을 숨기고 여기 한 줄로 보여줍니다 */}
+                <span className="m-extra">
+                  {Math.round(r.areaM2)}㎡ · {md(r.dealDate)} 계약
+                </span>
               </td>
               <td className="c-area">{Math.round(r.areaM2)}㎡</td>
               <td className="c-price">
