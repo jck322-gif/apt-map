@@ -6,6 +6,7 @@ import { SITE_NAME } from "@/lib/site";
 import { fmtManwon, aptLabel } from "@/lib/format";
 import { complexAreaHref, complexHref } from "@/lib/complex";
 import { getJeonseRate, type JeonseRate, type JeonseRateRow, type Group } from "@/lib/insights";
+import AdSlot from "@/components/AdSlot";
 
 export const revalidate = 21600;
 export const maxDuration = 60;
@@ -133,6 +134,7 @@ export default async function Page() {
           </>
         )}
         <InsightNav current="jeonse-rate" />
+        <AdSlot name="report" />
       </article>
     </div>
   );

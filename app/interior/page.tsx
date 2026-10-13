@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { getAllInteriorEntries } from "@/lib/interiorLinks";
 import { SITE_NAME } from "@/lib/site";
 import { aptLabel } from "@/lib/format";
+import AdSlot from "@/components/AdSlot";
 
 export const revalidate = 86400;
 
@@ -81,6 +82,7 @@ export default function InteriorPage() {
           페이지 아래쪽 &quot;내부 구조 · 인테리어 참고&quot;에서 유튜브·네이버 검색으로 바로 찾아볼 수
           있습니다. 소개할 만한 단지·자료를 알고 계시면 <Link href="/contact">문의</Link>로 알려주세요.
         </p>
+        <AdSlot name="report" />
       </article>
     </div>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { REPORTS } from "@/lib/reports";
 import { SITE_NAME } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/report" },
@@ -45,6 +46,7 @@ export default function Page() {
           <Link href="/insight/jeonse-rate">전세가율</Link>
         </p>
       </section>
+      <AdSlot name="report" />
     </div>
   );
 }

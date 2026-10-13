@@ -6,6 +6,7 @@ import GuideBody from "@/components/GuideBody";
 import JsonLd from "@/components/JsonLd";
 import { GUIDES, getGuide } from "@/lib/guides";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export function generateStaticParams() {
   return GUIDES.map((g) => ({ slug: g.slug }));
@@ -85,6 +86,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             </ul>
           </div>
         )}
+        <AdSlot name="report" />
       </article>
 
       {others.length > 0 && (

@@ -6,6 +6,7 @@ import { SITE_NAME } from "@/lib/site";
 import { fmtManwon, pickJosa, aptLabel } from "@/lib/format";
 import { complexHref } from "@/lib/complex";
 import { getWeeklyRecords, type WeeklyRecords, type WeeklyRecord } from "@/lib/insights";
+import AdSlot from "@/components/AdSlot";
 
 export const revalidate = 21600;
 export const maxDuration = 60;
@@ -158,6 +159,7 @@ export default async function Page() {
           </>
         )}
         <InsightNav current="weekly-records" />
+        <AdSlot name="report" />
       </article>
     </div>
   );

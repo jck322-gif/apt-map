@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import { fmtManwon, fmtManwonShort, areaDetail, aptLabel } from "@/lib/format";
+import AdSlot from "@/components/AdSlot";
 
 type DealType = "sale" | "jeonse" | "monthly";
 
@@ -612,6 +613,8 @@ export default function ComparePanel() {
           </p>
         </section>
       )}
+
+      <AdSlot name="list" />
     </div>
   );
 }

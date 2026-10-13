@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { GUIDES, GUIDE_CATEGORIES } from "@/lib/guides";
 import { SITE_NAME } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/guide" },
@@ -64,6 +65,7 @@ export default function Page() {
           })}
         </div>
       </section>
+      <AdSlot name="report" />
     </div>
   );
 }

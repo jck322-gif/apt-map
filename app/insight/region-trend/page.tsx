@@ -6,6 +6,7 @@ import { SITE_NAME } from "@/lib/site";
 import { fmtManwon, josa } from "@/lib/format";
 import { complexHref } from "@/lib/complex";
 import { getRegionTrend, type RegionTrend, type RegionTrendRow, type Group } from "@/lib/insights";
+import AdSlot from "@/components/AdSlot";
 
 export const revalidate = 21600;
 export const maxDuration = 60;
@@ -153,6 +154,7 @@ export default async function Page() {
           </>
         )}
         <InsightNav current="region-trend" />
+        <AdSlot name="report" />
       </article>
     </div>
   );

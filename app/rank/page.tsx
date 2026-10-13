@@ -13,6 +13,7 @@ import {
   type PriceRank,
   type VolumeRank,
 } from "@/lib/ranking";
+import AdSlot from "@/components/AdSlot";
 
 // 랭킹은 하루에 한 번만 다시 계산합니다. 실거래 자료가 하루 단위로 들어오기 때문에
 // 더 자주 계산해봐야 같은 결과가 나옵니다.
@@ -251,6 +252,7 @@ export default async function RankPage() {
           <a href="#pyeong">평당가</a>
           <a href="#volume">거래량</a>
         </nav>
+        <AdSlot name="list" />
       </article>
 
       <Section

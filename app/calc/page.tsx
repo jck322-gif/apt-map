@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { CALC_PAGES } from "@/lib/calcPages";
 import { RULES_AS_OF } from "@/lib/calc";
 import { SITE_NAME } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: `부동산 계산기 — 취득세·중개수수료·대출 | ${SITE_NAME}`,
@@ -55,6 +56,7 @@ export default function Page() {
         <p className="muted-small">
           법무사 수수료·국민주택채권 할인비용·인지세 등은 빠져 있습니다. 보통 수십만~100만원대가 더 듭니다.
         </p>
+        <AdSlot name="list" />
       </article>
     </div>
   );

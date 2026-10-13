@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { SITE_NAME } from "@/lib/site";
 import { INSIGHT_PAGES } from "@/lib/insightPages";
 import { REPORTS } from "@/lib/reports";
+import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: `부산 · 울산 아파트 실거래 분석 | ${SITE_NAME}`,
@@ -52,6 +53,7 @@ export default function Page() {
             </Link>
           </li>
         </ul>
+        <AdSlot name="report" />
       </article>
     </div>
   );

@@ -3,6 +3,7 @@ import { fmtManwon, aptLabel } from "@/lib/format";
 import { koDate, koDateLong, type DailyBrief } from "@/lib/daily";
 import BriefTopRows from "@/components/BriefTopRows";
 import BriefRecordRows from "@/components/BriefRecordRows";
+import AdSlot from "@/components/AdSlot";
 
 /** 브리핑 한 건의 본문. 서버에서 그대로 그려지므로 검색엔진이 전부 읽습니다. */
 export default function DailyBriefView({
@@ -98,6 +99,7 @@ export default function DailyBriefView({
           취소(해제)된 거래는 제외했습니다. 자세한 내용은{" "}
           <Link href="/guide/how-to-read-real-transaction-data">실거래가 읽는 법</Link>을 참고하세요.
         </p>
+        <AdSlot name="list" />
       </article>
 
       {dates.length > 1 && (

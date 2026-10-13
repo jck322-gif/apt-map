@@ -5,6 +5,7 @@ import RedevelopmentBoard from "@/components/RedevelopmentBoard";
 import { STAGE_ORDER, getRedevelopmentEntries } from "@/lib/redevelopment";
 import { complexHref } from "@/lib/complex";
 import { SITE_NAME } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export const revalidate = 86400;
 
@@ -51,6 +52,7 @@ export default function RedevelopmentPage() {
           이 페이지는 아직 극히 일부 구역만 담고 있습니다. 관심 있는 구역을 <Link href="/contact">문의</Link>로
           알려주시면 확인해서 추가하겠습니다.
         </p>
+        <AdSlot name="report" />
       </article>
     </div>
   );

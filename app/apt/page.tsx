@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import AptSearch from "@/components/AptSearch";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export const revalidate = 86400;
 
@@ -54,6 +55,7 @@ export default function AptIndexPage() {
           찾는 단지가 목록에 없다면 최근 3년 안에 신고된 거래가 없는 것입니다. 실거래가는 실제로 계약이
           이루어져 신고된 건만 공개되기 때문에, 거래가 드문 단지는 자료가 없을 수 있습니다.
         </p>
+        <AdSlot name="list" />
       </article>
     </div>
   );

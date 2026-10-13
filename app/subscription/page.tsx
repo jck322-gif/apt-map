@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SubscriptionCalendar from "@/components/SubscriptionCalendar";
 import { SITE_NAME } from "@/lib/site";
+import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: `청약 계획 달력 | ${SITE_NAME}`,
@@ -111,6 +112,7 @@ export default function SubscriptionPage({
           </a>
           에서 확인해주세요.
         </p>
+        <AdSlot name="report" />
       </article>
     </div>
   );
