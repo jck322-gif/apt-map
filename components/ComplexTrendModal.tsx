@@ -489,6 +489,12 @@ export default function ComplexTrendModal({
           </div>
         </div>
 
+        {/* 상세 페이지로 가는 길 — 팝업 안에는 광고를 넣지 않고(애드센스 팝업 게재 금지 정책),
+            거래 이력·평형별 시세·주변 단지가 있는 단지 페이지로 자연스럽게 넘어가게 합니다. */}
+        <a className="modal-detail-link" href={complexHref(code, complex)}>
+          {aptLabel(complex)} 상세 페이지 — 거래 이력·평형별 시세·주변 단지 보기 →
+        </a>
+
         {/* 이 단지가 가진 타입(평형) 목록 — 누르면 그 타입 기준으로 다시 보여줍니다. */}
         {data && data.types.length > 0 && (
           <div className="type-picker">
@@ -753,6 +759,10 @@ export default function ComplexTrendModal({
           국토부에는 계약 후 최대 30일까지 신고할 수 있어, 최근 거래는 이후에도 추가될 수 있습니다.
           세대수 정보는 국토부 실거래가 API에 포함되어 있지 않아 표시하지 않았어요.
         </p>
+
+        <a className="modal-detail-link modal-detail-link-bottom" href={complexHref(code, complex)}>
+          {aptLabel(complex)} 상세 페이지에서 더 보기 →
+        </a>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import MoreMenu from "@/components/MoreMenu";
 import { complexHref, dongHref } from "@/lib/complex";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
+import AdSlot from "@/components/AdSlot";
 
 type Listing = {
   dong: string;
@@ -642,6 +643,9 @@ export default function Dashboard({
           ))}
         </div>
       </section>
+
+      {/* 첫 화면 광고 한 칸 — 실거래 목록은 그대로 두고, 그 아래에만 둡니다. */}
+      <AdSlot name="homeFeed" />
 
       {featured}
 

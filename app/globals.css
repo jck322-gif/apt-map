@@ -1571,3 +1571,12 @@ article.block { padding: 20px 16px 0; }
 /* 애드센스 광고 칸 (components/AdSlot.tsx) — 본문과 구분되게 위아래 여백과 작은 "광고" 표시 */
 .ad-slot { margin: 26px 0; min-height: 100px; }
 .ad-label { display: block; font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; letter-spacing: 0.04em; }
+
+/* 단지 팝업 → 단지 상세 페이지 바로가기 (components/ComplexTrendModal.tsx) */
+.modal-detail-link {
+  display: block; margin: 10px 0 4px; padding: 11px 14px; border-radius: 10px;
+  background: var(--teal); color: #fff; font-weight: 700; font-size: 14.5px;
+  text-align: center; text-decoration: none;
+}
+.modal-detail-link:hover { background: var(--teal-deep); color: #fff; }
+.modal-detail-link-bottom { margin-top: 14px; }
