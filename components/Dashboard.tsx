@@ -645,7 +645,7 @@ export default function Dashboard({
       </section>
 
       {/* 첫 화면 광고 한 칸 — 실거래 목록은 그대로 두고, 그 아래에만 둡니다. */}
-      <AdSlot name="homeFeed" />
+      <AdSlot name="homeFeed" format="horizontal" />
 
       {featured}
 
