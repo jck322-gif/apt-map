@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { THIN_COMPLEX_MIN, NOINDEX } from "@/lib/thin";
+import { THIN_AREA_MIN_SALES, NOINDEX } from "@/lib/thin";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import ComplexDetail from "@/components/ComplexDetail";
@@ -15,9 +15,11 @@ export const dynamicParams = true;
 
 function decodeName(v: string): string {
   try {
-    return decodeURIComponent(v);
+    // 한글 자모가 풀어진 형태(NFD)로 들어온 주소도 같은 단지로 보도록 NFC로 맞춥니다.
+    // (같은 단지가 주소 두 개로 잡혀 "표준(canonical) 없는 중복 페이지"가 되는 것을 막습니다.)
+    return decodeURIComponent(v).normalize("NFC");
   } catch {
-    return v;
+    return v.normalize("NFC");
   }
 }
 
@@ -86,8 +88,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description,
     alternates: { canonical: canonicalFor(region.code, name, area, data.types) },
     openGraph: { title, description, type: "article", images: [OG_IMAGE] },
-    // 이 평형 거래가 몇 건 없으면 검색엔진에는 올리지 않습니다 (lib/thin.ts).
-    ...(data.counts.sale + data.counts.jeonse + data.counts.monthly < THIN_COMPLEX_MIN ? { robots: NOINDEX } : {}),
+    // 이 평형 매매가 3년간 10건이 안 되거나, 평형이 하나뿐이라 단지 페이지와 같으면 검색엔진에는 올리지 않습니다
+    // (lib/thin.ts). 링크는 그대로 따라가게(follow) 두어 단지 페이지로 힘이 모이게 합니다.
+    ...(data.counts.sale < THIN_AREA_MIN_SALES || data.types.length <= 1 ? { robots: NOINDEX } : {}),
   };
 }
 

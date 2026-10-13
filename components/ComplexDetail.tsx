@@ -5,6 +5,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import InteriorLinks from "@/components/InteriorLinks";
 import ComplexChartButton from "@/components/ComplexChartButton";
 import PriceTrendChart from "@/components/PriceTrendChart";
+import AdSlot from "@/components/AdSlot";
 
 /**
  * 단지 상세 화면 본문.
@@ -337,6 +338,8 @@ export default function ComplexDetail({
         </section>
       )}
 
+      <AdSlot name="complexMid" />
+
       <section className="brief-section">
         <h2 className="brief-h2">매매 거래량</h2>
         <div className="top5-table-wrap">
@@ -490,6 +493,8 @@ export default function ComplexDetail({
           </div>
         </section>
       )}
+
+      <AdSlot name="complexBottom" />
 
       {nearby.length > 0 && (
         <section className="brief-section">

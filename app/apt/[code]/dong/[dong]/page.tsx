@@ -3,6 +3,7 @@ import { THIN_DONG_MIN_COMPLEXES, THIN_DONG_MIN_SALES, NOINDEX } from "@/lib/thi
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
+import AdSlot from "@/components/AdSlot";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
 import { eokShort, fmtManwon, aptLabel } from "@/lib/format";
@@ -13,9 +14,11 @@ export const dynamicParams = true;
 
 function decodeName(v: string): string {
   try {
-    return decodeURIComponent(v);
+    // 한글 자모가 풀어진 형태(NFD)로 들어온 주소도 같은 단지로 보도록 NFC로 맞춥니다.
+    // (같은 단지가 주소 두 개로 잡혀 "표준(canonical) 없는 중복 페이지"가 되는 것을 막습니다.)
+    return decodeURIComponent(v).normalize("NFC");
   } catch {
-    return v;
+    return v.normalize("NFC");
   }
 }
 
@@ -161,6 +164,8 @@ export default async function DongPage({ params }: { params: Params }) {
             ))}
           </div>
         </section>
+
+        <AdSlot name="list" />
 
         <p className="section-note" style={{ marginTop: 22 }}>
           모든 숫자는 국토교통부 실거래가 공개시스템에 신고된 자료입니다. 매매는 계약 후 30일 이내에

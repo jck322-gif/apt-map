@@ -16,9 +16,11 @@ export const dynamicParams = true;
 
 function decodeName(v: string): string {
   try {
-    return decodeURIComponent(v);
+    // 한글 자모가 풀어진 형태(NFD)로 들어온 주소도 같은 단지로 보도록 NFC로 맞춥니다.
+    // (같은 단지가 주소 두 개로 잡혀 "표준(canonical) 없는 중복 페이지"가 되는 것을 막습니다.)
+    return decodeURIComponent(v).normalize("NFC");
   } catch {
-    return v;
+    return v.normalize("NFC");
   }
 }
 
@@ -39,6 +41,17 @@ function totalDeals(d: { counts: { sale: number; jeonse: number; monthly: number
   return d.counts.sale + d.counts.jeonse + d.counts.monthly;
 }
 
+/** 제목에 쓸 대표 평형: 84㎡대(83~86㎡)에 매매가 있으면 그것, 없으면 최근 1년(없으면 3년) 매매가 가장 많은 평형 */
+function representativeArea(data: ComplexTrend | null) {
+  const list = (data?.insights.areaStats ?? []).filter((a) => a.latest);
+  if (list.length === 0) return null;
+  const k84 = list
+    .filter((a) => a.areaM2 >= 83 && a.areaM2 < 86)
+    .sort((a, b) => b.count12m - a.count12m || b.count3y - a.count3y)[0];
+  if (k84) return k84;
+  return [...list].sort((a, b) => b.count12m - a.count12m || b.count3y - a.count3y)[0];
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -53,13 +66,18 @@ export async function generateMetadata({
   const latest = data?.stats.latestSale;
   const where = `${region.group}광역시 ${region.name}${data?.dong ? ` ${data.dong}` : ""}`;
 
-  // 검색 결과 제목에 최근 거래가와 시점을 넣습니다. 비슷한 제목의 대형 사이트들 사이에서
-  // "지금 얼마인지"가 바로 보여야 눌러 봅니다. (예: "삼익비치 실거래가 19.6억(131㎡·26년 9월) — 수영구 남천동")
+  // 검색 결과 제목에는 "대표 평형"의 최근 거래가를 넣습니다. 그냥 가장 최근 거래를 쓰면
+  // 소형 평형 가격이 제목에 나와 단지 시세가 싸 보이는 문제가 있었습니다 (예: 삼익비치 "7억(42㎡)").
+  // 대표 평형 = 84㎡대가 있으면 84㎡, 없으면 최근 1년 매매가 가장 많은 평형.
+  // (예: "삼익비치 실거래가·시세 84㎡ 11.5억(26년 9월) — 수영구 남천동")
   const m12 = data?.insights.volume.m12 ?? 0;
   const high = data?.stats.highSale;
-  const title = latest
-    ? `${label} 실거래가 ${eokShort(latest.priceManwon)}(${Math.round(latest.areaM2)}㎡·${ymdMonthLabel(latest.ymd)}) — ${region.name}${data?.dong ? ` ${data.dong}` : ""}`
-    : `${label} 실거래가 — ${region.name}`;
+  const rep = representativeArea(data);
+  const title = rep?.latest
+    ? `${label} 실거래가·시세 ${Math.round(rep.areaM2)}㎡ ${eokShort(rep.latest.priceManwon)}(${ymdMonthLabel(rep.latest.ymd)}) — ${region.name}${data?.dong ? ` ${data.dong}` : ""}`
+    : latest
+    ? `${label} 실거래가·시세 ${eokShort(latest.priceManwon)}(${Math.round(latest.areaM2)}㎡·${ymdMonthLabel(latest.ymd)}) — ${region.name}${data?.dong ? ` ${data.dong}` : ""}`
+    : `${label} 실거래가·시세 — ${region.name}`;
 
   const description = latest
     ? `${where} ${label} 최근 매매 ${latest.dateLabel} ${fmtManwon(latest.priceManwon)}(${Math.round(

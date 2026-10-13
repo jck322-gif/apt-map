@@ -18,3 +18,8 @@ export const THIN_DONG_MIN_SALES = 10;
 export const THIN_DAILY_MIN_SALES = 10;
 
 export const NOINDEX = { index: false, follow: true } as const;
+
+/** 평형별 하위 페이지(/apt/구코드/단지/전용면적)는 이 평형 매매가 3년간 이만큼 안 되면 검색엔진에 올리지 않습니다.
+ *  평형 페이지는 단지마다 여러 개라 크롤링 예산이 분산되고, 거래가 적으면 단지 페이지와 내용이 거의 같습니다.
+ *  (사이트맵에는 원래 평형 페이지를 넣지 않습니다 — 단지·구·동 페이지가 우선입니다.) */
+export const THIN_AREA_MIN_SALES = 10;

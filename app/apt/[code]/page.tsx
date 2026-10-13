@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
+import AdSlot from "@/components/AdSlot";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME } from "@/lib/site";
 import { listComplexes, type ComplexListRow } from "@/lib/complex";
@@ -101,6 +102,8 @@ export default async function RegionComplexListPage({ params }: { params: { code
         ) : (
           <ComplexBrowser rows={rows} />
         )}
+
+        <AdSlot name="list" />
 
         <p className="section-note" style={{ marginTop: 22 }}>
           거래 건수는 최근 3년간 국토교통부에 신고된 매매·전세·월세를 모두 합한 값입니다. 거래가 없었던

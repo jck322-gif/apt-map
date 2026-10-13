@@ -547,14 +547,15 @@ export async function listAllComplexesForSitemap(minCount = 3, hardCap = 8000): 
 
 /** 단지 페이지 주소 — 한글이 그대로 들어가야 검색에 유리합니다. */
 export function complexHref(regionCode: string, complex: string): string {
-  return `/apt/${regionCode}/${encodeURIComponent(complex)}`;
+  // 주소는 늘 NFC 한글로 만듭니다 (canonical·사이트맵·내부 링크가 같은 주소를 가리키도록).
+  return `/apt/${regionCode}/${encodeURIComponent(complex.normalize("NFC"))}`;
 }
 
 /** 동 페이지 주소 (예: /apt/26500/dong/남천동)
  *  단지 주소(/apt/26500/삼익비치)와 섞이지 않도록 가운데에 dong 을 끼워 넣었습니다.
  *  Next.js는 같은 자리에서 고정 글자(dong)를 [complex] 같은 변수보다 먼저 맞춰봅니다. */
 export function dongHref(regionCode: string, dong: string): string {
-  return `/apt/${regionCode}/dong/${encodeURIComponent(dong)}`;
+  return `/apt/${regionCode}/dong/${encodeURIComponent(dong.normalize("NFC"))}`;
 }
 
 /** 평형별 단지 페이지 주소 (예: /apt/26500/삼익비치/95.17) */

@@ -461,11 +461,13 @@ export default function Dashboard({
         <div className="brand-row">
           <Link href="/" className="brand" aria-label={`${SITE_NAME} 홈으로`}>
             <Logo size={34} />
-            <h1>{SITE_NAME}</h1>
+            {/* 사이트 이름은 h1이 아닌 일반 글자로 둡니다. 페이지 대표 제목(h1)은 아래 문구 한 줄뿐입니다
+                (네이버 서치어드바이저 "H1 2개 이상" 진단 대응). */}
+            <span className="brand-name">{SITE_NAME}</span>
           </Link>
-          <p className="brand-tagline">
+          <h1 className="brand-tagline">
             부산 · 울산 아파트 <span className="accent">실거래가</span> 포털
-          </p>
+          </h1>
           <span className="live-badge">매일 갱신</span>
           <FavoritesLink />
         </div>

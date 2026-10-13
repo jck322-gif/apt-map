@@ -79,6 +79,8 @@ h1, .brand-name { font-family: "Noto Serif KR", serif; font-size: 19px; margin: 
   font-size: 14.5px; font-weight: 700; color: var(--ink-soft);
 }
 .brand-tagline .accent { color: var(--teal); }
+/* 첫 화면(매매·전세·월세)에서는 이 문구가 페이지 제목(h1)입니다. h1 기본 글꼴 대신 문구 모양을 그대로 씁니다. */
+h1.brand-tagline { font-family: inherit; letter-spacing: normal; }
 @media (min-width: 720px) {
   .brand-tagline { order: 2; flex: 1 1 auto; margin: 0; font-size: 15.5px; }
   .live-badge { order: 3; }
@@ -1565,3 +1567,7 @@ article.block { padding: 20px 16px 0; }
 .summary-hero-change.up { color: var(--rise); }
 .summary-hero-change.down { color: var(--fall); }
 .summary-hero-change.flat { color: var(--muted); }
+
+/* 애드센스 광고 칸 (components/AdSlot.tsx) — 본문과 구분되게 위아래 여백과 작은 "광고" 표시 */
+.ad-slot { margin: 26px 0; min-height: 100px; }
+.ad-label { display: block; font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; letter-spacing: 0.04em; }

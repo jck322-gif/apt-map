@@ -46,9 +46,16 @@ export default function PriceTrendChart({ points }: { points: MonthlyPoint[] }) 
         <path d={area} className="pc-area" />
         <path d={line} className="pc-line" />
         {pts.map((q) => (
-          <circle key={q.p.ymd} cx={q.x} cy={q.y} r={q === last ? 8 : 5} className={q === last ? "pc-dot-last" : "pc-dot"}>
-            <title>{`${q.p.label} 평균 ${fmtManwonShort(q.p.avgPriceManwon as number)} (${q.p.count}건)`}</title>
-          </circle>
+          // 점마다 <title>을 달면 검색엔진이 문서 제목(<title>)이 여러 개인 페이지로 봅니다
+          // (네이버 서치어드바이저 "title 2개 이상" 진단). 설명은 aria-label로만 남깁니다.
+          <circle
+            key={q.p.ymd}
+            cx={q.x}
+            cy={q.y}
+            r={q === last ? 8 : 5}
+            className={q === last ? "pc-dot-last" : "pc-dot"}
+            aria-label={`${q.p.label} 평균 ${fmtManwonShort(q.p.avgPriceManwon as number)} (${q.p.count}건)`}
+          />
         ))}
         <text x={last.x} y={last.y - 16} textAnchor="end" className="pc-last-label">
           {fmtManwonShort(last.p.avgPriceManwon as number)}

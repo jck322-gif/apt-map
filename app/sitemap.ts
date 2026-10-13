@@ -7,6 +7,24 @@ import { SITE_URL } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
 import { listAllComplexesForSitemap, listDongs, complexHref, dongHref } from "@/lib/complex";
 import { THIN_COMPLEX_MIN, THIN_DONG_MIN_COMPLEXES } from "@/lib/thin";
+import { getLatestBriefDate } from "@/lib/daily";
+
+/**
+ * 손으로 쓰는 고정 페이지들의 "마지막으로 실제 고친 날".
+ * 사이트맵의 lastmod는 검색엔진이 "다시 읽어갈지"를 정하는 값이라, 내용이 안 바뀌었는데 매일 오늘 날짜를
+ * 넣으면 오히려 신뢰를 잃습니다. 아래 페이지를 고칠 때 여기 날짜도 같이 바꿔 주세요.
+ */
+const STATIC_UPDATED: Record<string, string> = {
+  about: "2026-10-06",
+  contact: "2026-10-13",
+  privacy: "2026-08-28",
+  terms: "2026-10-13",
+  calc: "2026-10-13",
+  compare: "2026-10-13",
+  interior: "2026-10-13",
+  redevelopment: "2026-10-08",
+};
+const kst = (ymd: string) => new Date(`${ymd}T00:00:00+09:00`);
 
 // 단지 수가 많아 매 요청마다 DB를 훑지 않도록 하루에 한 번만 다시 만듭니다.
 export const revalidate = 86400;
@@ -19,52 +37,61 @@ export const revalidate = 86400;
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  // 실거래 화면들은 "새 신고분이 마지막으로 들어온 날"을 lastmod로 씁니다 (실제로 내용이 바뀐 날).
+  let dataDay = now;
+  try {
+    dataDay = kst(await getLatestBriefDate());
+  } catch {
+    dataDay = now;
+  }
+  // 상식 목록은 가장 최근에 고친 상식 글 날짜
+  const guidesUpdated = GUIDES.reduce((m, g) => (g.updated > m ? g.updated : m), "2026-09-01");
 
   // 자주 바뀌는 실거래 화면들
   const pages: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE_URL}/jeonse`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/monthly`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/daily`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/map`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/apt`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/rank`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/insight`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/`, lastModified: dataDay, changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/jeonse`, lastModified: dataDay, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/monthly`, lastModified: dataDay, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/daily`, lastModified: dataDay, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/map`, lastModified: dataDay, changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/apt`, lastModified: dataDay, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/rank`, lastModified: dataDay, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/insight`, lastModified: dataDay, changeFrequency: "daily", priority: 0.8 },
     ...INSIGHT_PAGES.map((p) => ({
       url: `${SITE_URL}/insight/${p.slug}`,
-      lastModified: now,
+      lastModified: dataDay,
       changeFrequency: "daily" as const,
       priority: 0.8,
     })),
-    { url: `${SITE_URL}/report`, lastModified: REPORTS[0] ? new Date(REPORTS[0].published) : now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE_URL}/report`, lastModified: REPORTS[0] ? kst(REPORTS[0].published) : now, changeFrequency: "weekly", priority: 0.8 },
     ...REPORTS.map((r) => ({
       url: `${SITE_URL}/report/${r.slug}`,
-      lastModified: new Date(r.published),
+      lastModified: kst(r.published),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
-    { url: `${SITE_URL}/calc`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/calc`, lastModified: kst(STATIC_UPDATED.calc), changeFrequency: "monthly", priority: 0.8 },
     ...CALC_PAGES.map((p) => ({
       url: `${SITE_URL}/calc/${p.slug}`,
-      lastModified: now,
+      lastModified: kst(STATIC_UPDATED.calc),
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    { url: `${SITE_URL}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${SITE_URL}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${SITE_URL}/interior`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
-    { url: `${SITE_URL}/redevelopment`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
-    { url: `${SITE_URL}/subscription`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
-    { url: `${SITE_URL}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${SITE_URL}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${SITE_URL}/privacy`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
-    { url: `${SITE_URL}/terms`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${SITE_URL}/compare`, lastModified: kst(STATIC_UPDATED.compare), changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/guide`, lastModified: kst(guidesUpdated), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE_URL}/interior`, lastModified: kst(STATIC_UPDATED.interior), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${SITE_URL}/redevelopment`, lastModified: kst(STATIC_UPDATED.redevelopment), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${SITE_URL}/subscription`, lastModified: dataDay, changeFrequency: "daily", priority: 0.7 },
+    { url: `${SITE_URL}/about`, lastModified: kst(STATIC_UPDATED.about), changeFrequency: "monthly", priority: 0.4 },
+    { url: `${SITE_URL}/contact`, lastModified: kst(STATIC_UPDATED.contact), changeFrequency: "monthly", priority: 0.4 },
+    { url: `${SITE_URL}/privacy`, lastModified: kst(STATIC_UPDATED.privacy), changeFrequency: "monthly", priority: 0.3 },
+    { url: `${SITE_URL}/terms`, lastModified: kst(STATIC_UPDATED.terms), changeFrequency: "monthly", priority: 0.3 },
   ];
 
   // 정보글은 각 글의 갱신일을 그대로 씁니다
   const guides: MetadataRoute.Sitemap = GUIDES.map((g) => ({
     url: `${SITE_URL}/guide/${g.slug}`,
-    lastModified: new Date(g.updated),
+    lastModified: kst(g.updated),
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
@@ -72,7 +99,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 지역별 단지 목록 페이지 (21개)
   const regionPages: MetadataRoute.Sitemap = REGIONS.map((r) => ({
     url: `${SITE_URL}/apt/${r.code}`,
-    lastModified: now,
+    lastModified: dataDay,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -104,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .filter((d) => d.dong !== "기타" && d.complexCount >= THIN_DONG_MIN_COMPLEXES)
         .map((d) => ({
           url: `${SITE_URL}${dongHref(r.code, d.dong)}`,
-          lastModified: now,
+          lastModified: dataDay,
           changeFrequency: "weekly" as const,
           priority: 0.65,
         }))

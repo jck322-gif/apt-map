@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import SiteHeader from "@/components/SiteHeader";
 import JsonLd from "@/components/JsonLd";
 import { CALC_PAGES, type CalcSlug } from "@/lib/calcPages";
@@ -71,6 +72,8 @@ export default function CalcShell({
         <p className="guide-summary">{lead}</p>
 
         {calculator}
+
+        <AdSlot name="calc" />
 
         <div className="guide-body calc-article">{children}</div>
 

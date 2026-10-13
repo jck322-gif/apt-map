@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
+import AdSlot from "@/components/AdSlot";
 import GuideBody from "@/components/GuideBody";
 import JsonLd from "@/components/JsonLd";
 import { REPORTS, getReport } from "@/lib/reports";
@@ -74,6 +75,8 @@ export default function Page({ params }: { params: { slug: string } }) {
         <p className="guide-summary">{report.summary}</p>
 
         <GuideBody body={report.body} />
+
+        <AdSlot name="report" />
 
         {report.sources && report.sources.length > 0 && (
           <div className="guide-sources">
