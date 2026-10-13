@@ -77,11 +77,11 @@ export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
                     <span className="flag high">신고가</span>
                   </span>
                   <span className="t5-loc">
-                    {d.regionName} · {d.dong} · {d.floor}층
+                    {d.regionName} {d.dong} {d.floor}층
                   </span>
                   {/* 휴대폰에서는 전용·계약일 칸을 숨기고 여기 한 줄로 보여줍니다 */}
                   <span className="m-extra">
-                    {Math.round(d.areaM2)}㎡ · {d.dealDate.slice(5).replace("-", "/")} 계약
+                    {Math.round(d.areaM2)}㎡ {d.dealDate.slice(5).replace("-", "/")} 계약
                   </span>
                 </td>
                 <td className="c-area">{Math.round(d.areaM2)}㎡</td>

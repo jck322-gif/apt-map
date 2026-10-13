@@ -53,7 +53,7 @@ function Where({ r }: { r: { regionCode: string; complex: string; regionName: st
         </Link>
       </span>
       <span className="t5-loc">
-        {r.regionName} · {r.dong}
+        {r.regionName} {r.dong}
       </span>
     </>
   );
@@ -83,7 +83,7 @@ function RecordTable({ rows }: { rows: RecordRank[] }) {
                 <Where r={r} />
                 {/* 휴대폰에서는 전용·계약일 칸을 숨기고 여기 한 줄로 보여줍니다 */}
                 <span className="m-extra">
-                  {Math.round(r.areaM2)}㎡ · {md(r.dealDate)} 계약
+                  {Math.round(r.areaM2)}㎡ {md(r.dealDate)} 계약
                 </span>
               </td>
               <td className="c-area">{Math.round(r.areaM2)}㎡</td>

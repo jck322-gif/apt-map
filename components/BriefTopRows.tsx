@@ -83,7 +83,7 @@ export default function BriefTopRows({ rows }: { rows: BriefRow[] }) {
                     {d.isDirect && <span className="flag direct">직거래</span>}
                   </span>
                   <span className="t5-loc">
-                    {d.regionName} · {d.dong} · {d.floor}층
+                    {d.regionName} {d.dong} {d.floor}층
                   </span>
                 </td>
                 <td className="c-area">{Math.round(d.areaM2)}㎡</td>

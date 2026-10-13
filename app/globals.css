@@ -1607,3 +1607,8 @@ article.block { padding: 20px 16px 0; }
 }
 .top5-table .t5-loc { word-break: keep-all; }
 .top5-table .rec-prev b { white-space: nowrap; }
+@media (max-width: 640px) {
+  /* 폰에서는 위치·면적 줄을 고정폭 글꼴 대신 본문 글꼴로 — 글자 폭이 좁아 한 줄에 들어갑니다 */
+  .top5-table .t5-loc, .top5-table.rec-table .m-extra { font-family: inherit; font-size: 12.5px; }
+}
+@media (max-width: 640px) { .top5-table .rec-prev { font-family: inherit; } }
