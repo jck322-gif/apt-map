@@ -35,7 +35,8 @@ export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
 
   return (
     <>
-      <div className="top5-table-wrap">
+      {/* 넓은 화면: 표 / 좁은 화면(휴대폰): 아래 카드 목록 — CSS로 하나만 보여줍니다 */}
+      <div className="top5-table-wrap brief-table-wrap">
         <table className="top5-table">
           <thead>
             <tr>
@@ -94,6 +95,38 @@ export default function BriefRecordRows({ rows }: { rows: RecordHigh[] }) {
           </tbody>
         </table>
       </div>
+
+      <ol className="brief-cards">
+        {rows.map((d, i) => (
+          <li key={`m-${d.regionCode}-${d.complex}-${d.priceManwon}-${i}`}>
+            <a
+              className="bc-row"
+              href={complexHref(d.regionCode, d.complex)}
+              onClick={(e) => {
+                if (!isPlainClick(e)) return;
+                e.preventDefault();
+                open(d);
+              }}
+            >
+              <span className={`rank-badge${i === 0 ? " first" : ""}`}>{i + 1}</span>
+              <span className="bc-main">
+                <span className="bc-top">
+                  <span className="bc-name">{aptLabel(d.complex)}</span>
+                  <span className="bc-price">{fmtManwon(d.priceManwon)}</span>
+                </span>
+                <span className="bc-meta">
+                  <span className="flag high">신고가</span> {d.regionName} {d.dong} · {Math.round(d.areaM2)}㎡ · {d.floor}층 ·{" "}
+                  {d.dealDate.slice(5).replace("-", "/")} 계약
+                </span>
+                <span className="bc-prev">
+                  종전 최고 {fmtManwon(d.prevPriceManwon)}
+                  {d.prevDealDate && ` (${ymLabel(d.prevDealDate)})`} → <b>+{fmtManwon(d.gainManwon)}</b>
+                </span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ol>
 
       {target && (
         <ComplexTrendModal
