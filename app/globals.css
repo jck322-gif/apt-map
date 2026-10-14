@@ -1617,3 +1617,14 @@ article.block { padding: 20px 16px 0; }
   .top5-table.rec-table .c-fav { width: 34px; padding-left: 0; padding-right: 8px; }
   .top5-table.rec-table .c-price { white-space: nowrap; }
 }
+
+/* 계산기 — 입력칸·선택 버튼·결과표는 배경이 흰색이라, 다크 모드에서도 글자를 진한 검정으로 고정합니다
+   (다크 모드 글자색이 밝은 색으로 바뀌어 흰 바탕 위에서 흐리게 보이던 문제) */
+.calc-input { color: #111; }
+.calc-input::placeholder { color: #8a9893; }
+.calc-choice-btn { color: #1b2430; }
+.calc-choice-btn.is-on { color: #fff; }
+.calc-table th, .calc-table td, .calc-table tbody th { color: #1b2430; }
+.calc-table thead th { color: #445059; background: #eef2f1; }
+.calc-table th, .calc-table td { border-bottom-color: #d7dfdc; }
+.calc-minus td { color: #2f6f9e; }
