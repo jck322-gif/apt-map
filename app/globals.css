@@ -1628,3 +1628,44 @@ article.block { padding: 20px 16px 0; }
 .calc-table thead th { color: #445059; background: #eef2f1; }
 .calc-table th, .calc-table td { border-bottom-color: #d7dfdc; }
 .calc-minus td { color: #2f6f9e; }
+
+/* ── 로그인 · 관심 단지 알림 ───────────────────────────────── */
+.login-form { display: grid; gap: 10px; max-width: 460px; margin-top: 14px; }
+.login-input { font-size: 17px; padding: 12px 14px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: #fff; color: #111; }
+.login-input:focus { outline: none; border-color: var(--teal); }
+.login-agree { display: grid; gap: 10px; margin: 6px 0 4px; padding: 12px; border-radius: 10px; background: var(--surface-2); }
+.login-submit { font: inherit; font-size: 16px; font-weight: 800; padding: 13px; border: 0; border-radius: 999px; background: var(--teal); color: #fff; cursor: pointer; }
+.login-submit:disabled { opacity: .6; }
+.login-error { margin: 0; color: var(--rise); font-size: 14px; font-weight: 700; }
+.login-help { margin: 0; font-size: 13px; color: var(--muted); }
+.login-sent { max-width: 460px; margin-top: 14px; padding: 18px; border-radius: 12px; background: var(--surface-2); line-height: 1.7; }
+.login-sent-title { font-size: 18px; font-weight: 800; margin: 0 0 6px; }
+.login-link-btn { font: inherit; font-size: 14px; background: none; border: 1.5px solid var(--line-strong); border-radius: 999px; padding: 8px 14px; color: var(--ink); cursor: pointer; }
+.alert-btn { margin-left: 6px; }
+.acct-email { margin: 6px 0 0; color: var(--ink-soft); }
+.acct-welcome { margin: 8px 0; padding: 10px 14px; border-radius: 10px; background: var(--surface-2); color: var(--teal-deep); font-weight: 700; }
+.acct-import { font: inherit; font-size: 14.5px; font-weight: 700; padding: 10px 14px; border-radius: 10px; border: 1.5px dashed var(--teal); background: none; color: var(--teal-deep); cursor: pointer; margin-bottom: 10px; }
+.acct-msg { margin: 0 0 10px; font-size: 14px; color: var(--teal-deep); }
+.acct-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.acct-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface); }
+.acct-item-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.acct-item-name { font-weight: 800; font-size: 16px; color: var(--teal-deep); text-decoration: none; }
+.acct-item-where { font-size: 13px; color: var(--muted); flex: 1; }
+.acct-remove { font: inherit; font-size: 13px; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.acct-toggles { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; }
+.acct-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+.acct-withdraw { font: inherit; font-size: 13px; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.fav-alert-cta { margin: 0 0 14px; padding: 10px 14px; border-radius: 10px; background: var(--surface-2); font-size: 14.5px; }
+.fav-alert-cta a { color: var(--teal-deep); font-weight: 700; }
+.social-login { display: grid; gap: 8px; max-width: 460px; margin-top: 14px; }
+.social-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 15.5px; text-decoration: none; }
+.social-kakao { background: #fee500; color: #191919; }
+.social-google { background: #fff; color: #1f1f1f; border: 1.5px solid #dadce0; }
+.social-g { font-weight: 900; color: #4285f4; font-family: Arial, sans-serif; }
+.login-or { max-width: 460px; margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
+.login-links a { color: var(--teal-deep); font-weight: 700; }
+.acct-setup { display: grid; gap: 12px; margin: 14px 0; }
+.acct-setup-box { display: grid; gap: 10px; padding: 14px; border-radius: 12px; border: 1.5px solid var(--coral); background: var(--surface); max-width: 560px; }
+.acct-setup-title { margin: 0; font-weight: 800; font-size: 16px; color: var(--ink); }
+.acct-email-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.acct-email-row .login-input { flex: 1; min-width: 200px; }

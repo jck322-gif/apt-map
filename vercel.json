@@ -1,5 +1,7 @@
 {
-  "regions": ["icn1"],
+  "regions": [
+    "icn1"
+  ],
   "crons": [
     {
       "path": "/api/sync",
@@ -8,6 +10,10 @@
     {
       "path": "/api/subscription-sync",
       "schedule": "30 20 * * *"
+    },
+    {
+      "path": "/api/notify",
+      "schedule": "30 21 * * *"
     }
   ]
 }

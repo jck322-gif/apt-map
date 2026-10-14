@@ -6,6 +6,7 @@ import InteriorLinks from "@/components/InteriorLinks";
 import ComplexChartButton from "@/components/ComplexChartButton";
 import PriceTrendChart from "@/components/PriceTrendChart";
 import AdSlot from "@/components/AdSlot";
+import AlertButton from "@/components/AlertButton";
 
 /**
  * 단지 상세 화면 본문.
@@ -133,6 +134,7 @@ export default function ComplexDetail({
           group={data.group}
           href={complexHref(data.code, name)}
         />
+        <AlertButton code={data.code} complex={name} here={complexHref(data.code, name)} />
       </div>
       <p className="guide-meta">
         {where}

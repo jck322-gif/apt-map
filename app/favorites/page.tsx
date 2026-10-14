@@ -21,6 +21,9 @@ export default function FavoritesPage() {
           회원가입 없이, 이 브라우저에만 저장되는 목록입니다. 다른 기기나 다른 브라우저에서는 보이지
           않고, 브라우저 데이터(방문 기록·저장 공간)를 지우면 함께 사라집니다.
         </p>
+        <p className="fav-alert-cta">
+          🔔 즐겨찾기한 단지에 신고가가 나오면 메일로 받아보세요 — <a href="/login?next=/account">관심 단지 알림 받기</a>
+        </p>
         <FavoritesList />
       </article>
     </div>
