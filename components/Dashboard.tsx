@@ -9,6 +9,7 @@ import KakaoMap from "@/components/KakaoMap";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import Logo from "@/components/Logo";
 import FavoritesLink from "@/components/FavoritesLink";
+import AccountLink from "@/components/AccountLink";
 import FavoriteButton from "@/components/FavoriteButton";
 import MoreMenu from "@/components/MoreMenu";
 import { complexHref, dongHref } from "@/lib/complex";
@@ -470,6 +471,7 @@ export default function Dashboard({
           </h1>
           <span className="live-badge">매일 갱신</span>
           <FavoritesLink />
+          <AccountLink />
         </div>
 
         <nav className="deal-tabs">

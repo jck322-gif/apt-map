@@ -1669,3 +1669,7 @@ article.block { padding: 20px 16px 0; }
 .acct-setup-title { margin: 0; font-weight: 800; font-size: 16px; color: var(--ink); }
 .acct-email-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .acct-email-row .login-input { flex: 1; min-width: 200px; }
+.acct-badge { order: 2; }
+@media (min-width: 720px) { .acct-badge { order: 5; } }
+/* 더보기 메뉴가 화면보다 길면 메뉴 안에서 스크롤되게 (맨 아래 「🔔 알림」까지 닿도록) */
+.more-menu-list { max-height: calc(100vh - 140px); max-height: calc(100dvh - 140px); overflow-y: auto; overscroll-behavior: contain; }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import FavoritesLink from "@/components/FavoritesLink";
+import AccountLink from "@/components/AccountLink";
 import MoreMenu from "@/components/MoreMenu";
 import { SITE_NAME } from "@/lib/site";
 
@@ -51,6 +52,7 @@ export default function SiteHeader({
         </p>
         <span className="live-badge">매일 갱신</span>
         <FavoritesLink />
+        <AccountLink />
       </div>
 
       <nav className="deal-tabs">
