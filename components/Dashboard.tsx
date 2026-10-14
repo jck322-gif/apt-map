@@ -803,7 +803,7 @@ export default function Dashboard({
                 <div className="empty-note">최근 30일 안에 신고된 거래가 없습니다.</div>
               ) : (
                 <div className="top5-table-wrap">
-                  <table className="top5-table">
+                  <table className="top5-table rec-table">
                     <thead>
                       <tr>
                         <th className="c-rank">#</th>
@@ -847,7 +847,11 @@ export default function Dashboard({
                               {aptLabel(l.complex)}
                             </Link>
                             <span className="t5-loc">
-                              {l.regionName} · {l.dong} · {l.floor}층
+                              {l.regionName} {l.dong} {l.floor}층
+                            </span>
+                            {/* 휴대폰에서는 전용·계약일 칸을 숨기고 여기 한 줄로 보여줍니다 */}
+                            <span className="m-extra">
+                              {Math.round(l.areaM2)}㎡ {l.date} 계약
                             </span>
                           </td>
                           <td className="c-area">{Math.round(l.areaM2)}㎡</td>

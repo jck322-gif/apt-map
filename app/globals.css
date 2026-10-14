@@ -1612,3 +1612,8 @@ article.block { padding: 20px 16px 0; }
   .top5-table .t5-loc, .top5-table.rec-table .m-extra { font-family: inherit; font-size: 12.5px; }
 }
 @media (max-width: 640px) { .top5-table .rec-prev { font-family: inherit; } }
+@media (max-width: 640px) {
+  /* 첫 화면 가격 TOP5 — 즐겨찾기 별 칸이 잘리지 않게 여백을 줄입니다 */
+  .top5-table.rec-table .c-fav { width: 34px; padding-left: 0; padding-right: 8px; }
+  .top5-table.rec-table .c-price { white-space: nowrap; }
+}
