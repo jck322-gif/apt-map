@@ -96,6 +96,17 @@ h1.brand-tagline { font-family: inherit; letter-spacing: normal; }
 }
 .fav-badge:hover { border-color: var(--teal); color: var(--teal-deep); }
 @media (min-width: 720px) { .fav-badge { order: 4; } }
+/* 좁은 폰(480px 미만): 배지 세 개(매일 갱신·즐겨찾기·로그인)가 로고와 한 줄에 들어가도록 간격·글씨를 줄입니다.
+   그래도 넘치는 아주 좁은 화면(390px 미만)에서는 '매일 갱신' 배지를 숨깁니다(아래 문구가 같은 정보를 줍니다). */
+@media (max-width: 479px) {
+  .brand-row { gap: 6px; }
+  .brand { gap: 7px; }
+  .brand-name { font-size: 17.5px; white-space: nowrap; }
+  .live-badge, .fav-badge { font-size: 10.5px; padding: 3px 6px; letter-spacing: 0; }
+}
+@media (max-width: 389px) {
+  .live-badge { display: none; }
+}
 
 .complex-title-row {
   display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
