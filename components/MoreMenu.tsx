@@ -22,7 +22,6 @@ const MORE_ITEMS: { key: string; label: string; desc: string; href: string }[] =
   { key: "interior", label: "집구경", desc: "내부 구조·인테리어 참고", href: "/interior" },
   { key: "redevelopment", label: "재개발", desc: "재개발·재건축 구역 현황", href: "/redevelopment" },
   { key: "subscription", label: "청약", desc: "청약 계획 달력", href: "/subscription" },
-  { key: "account", label: "🔔 알림", desc: "관심 단지 신고가 메일 알림", href: "/account" },
 ];
 
 export default function MoreMenu({ current }: { current?: string }) {
