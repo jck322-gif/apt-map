@@ -63,6 +63,8 @@ export type DailyBrief = {
   highlight: DailyDeal | null;
   /** 그날 신고분 중 신고가를 새로 쓴 거래 */
   records: RecordHigh[];
+  /** 그날 신고된 매매 전체 (가격 높은 순, 취소 거래 제외) — /daily/[date]/all 전체 목록 페이지에 씁니다 */
+  deals: DailyDeal[];
 };
 
 type Row = {
@@ -216,7 +218,8 @@ export async function getDailyBrief(date: string): Promise<DailyBrief> {
       .eq("first_seen_at", date)
       .eq("deal_type", "sale")
       .order("price_manwon", { ascending: false })
-      .limit(400),
+      // 하루 매매 신고는 보통 100~400건이라 1000건이면 넉넉합니다 (전체 목록 페이지가 이 값을 그대로 씁니다).
+      .limit(1000),
     getRecordHighs(date),
   ]);
 
@@ -269,6 +272,7 @@ export async function getDailyBrief(date: string): Promise<DailyBrief> {
     groups,
     highlight: deals[0] ?? null,
     records,
+    deals,
   };
 }
 

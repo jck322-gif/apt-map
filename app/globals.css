@@ -1385,6 +1385,10 @@ footer.end p { margin: 0 0 12px; }
 .muted-small { color: var(--muted, #6b7280); font-size: 0.85em; }
 .nearby-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .nearby-list li { line-height: 1.5; }
+.faq-list { margin: 0; display: grid; gap: 10px; }
+.faq-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+.faq-item dt { font-weight: 700; color: var(--ink); margin: 0 0 6px; line-height: 1.5; }
+.faq-item dd { margin: 0; color: var(--ink-soft); line-height: 1.75; }
 
 /* 홈 — 구·군 링크, 지역 패널 안 링크 */
 .region-links-nav .region-links-group + .region-links-group { margin-top: 14px; }

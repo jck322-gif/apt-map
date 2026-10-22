@@ -489,6 +489,38 @@ export async function listNearbyComplexes(
   }
 }
 
+/**
+ * 같은 구·군 안에서 준공연도가 비슷한(±3년) 다른 동 단지 — 단지 페이지 아래 "비슷한 연식 단지" 링크에 씁니다.
+ * 같은 동 단지(listNearbyComplexes)와 겹치지 않게 다른 동만 고르고, 거래가 많은 순으로 몇 개만 보여줍니다.
+ * 구 전체로 링크가 퍼져서 검색엔진이 단지 페이지를 더 고르게 찾아가고, 방문자도 비교할 단지를 바로 누를 수 있습니다.
+ * 실패해도 페이지는 떠야 하므로 빈 배열을 돌려줍니다.
+ */
+export async function listSimilarComplexes(
+  regionCode: string,
+  buildYear: number | null,
+  dong: string | null,
+  exclude: string,
+  limit = 6
+): Promise<ComplexListRow[]> {
+  if (!buildYear) return [];
+  try {
+    const rows = await listComplexes(regionCode);
+    return rows
+      .filter(
+        (r) =>
+          r.complex !== exclude &&
+          r.dong !== dong &&
+          r.buildYear !== null &&
+          Math.abs(r.buildYear - buildYear) <= 3 &&
+          r.saleCount >= 5
+      )
+      .sort((a, b) => b.totalCount - a.totalCount)
+      .slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
 /** 한 지역의 단지 목록 (거래가 많은 순). 단지 목록 페이지와 사이트맵이 씁니다. */
 export async function listComplexes(regionCode: string, limit = 1000): Promise<ComplexListRow[]> {
   const db = getDb();

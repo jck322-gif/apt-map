@@ -7,7 +7,8 @@ import JsonLd from "@/components/JsonLd";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME, SITE_URL, OG_IMAGE } from "@/lib/site";
 import { eokShort, ymdMonthLabel, fmtManwon, aptLabel } from "@/lib/format";
-import { loadComplexTrend, listNearbyComplexes, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
+import { loadComplexTrend, listNearbyComplexes, listSimilarComplexes, complexHref, ComplexError, type ComplexTrend } from "@/lib/complex";
+import { buildComplexFaq } from "@/lib/complexFaq";
 
 // 단지 페이지는 하루에 한 번만 다시 만듭니다.
 // (실거래 신고는 하루 단위로 올라오므로 이 정도면 충분하고, DB 부담도 적습니다.)
@@ -107,7 +108,14 @@ export default async function ComplexPage({ params }: { params: { code: string; 
 
   const name = decodeName(params.complex);
   // 같은 동의 다른 단지 — 페이지 아래 "주변 단지" 링크로 보여줍니다.
-  const nearby = await listNearbyComplexes(region.code, data.dong, data.complex);
+  const [nearby, similar] = await Promise.all([
+    listNearbyComplexes(region.code, data.dong, data.complex),
+    // 같은 구의 비슷한 연식(±3년) 다른 동 단지 — 구 안에서 단지끼리 링크가 이어지게 합니다.
+    listSimilarComplexes(region.code, data.buildYear, data.dong, data.complex),
+  ]);
+  // 자주 묻는 질문 — 화면에 보여주고, 같은 내용을 구조화 데이터(FAQPage)로도 검색엔진에 알려줍니다.
+  const faq = buildComplexFaq(data);
+  const indexable = totalDeals(data) >= THIN_COMPLEX_MIN;
   // "홈 > 지역 > 단지" 탐색 경로를 구글에 알려줍니다 (검색결과에 경로가 표시될 수 있습니다).
   const jsonLd = {
     "@context": "https://schema.org",
@@ -130,6 +138,19 @@ export default async function ComplexPage({ params }: { params: { code: string; 
           },
         ],
       },
+      // 화면에 보이는 질문·답과 똑같은 내용만 넣습니다 (구조화 데이터와 화면 내용이 다르면 구글이 무시하거나 경고합니다).
+      ...(indexable && faq.length >= 2
+        ? [
+            {
+              "@type": "FAQPage",
+              mainEntity: faq.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+          ]
+        : []),
     ],
   };
 
@@ -137,7 +158,7 @@ export default async function ComplexPage({ params }: { params: { code: string; 
     <div className="wrap">
       <JsonLd data={jsonLd} />
       <SiteHeader current="apt" />
-      <ComplexDetail data={data} nearby={nearby} />
+      <ComplexDetail data={data} nearby={nearby} similar={similar} faq={faq} />
     </div>
   );
 }

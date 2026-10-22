@@ -7,6 +7,7 @@ import ComplexChartButton from "@/components/ComplexChartButton";
 import PriceTrendChart from "@/components/PriceTrendChart";
 import AdSlot from "@/components/AdSlot";
 import AlertButton from "@/components/AlertButton";
+import type { FaqItem } from "@/lib/complexFaq";
 
 /**
  * 단지 상세 화면 본문.
@@ -85,12 +86,18 @@ export default function ComplexDetail({
   data,
   selectedArea,
   nearby = [],
+  similar = [],
+  faq = [],
 }: {
   data: ComplexTrend;
   /** 지금 보고 있는 전용면적. 없으면 전체 평형 합산입니다. */
   selectedArea?: number;
   /** 같은 동의 다른 단지 */
   nearby?: ComplexListRow[];
+  /** 같은 구·군의 비슷한 연식(±3년) 다른 동 단지 */
+  similar?: ComplexListRow[];
+  /** 자주 묻는 질문 — 단지 전체 페이지에서만 넘깁니다 (lib/complexFaq.ts) */
+  faq?: FaqItem[];
 }) {
   const commentary = buildCommentary(data, selectedArea);
   // 단지 전체 페이지에서는 직전·최고·최저를 "최근 거래와 같은 평형" 기준으로 계산하므로 표에 밝혀 둡니다.
@@ -498,6 +505,20 @@ export default function ComplexDetail({
 
       <AdSlot name="complexBottom" />
 
+      {faq.length > 0 && (
+        <section className="brief-section">
+          <h2 className="brief-h2">{aptLabel(name)} 자주 묻는 질문</h2>
+          <dl className="faq-list">
+            {faq.map((f) => (
+              <div key={f.q} className="faq-item">
+                <dt>Q. {f.q}</dt>
+                <dd>{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
       {nearby.length > 0 && (
         <section className="brief-section">
           <h2 className="brief-h2">
@@ -516,6 +537,28 @@ export default function ComplexDetail({
           <p className="chart-basis-note">
             <Link href={`/apt/${data.code}`}>{data.regionName} 전체 단지 보기</Link>
           </p>
+        </section>
+      )}
+
+      {similar.length > 0 && data.buildYear && (
+        <section className="brief-section">
+          <h2 className="brief-h2">
+            {data.regionName} 비슷한 연식 단지
+          </h2>
+          <p className="chart-basis-note">
+            {data.buildYear - 3}~{data.buildYear + 3}년에 준공된 {data.regionName}의 다른 동 단지 중 거래가 많은 곳입니다.
+          </p>
+          <ul className="nearby-list">
+            {similar.map((n) => (
+              <li key={n.complex}>
+                <Link href={complexHref(n.regionCode, n.complex)}>{aptLabel(n.complex)} 실거래가</Link>
+                <span className="muted-small">
+                  {n.dong ? ` · ${n.dong}` : ""}
+                  {n.buildYear ? ` · ${n.buildYear}년 준공` : ""} · 3년 거래 {n.totalCount}건
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

@@ -80,6 +80,13 @@ export default function DailyBriefView({
               ) : (
                 <>
                   <BriefTopRows rows={g.top} />
+                  {g.count > g.top.length && (
+                    <p className="brief-regions">
+                      <Link href={`/daily/${brief.date}/all`}>
+                        ▶ {g.group} 매매 {g.count}건 구·군별 전체 보기
+                      </Link>
+                    </p>
+                  )}
 
                   {g.byRegion.length > 0 && (
                     <p className="brief-regions">
