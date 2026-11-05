@@ -42,6 +42,8 @@ export const metadata: Metadata = {
 
 // 사이트 전체에 한 번만 심는 구조화 데이터 — "부울아파트"라는 곳이 어떤 조직·웹사이트인지
 // 구글에 알려줍니다. 페이지마다 따로 안 넣어도 되고, 여기 한 번이면 모든 페이지에 실립니다.
+const SITE_ALT_NAMES = ["buulapt", "buulapt.com", "부울 아파트", "부울아파트 실거래가"];
+
 const SITE_JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
@@ -49,14 +51,22 @@ const SITE_JSON_LD = {
       "@type": "Organization",
       "@id": `${SITE_URL}#organization`,
       name: SITE_NAME,
-      url: SITE_URL,
+      alternateName: SITE_ALT_NAMES,
+      url: `${SITE_URL}/`,
       description: SITE_TAGLINE,
+      // 검색 결과 옆에 뜨는 로고 — 구글은 112px 이상 PNG를 권장합니다 (public/logo-512.png).
+      logo: `${SITE_URL}/logo-512.png`,
+      // 같은 운영자의 공식 계정. 구글이 "부울아파트" 인스타와 이 사이트를 같은 곳으로 묶어 이해하게 합니다.
+      sameAs: ["https://www.instagram.com/buulapt"],
     },
     {
       "@type": "WebSite",
       "@id": `${SITE_URL}#website`,
-      url: SITE_URL,
+      // 구글 "사이트 이름" 표시는 홈 주소(끝에 /)를 기준으로 읽습니다.
+      url: `${SITE_URL}/`,
       name: SITE_NAME,
+      // 사람들이 이렇게도 검색합니다 — 구글이 이 이름들도 같은 사이트로 알아봅니다.
+      alternateName: SITE_ALT_NAMES,
       description: DESCRIPTION,
       publisher: { "@id": `${SITE_URL}#organization` },
       inLanguage: "ko-KR",
