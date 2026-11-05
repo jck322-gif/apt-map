@@ -12,6 +12,7 @@ import FavoritesLink from "@/components/FavoritesLink";
 import AccountLink from "@/components/AccountLink";
 import FavoriteButton from "@/components/FavoriteButton";
 import MoreMenu from "@/components/MoreMenu";
+import AdSlot from "@/components/AdSlot";
 import { complexHref, dongHref } from "@/lib/complex";
 import { SITE_NAME } from "@/lib/site";
 import { kstTodayYmdInt, kstYmdIntAgo, ymdIntToKoLabel } from "@/lib/kst";
@@ -510,6 +511,9 @@ export default function Dashboard({
             : "데이터를 불러오지 못했습니다"}
         </p>
       </header>
+
+      {/* 첫 화면 광고 — 들어오자마자 보이도록 머리말 바로 아래에 둡니다 (PC는 가로 띠, 휴대폰은 화면 폭에 맞춤). */}
+      <AdSlot name="homeFeed" format="horizontal" />
 
       {loadError && (
         <div className="banner error">
