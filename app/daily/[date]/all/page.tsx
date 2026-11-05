@@ -6,6 +6,7 @@ import BriefTopRows from "@/components/BriefTopRows";
 import AdSlot from "@/components/AdSlot";
 import { getDailyBrief, isValidDate, koDate, koDateLong, type DailyDeal, type Group } from "@/lib/daily";
 import { REGIONS } from "@/lib/regions";
+import { getDealContexts } from "@/lib/dealContext";
 import { SITE_NAME } from "@/lib/site";
 import { NOINDEX, THIN_DAILY_MIN_SALES } from "@/lib/thin";
 
@@ -76,6 +77,8 @@ export default async function Page({ params }: { params: { date: string } }) {
     );
   }
 
+  // 거래마다 직전 거래 대비 변동 · 3년 최고 대비 · 전세 갭 (실패하면 빈 값 → 비교 줄만 빠짐)
+  const ctx = await getDealContexts(brief.deals).catch(() => ({}));
   const blocks = byRegion(brief.deals);
   const busanN = brief.deals.filter((d) => d.group === "부산").length;
   const ulsanN = brief.deals.length - busanN;
@@ -102,7 +105,8 @@ export default async function Page({ params }: { params: { date: string } }) {
             <p className="guide-summary">
               이날 신고된 매매 <strong>{brief.deals.length.toLocaleString()}건</strong>(부산 {busanN}건 · 울산{" "}
               {ulsanN}건)을 구·군별로 모두 모았습니다. 단지 이름을 누르면 그 단지의 최근 3년 거래를 볼 수
-              있습니다.
+              있습니다. 거래마다 같은 평형의 직전 거래 대비 변동, 최근 3년 최고가 대비 수준, 최근 전세와의
+              갭을 함께 적었습니다.
             </p>
             <p className="brief-regions">
               {blocks.map((b, i) => (
@@ -122,7 +126,7 @@ export default async function Page({ params }: { params: { date: string } }) {
             <h2 className="brief-h2">
               {b.group} {b.name} 아파트 실거래가 <span className="brief-count">매매 {b.deals.length}건</span>
             </h2>
-            <BriefTopRows rows={b.deals} />
+            <BriefTopRows rows={b.deals} ctx={ctx} />
             {i === 2 && <AdSlot name="list" />}
           </section>
         ))}

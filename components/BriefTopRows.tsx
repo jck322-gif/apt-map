@@ -4,6 +4,7 @@ import { useState } from "react";
 import ComplexTrendModal from "@/components/ComplexTrendModal";
 import { complexHref } from "@/lib/complex";
 import { fmtManwon, aptLabel } from "@/lib/format";
+import { dealKey, type DealCtx } from "@/lib/dealKey";
 
 export type BriefRow = {
   regionCode: string;
@@ -24,7 +25,49 @@ export type BriefRow = {
  * 이렇게 해야 ① 사람은 화면을 벗어나지 않고 바로 보고 ② 검색엔진은 단지 페이지로 가는
  * 링크를 그대로 읽어갑니다. Ctrl+클릭이나 새 탭으로 열기도 평소처럼 동작합니다.
  */
-export default function BriefTopRows({ rows }: { rows: BriefRow[] }) {
+/** 비교 줄용 짧은 금액 — 11억 3,200만 → "11.32억", 4,500만 → "4,500만" (좁은 휴대폰 칸에 맞춤) */
+function eok(v: number): string {
+  const a = Math.abs(Math.round(v));
+  if (a < 10000) return `${a.toLocaleString()}만`;
+  return `${parseFloat((a / 10000).toFixed(2))}억`;
+}
+
+/** 거래 한 줄 아래에 붙는 비교 정보 — 직전 거래 대비 변동 · 3년 최고가 대비 · 전세 갭 */
+function CtxLine({ d, c }: { d: BriefRow; c: DealCtx }) {
+  const diff = c.prevPrice !== null ? d.priceManwon - c.prevPrice : null;
+  const diffPct = diff !== null && c.prevPrice ? (diff / c.prevPrice) * 100 : null;
+  return (
+    <span className="t5-ctx">
+      {c.prevPrice !== null && (
+        <span>
+          직전 {eok(c.prevPrice)}
+          {c.prevDate ? `(${c.prevDate})` : ""}{" "}
+          {diff !== null && diff !== 0 && (
+            <b className={diff > 0 ? "up" : "down"}>
+              {diff > 0 ? "▲" : "▼"}
+              {eok(diff)}
+              {diffPct !== null ? ` (${Math.abs(diffPct).toFixed(1)}%)` : ""}
+            </b>
+          )}
+          {diff === 0 && <b>보합</b>}
+        </span>
+      )}
+      {c.recoveryPct !== null && (
+        <span>
+          3년 최고 대비 <b className={c.recoveryPct >= 100 ? "up" : undefined}>{c.recoveryPct >= 100 ? "최고가" : `${c.recoveryPct.toFixed(0)}%`}</b>
+        </span>
+      )}
+      {c.jeonsePrice !== null && c.gapManwon !== null && (
+        <span>
+          전세 {eok(c.jeonsePrice)} · 갭 {c.gapManwon < 0 ? "-" : ""}{eok(c.gapManwon)}
+          {c.gapPct !== null ? ` (${c.gapPct}%)` : ""}
+        </span>
+      )}
+    </span>
+  );
+}
+
+export default function BriefTopRows({ rows, ctx }: { rows: BriefRow[]; ctx?: Record<string, DealCtx> }) {
   const [target, setTarget] = useState<{
     code: string;
     regionName: string;
@@ -85,6 +128,7 @@ export default function BriefTopRows({ rows }: { rows: BriefRow[] }) {
                   <span className="t5-loc">
                     {d.regionName} {d.dong} {d.floor}층
                   </span>
+                  {ctx && ctx[dealKey(d)] && <CtxLine d={d} c={ctx[dealKey(d)]} />}
                 </td>
                 <td className="c-area">{Math.round(d.areaM2)}㎡</td>
                 <td className="c-price">{fmtManwon(d.priceManwon)}</td>

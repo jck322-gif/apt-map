@@ -1688,3 +1688,15 @@ article.block { padding: 20px 16px 0; }
 @media (min-width: 720px) { .acct-badge { order: 5; } }
 /* 더보기 메뉴가 화면보다 길면 메뉴 안에서 스크롤되게 (맨 아래 「🔔 알림」까지 닿도록) */
 .more-menu-list { max-height: calc(100vh - 140px); max-height: calc(100dvh - 140px); overflow-y: auto; overscroll-behavior: contain; }
+
+/* 구별 전체 거래 — 거래 한 줄 아래 비교 정보 (직전 거래 대비 · 3년 최고 대비 · 전세 갭) */
+.t5-ctx { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); word-break: keep-all; }
+.t5-ctx > span { display: inline; }
+.t5-ctx > span + span::before { content: " · "; color: var(--muted); }
+.t5-ctx b { font-weight: 700; }
+.t5-ctx b.up { color: var(--rise); }
+.t5-ctx b.down { color: #2563eb; }
+@media (max-width: 640px) {
+  .t5-ctx > span { display: block; }
+  .t5-ctx > span + span::before { content: none; }
+}
