@@ -39,6 +39,8 @@ export type SubscriptionEntry = {
   isManual?: boolean;
   // isManual일 때만 쓰는, 어디서 가져온 정보인지 짧게 밝히는 문구.
   sourceNote?: string;
+  // isManual이고 날짜가 아직 안 나온 항목: "YYYY-MM" — 그 달 달력 아래 "분양 예정(일정 미정)" 목록에 보여줍니다.
+  expectedMonth?: string;
 };
 
 function pick(item: Record<string, unknown>, keys: string[]): string {

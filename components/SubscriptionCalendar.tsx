@@ -81,6 +81,19 @@ export default function SubscriptionCalendar({
     eventsByDate.set(ev.date, list);
   }
 
+  // 날짜가 아직 안 나온 "이달 분양 예정" 항목 (lib/subscriptionManual.ts의 expectedMonth)
+  const shownMonth = (weeks.flat().find((d) => d) ?? "").slice(0, 7);
+  const undated = filtered.filter(
+    (e) =>
+      e.isManual &&
+      e.expectedMonth === shownMonth &&
+      !e.noticeDate &&
+      !e.specialSupplyStart &&
+      !e.rank1Start &&
+      !e.rank2Start &&
+      !e.winnerAnnounceDate
+  );
+
   const loading = entries === null;
   const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -149,6 +162,28 @@ export default function SubscriptionCalendar({
           </div>
         ))}
       </div>
+
+      {undated.length > 0 && (
+        <section className="subscription-undated">
+          <h2 className="subscription-undated-h">📌 이달 분양 예정 (청약 날짜 미정)</h2>
+          <ul>
+            {undated.map((e) => (
+              <li key={e.pblancNo}>
+                <b>{e.houseName}</b>
+                <span className="subscription-undated-where">
+                  {" "}
+                  · {e.address}
+                  {e.totalHouseholds ? ` · ${e.totalHouseholds.toLocaleString()}세대` : ""}
+                </span>
+                {e.sourceNote && <small>{e.sourceNote}</small>}
+              </li>
+            ))}
+          </ul>
+          <p className="section-note">
+            건설사가 &quot;이달 분양&quot;이라고만 알린 단지예요. 모집공고가 청약홈에 올라오면 달력에 날짜가 자동으로 표시됩니다.
+          </p>
+        </section>
+      )}
 
       {!loading && !error && filtered.length === 0 && (
         <p className="section-note" style={{ marginTop: 16 }}>

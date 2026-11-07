@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fmtManwon, typeLabel } from "@/lib/format";
+import { fmtManwon } from "@/lib/format";
+import AreaChips, { roundAreas } from "@/components/AreaChips";
 
 /**
  * 단지 페이지의 "🎯 희망가 알림" — 평형과 가격을 정해 두면,
@@ -26,7 +27,7 @@ export default function PriceAlertBox({
   /** 최근 매매가(만원) — 입력 칸 안내용 */
   latestPrice?: number;
 }) {
-  const areas = Array.from(new Set(types.map((a) => Math.round(a)))).sort((a, b) => a - b);
+  const areas = roundAreas(types);
   const [loggedIn, setLoggedIn] = useState(false);
   const firstArea = defaultArea && areas.includes(Math.round(defaultArea)) ? Math.round(defaultArea) : areas.length === 1 ? areas[0] : null;
   const [area, setArea] = useState<string>(firstArea ? String(firstArea) : "");
@@ -101,24 +102,15 @@ export default function PriceAlertBox({
       <h2 className="price-alert-h">🎯 희망가 알림</h2>
       {saved && (
         <p className="price-alert-saved">
-          설정됨: <b>{saved.area ? `${typeLabel(saved.area)}(${saved.area}㎡)` : "모든 평형"}</b>{" "}
+          설정됨: <b>{saved.area ? `전용 ${saved.area}㎡` : "모든 평형"}</b>{" "}
           <b>{fmtManwon(saved.price)} 이하</b>
           <button type="button" className="price-alert-off" onClick={() => send(null)} disabled={busy}>
             끄기
           </button>
         </p>
       )}
+      {areas.length > 1 && <AreaChips areas={areas} value={area} onChange={setArea} />}
       <form className="price-alert-form" onSubmit={submit}>
-        {areas.length > 1 && (
-          <select className="price-alert-sel" value={area} onChange={(e) => setArea(e.target.value)} aria-label="평형">
-            <option value="">모든 평형</option>
-            {areas.map((a) => (
-              <option key={a} value={a}>
-                {typeLabel(a)} ({a}㎡)
-              </option>
-            ))}
-          </select>
-        )}
         <label className="price-alert-price">
           <input
             inputMode="decimal"

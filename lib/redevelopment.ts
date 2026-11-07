@@ -103,7 +103,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "관리처분인가",
-    lastChecked: "2026.10",
+    lastChecked: "2026.11",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000013/main.do",
     totalHouseholds: 2395,
     builder: "현대건설",
@@ -112,6 +112,7 @@ const ENTRIES: RedevelopmentEntry[] = [
       { date: "2022.09", label: "시공사 선정 (현대건설)" },
       { date: "2025.02", label: "사업시행인가" },
       { date: "2026.05", label: "관리처분계획인가 (5월 14일)" },
+      { date: "2026.08", label: "이주 시작" },
     ],
     lat: 35.172,
     lng: 129.157,
@@ -123,7 +124,7 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "사업시행인가",
-    lastChecked: "2026.10",
+    lastChecked: "2026.11",
     officialUrl: "https://dynamice.busan.go.kr/home/BARA_0000000000300/main.do",
     totalHouseholds: 1310,
     note:
@@ -132,7 +133,9 @@ const ENTRIES: RedevelopmentEntry[] = [
     history: [
       { date: "2021.03", label: "시공사 선정 (DL이앤씨)" },
       { date: "2024.05", label: "사업시행계획인가 (5월 15일)" },
+      { date: "2025.11", label: "DL이앤씨와 시공계약 해지" },
       { date: "2026.03", label: "시공사 재선정 추진 (대우건설 수의계약 전환)" },
+      { date: "2026.07", label: "새 조합장 선출" },
     ],
     lat: 35.1695,
     lng: 129.1315,
@@ -165,12 +168,13 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionName: "해운대구",
     group: "부산",
     stage: "추진위원회",
-    lastChecked: "2026.10",
+    lastChecked: "2026.11",
     officialUrl: "https://dynamice.busan.go.kr/",
     totalHouseholds: 995,
     note:
       "현재 750세대 → 최고 38층 약 995세대 계획. 2026년 6월 조합 창립총회를 열었고, 조합설립과 정비계획 변경을 " +
-      "함께 신청할 수 있게 됐습니다. 조합설립인가는 아직 확인되지 않습니다.",
+      "함께 신청할 수 있게 됐습니다. 11월 초 기준 조합설립 서류를 보완하는 중이고, 인가는 아직 확인되지 않습니다. " +
+      "옆 경남마리나와 함께 재건축하는 방안도 거론됩니다.",
     history: [{ date: "2026.06", label: "조합 창립총회 (6월 13일, 벡스코)" }],
     lat: 35.1548,
     lng: 129.1435,
@@ -299,13 +303,18 @@ const ENTRIES: RedevelopmentEntry[] = [
     regionCode: "26500",
     regionName: "수영구",
     group: "부산",
-    lastChecked: "2026.10",
+    stage: "추진위원회",
+    lastChecked: "2026.11",
     officialUrl: "https://dynamice.busan.go.kr/",
     totalHouseholds: 1859,
     note:
-      "16개 동, 지하 3층~지상 39층 1,859세대 계획. 2025년 11월 정비계획 주민공람을 했고 2026년 구역지정이 " +
-      "예상됐지만, 지정 고시는 아직 확인되지 않아 단계는 비워 뒀습니다.",
-    history: [{ date: "2025.11", label: "정비계획(구역 지정안) 주민공람" }],
+      "16개 동, 지하 3층~지상 39층 1,859세대 계획. 2026년 7월 정비구역으로 지정됐고 8월 추진위원회가 꾸려져 " +
+      "조합설립을 준비하고 있습니다(시공사 미정). 옆 수영아파트와 함께 추진하는 방안도 거론됩니다.",
+    history: [
+      { date: "2025.11", label: "정비계획(구역 지정안) 주민공람" },
+      { date: "2026.07", label: "정비구역 지정" },
+      { date: "2026.08", label: "추진위원회 구성" },
+    ],
     lat: 35.16,
     lng: 129.116,
   },
@@ -452,7 +461,10 @@ const ENTRIES: RedevelopmentEntry[] = [
     note:
       "동구 초량3동 일원. 전용 59·70·84㎡ 432세대 중 일반분양 약 252세대로, 2026년 11월 분양 예정이라고 보도됐습니다" +
       "(청약 일정·분양가는 아직 미정).",
-    history: [{ date: "2026.10", label: "11월 일반분양 예정 보도 (호반써밋 초량)" }],
+    history: [
+      { date: "2026.10", label: "11월 일반분양 예정 보도 (호반써밋 초량)" },
+      { date: "2026.11", label: "견본주택 연제구 거제동 개관 예정 (날짜 미발표)" },
+    ],
     lat: 35.118,
     lng: 129.04,
   },

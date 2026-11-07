@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getFavorites } from "@/lib/favorites";
 import { complexHref } from "@/lib/complex";
 import { aptLabel, fmtManwon } from "@/lib/format";
+import AreaChips, { roundAreas } from "@/components/AreaChips";
 
 type Watch = {
   region_code: string;
@@ -217,52 +218,64 @@ export default function AccountPanel({
   );
 }
 
-/** 관심 단지 한 줄의 "🎯 희망가" 칸 — 평형(㎡)·가격(억)을 넣고 저장, 비우고 저장하면 끄기 */
+/** 관심 단지 한 줄의 "🎯 희망가" 칸 — 평형은 버튼으로 고르고 가격(억)을 넣어 저장, 가격을 비우고 저장하면 끄기 */
 function TargetRow({ w, onSave }: { w: Watch; onSave: (w: Watch, eok: string, area: string) => void }) {
   const [eok, setEok] = useState(w.target_price_manwon ? String(w.target_price_manwon / 10000) : "");
   const [area, setArea] = useState(w.target_area_m2 ? String(w.target_area_m2) : "");
+  const [areas, setAreas] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    // 이 단지의 평형 목록 (단지 페이지와 같은 자료)
+    const q = new URLSearchParams({ code: w.region_code, complex: w.complex, dealType: "sale" });
+    fetch(`/api/complex-trend?${q}`)
+      .then((r) => r.json())
+      .then((j) => setAreas(roundAreas(Array.isArray(j.types) ? j.types : [])))
+      .catch(() => {});
+  }, [w.region_code, w.complex]);
+
   return (
-    <form
-      className="acct-target"
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSave(w, eok, area);
-        setDone(true);
-      }}
-    >
-      <span className="acct-target-label">🎯 희망가</span>
-      <input
-        className="acct-target-in"
-        inputMode="numeric"
-        value={area}
-        onChange={(e) => {
-          setArea(e.target.value);
-          setDone(false);
-        }}
-        placeholder="전용㎡(전체)"
-        aria-label="전용면적(㎡)"
-      />
-      <input
-        className="acct-target-in"
-        inputMode="decimal"
-        value={eok}
-        onChange={(e) => {
-          setEok(e.target.value);
-          setDone(false);
-        }}
-        placeholder="억"
-        aria-label="희망가(억)"
-      />
-      <span className="acct-target-label">억 이하</span>
-      <button type="submit" className="acct-target-btn">
-        저장
-      </button>
-      {done && (
-        <span className="acct-target-done">
-          {w.target_price_manwon ? `${fmtManwon(w.target_price_manwon)} 이하로 저장됨` : "희망가 알림 꺼짐"}
-        </span>
+    <div className="acct-target">
+      <span className="acct-target-label">🎯 희망가 알림</span>
+      {areas.length > 1 && (
+        <AreaChips
+          areas={areas}
+          value={area}
+          onChange={(v) => {
+            setArea(v);
+            setDone(false);
+          }}
+        />
       )}
-    </form>
+      <form
+        className="acct-target-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSave(w, eok, area);
+          setDone(true);
+        }}
+      >
+        <input
+          className="acct-target-in"
+          inputMode="decimal"
+          value={eok}
+          onChange={(e) => {
+            setEok(e.target.value);
+            setDone(false);
+          }}
+          placeholder="예: 9.5"
+          aria-label="희망가(억)"
+        />
+        <span className="acct-target-label">억 이하로 거래되면</span>
+        <button type="submit" className="acct-target-btn">
+          저장
+        </button>
+        {done && (
+          <span className="acct-target-done">
+            {w.target_price_manwon ? `${fmtManwon(w.target_price_manwon)} 이하로 저장됨` : "희망가 알림 꺼짐"}
+          </span>
+        )}
+      </form>
+    </div>
   );
 }

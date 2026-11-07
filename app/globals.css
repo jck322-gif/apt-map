@@ -1714,8 +1714,26 @@ article.block { padding: 20px 16px 0; }
 .price-alert-btn:disabled { opacity: .6; }
 .price-alert-msg { margin: 8px 0 0; font-size: 14px; color: var(--teal-deep); font-weight: 700; }
 .price-alert-note { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
-.acct-target { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; font-size: 14px; }
+.acct-target { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 14px; display: grid; gap: 8px; }
+.acct-target-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .acct-target-label { color: var(--ink-soft); }
 .acct-target-in { font: inherit; font-size: 15px; width: 96px; padding: 6px 8px; border: 1.5px solid var(--line-strong); border-radius: 8px; background: #fff; color: #111; }
 .acct-target-btn { font: inherit; font-size: 13.5px; font-weight: 700; padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--teal); background: none; color: var(--teal-deep); cursor: pointer; }
 .acct-target-done { font-size: 13px; color: var(--teal-deep); }
+
+/* 청약 달력 — 날짜 미정 분양 예정 */
+.subscription-undated { margin-top: 18px; padding: 14px 16px; border: 1.5px dashed var(--teal); border-radius: 12px; background: var(--surface); }
+.subscription-undated-h { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--teal-deep); }
+.subscription-undated ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.subscription-undated li { font-size: 15px; color: var(--ink); }
+.subscription-undated-where { color: var(--ink-soft); font-size: 14px; }
+.subscription-undated small { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+/* 평형 고르기 버튼 (희망가 알림) */
+.area-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.acct-target .area-chips { margin: 0; }
+.area-chip { font: inherit; display: inline-flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 12px; border-radius: 10px; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.2; }
+.area-chip b { font-size: 14.5px; font-weight: 800; }
+.area-chip small { font-size: 11.5px; color: var(--muted); }
+.area-chip[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.area-chip[aria-pressed="true"] small { color: rgba(255,255,255,.85); }
