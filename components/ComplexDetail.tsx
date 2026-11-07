@@ -7,6 +7,7 @@ import ComplexChartButton from "@/components/ComplexChartButton";
 import PriceTrendChart from "@/components/PriceTrendChart";
 import AdSlot from "@/components/AdSlot";
 import AlertButton from "@/components/AlertButton";
+import PriceAlertBox from "@/components/PriceAlertBox";
 import type { FaqItem } from "@/lib/complexFaq";
 
 /**
@@ -163,6 +164,15 @@ export default function ComplexDetail({
           </>
         )}
       </p>
+
+      <PriceAlertBox
+        code={data.code}
+        complex={name}
+        here={selectedArea ? complexAreaHref(data.code, name, selectedArea) : complexHref(data.code, name)}
+        types={data.types.length ? data.types : s.latestSale ? [s.latestSale.areaM2] : []}
+        defaultArea={selectedArea ?? s.latestSale?.areaM2}
+        latestPrice={s.latestSale?.priceManwon}
+      />
 
       {/* 평형 고르기 — 누르면 그 평형 거래만 보여주는 페이지로 갑니다. */}
       {/* 평형이 하나뿐이면 평형별 페이지가 이 페이지와 똑같아져 검색엔진이 중복으로 봅니다 — 탭을 숨깁니다. */}

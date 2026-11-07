@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getFavorites } from "@/lib/favorites";
 import { complexHref } from "@/lib/complex";
-import { aptLabel } from "@/lib/format";
+import { aptLabel, fmtManwon } from "@/lib/format";
 
 type Watch = {
   region_code: string;
@@ -13,6 +13,8 @@ type Watch = {
   grp: string | null;
   notify_record: boolean;
   notify_all: boolean;
+  target_price_manwon: number | null;
+  target_area_m2: number | null;
 };
 
 /** 알림 설정 화면 — 관심 단지 목록·알림 종류·일시중지·로그아웃·탈퇴 */
@@ -56,6 +58,24 @@ export default function AccountPanel({
         notifyRecord: next.notify_record,
         notifyAll: next.notify_all,
       }),
+    });
+  }
+
+  async function setTarget(w: Watch, eok: string, area: string) {
+    const v = Number(eok.replace(/[^\d.]/g, ""));
+    const price = v >= 0.1 && v <= 300 ? Math.round(v * 10000) : null;
+    const a = Number(area) >= 10 && Number(area) <= 400 ? Math.round(Number(area)) : null;
+    setWatches((list) =>
+      (list ?? []).map((x) =>
+        x.region_code === w.region_code && x.complex === w.complex
+          ? { ...x, target_price_manwon: price, target_area_m2: price ? a : null }
+          : x
+      )
+    );
+    await fetch("/api/me/watches", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ regionCode: w.region_code, complex: w.complex, targetPrice: price, targetArea: price ? a : null }),
     });
   }
 
@@ -114,7 +134,7 @@ export default function AccountPanel({
         </h2>
         <p className="chart-basis-note">
           매일 아침 실거래가 갱신되면, 관심 단지에 새로 신고된 거래를 모아 <strong>하루 한 통</strong> 보내드려요. 알림 종류는
-          단지마다 고를 수 있어요.
+          단지마다 고를 수 있고, <strong>🎯 희망가</strong>를 넣어 두면 그 가격 이하로 거래됐을 때 알려드려요.
         </p>
 
         {favCount > 0 && (
@@ -160,6 +180,7 @@ export default function AccountPanel({
                     <span>모든 매매 실거래 알림</span>
                   </label>
                 </div>
+                <TargetRow w={w} onSave={setTarget} />
               </li>
             ))}
           </ul>
@@ -193,5 +214,55 @@ export default function AccountPanel({
         </button>
       </div>
     </div>
+  );
+}
+
+/** 관심 단지 한 줄의 "🎯 희망가" 칸 — 평형(㎡)·가격(억)을 넣고 저장, 비우고 저장하면 끄기 */
+function TargetRow({ w, onSave }: { w: Watch; onSave: (w: Watch, eok: string, area: string) => void }) {
+  const [eok, setEok] = useState(w.target_price_manwon ? String(w.target_price_manwon / 10000) : "");
+  const [area, setArea] = useState(w.target_area_m2 ? String(w.target_area_m2) : "");
+  const [done, setDone] = useState(false);
+  return (
+    <form
+      className="acct-target"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave(w, eok, area);
+        setDone(true);
+      }}
+    >
+      <span className="acct-target-label">🎯 희망가</span>
+      <input
+        className="acct-target-in"
+        inputMode="numeric"
+        value={area}
+        onChange={(e) => {
+          setArea(e.target.value);
+          setDone(false);
+        }}
+        placeholder="전용㎡(전체)"
+        aria-label="전용면적(㎡)"
+      />
+      <input
+        className="acct-target-in"
+        inputMode="decimal"
+        value={eok}
+        onChange={(e) => {
+          setEok(e.target.value);
+          setDone(false);
+        }}
+        placeholder="억"
+        aria-label="희망가(억)"
+      />
+      <span className="acct-target-label">억 이하</span>
+      <button type="submit" className="acct-target-btn">
+        저장
+      </button>
+      {done && (
+        <span className="acct-target-done">
+          {w.target_price_manwon ? `${fmtManwon(w.target_price_manwon)} 이하로 저장됨` : "희망가 알림 꺼짐"}
+        </span>
+      )}
+    </form>
   );
 }

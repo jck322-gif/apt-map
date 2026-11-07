@@ -16,12 +16,21 @@ export const maxDuration = 60;
  * 그날 새로 신고된(first_seen_at = 오늘) 매매 중
  *   - notify_record: 신고가(record_highs)
  *   - notify_all:    모든 매매 실거래
+ *   - target_price_manwon: 희망가 이하 매매 (target_area_m2 가 있으면 그 평형만)
  * 를 관심 단지별로 모아 한 사람에게 하루 한 통만 보냅니다(notification_log로 중복 방지).
  *
  * 수동 실행: /api/notify?secret=CRON_SECRET  (date=2026-10-14 로 날짜 지정, dry=1 이면 보내지 않고 결과만)
  */
 
-type Watch = { user_id: string; region_code: string; complex: string; notify_record: boolean; notify_all: boolean };
+type Watch = {
+  user_id: string;
+  region_code: string;
+  complex: string;
+  notify_record: boolean;
+  notify_all: boolean;
+  target_price_manwon: number | null;
+  target_area_m2: number | null;
+};
 type Deal = { region_code: string; complex: string; dong: string; area_m2: number | string; floor: number; price_manwon: number; deal_date: string };
 type Rec = Deal & { prev_price_manwon: number; prev_deal_date: string | null; gain_manwon: number };
 
@@ -52,9 +61,9 @@ export async function GET(request: Request) {
   const userById = new Map(users.map((u) => [u.id as string, u]));
   const { data: watchRows } = await db
     .from("user_watches")
-    .select("user_id, region_code, complex, notify_record, notify_all")
+    .select("user_id, region_code, complex, notify_record, notify_all, target_price_manwon, target_area_m2")
     .in("user_id", Array.from(userById.keys()));
-  const watches = ((watchRows ?? []) as Watch[]).filter((w) => w.notify_record || w.notify_all);
+  const watches = ((watchRows ?? []) as Watch[]).filter((w) => w.notify_record || w.notify_all || !!w.target_price_manwon);
   if (watches.length === 0) return NextResponse.json({ date, users: users.length, watches: 0, sent: 0 });
 
   // 2) 그날 신고분 — 관심 단지가 있는 구·군만 읽어 옵니다
@@ -104,20 +113,39 @@ export async function GET(request: Request) {
       const k = key(w.region_code, w.complex);
       const region = REGIONS.find((r) => r.code === w.region_code);
       const r = recs.filter((x) => key(x.region_code, x.complex) === k);
-      const d = w.notify_all ? deals.filter((x) => key(x.region_code, x.complex) === k) : [];
-      if (r.length === 0 && d.length === 0) continue;
+      const all = deals.filter((x) => key(x.region_code, x.complex) === k);
+      // 희망가 이하로 거래된 매매 (평형을 정했으면 ±1㎡ 안만)
+      const tgt = w.target_price_manwon
+        ? all.filter(
+            (x) =>
+              x.price_manwon <= (w.target_price_manwon as number) &&
+              (!w.target_area_m2 || Math.abs(Math.round(Number(x.area_m2)) - w.target_area_m2) <= 1)
+          )
+        : [];
+      const d = w.notify_all ? all : [];
+      const rr = w.notify_record || w.notify_all ? r : [];
+      if (rr.length === 0 && d.length === 0 && tgt.length === 0) continue;
       const lines: string[] = [];
       const textLines: string[] = [];
-      for (const x of r) {
+      const dealKey = (x: { deal_date: string; floor: number; price_manwon: number }) => `${x.deal_date}|${x.floor}|${x.price_manwon}`;
+      const tgtKeys = new Set(tgt.map(dealKey));
+      for (const x of tgt) {
+        const cond = `${w.target_area_m2 ? `${w.target_area_m2}㎡ ` : ""}${fmtManwon(w.target_price_manwon as number)} 이하`;
+        const t = `🎯 희망가 도달 ${Math.round(Number(x.area_m2))}㎡ ${x.floor}층 ${fmtManwon(x.price_manwon)} · ${md(x.deal_date)} 계약 (설정: ${cond})`;
+        lines.push(`<li style="margin:0 0 4px"><b style="color:#1f6f78">🎯 희망가 도달</b> ${escapeHtml(t.replace("🎯 희망가 도달 ", ""))}</li>`);
+        textLines.push(t);
+      }
+      for (const x of rr) {
+        if (tgtKeys.has(dealKey(x))) continue;
         const t = `🔥 신고가 ${Math.round(Number(x.area_m2))}㎡ ${x.floor}층 ${fmtManwon(x.price_manwon)} (종전 최고 ${fmtManwon(
           x.prev_price_manwon
         )}, +${fmtManwon(x.gain_manwon)}) · ${md(x.deal_date)} 계약`;
         lines.push(`<li style="margin:0 0 4px"><b style="color:#c23b30">🔥 신고가</b> ${escapeHtml(t.replace("🔥 신고가 ", ""))}</li>`);
         textLines.push(t);
       }
-      const recKeys = new Set(r.map((x) => `${x.deal_date}|${x.floor}|${x.price_manwon}`));
+      const recKeys = new Set(rr.map(dealKey));
       for (const x of d) {
-        if (recKeys.has(`${x.deal_date}|${x.floor}|${x.price_manwon}`)) continue; // 신고가로 이미 적은 거래
+        if (recKeys.has(dealKey(x)) || tgtKeys.has(dealKey(x))) continue; // 위에서 이미 적은 거래
         const t = `매매 ${Math.round(Number(x.area_m2))}㎡ ${x.floor}층 ${fmtManwon(x.price_manwon)} · ${md(x.deal_date)} 계약`;
         lines.push(`<li style="margin:0 0 4px">${escapeHtml(t)}</li>`);
         textLines.push(t);
@@ -133,8 +161,9 @@ export async function GET(request: Request) {
     if (blocks.length === 0) continue;
 
     const hasRecord = blocks.some((b) => b.lines.some((l) => l.includes("신고가")));
+    const hasTarget = blocks.some((b) => b.lines.some((l) => l.includes("희망가 도달")));
     const first = blocks[0].title.split(" (")[0];
-    const subject = `[부울아파트] ${first}${blocks.length > 1 ? ` 외 ${blocks.length - 1}곳` : ""} ${hasRecord ? "신고가" : "새 실거래"} 알림 (${md(date)} 신고분)`;
+    const subject = `[부울아파트] ${first}${blocks.length > 1 ? ` 외 ${blocks.length - 1}곳` : ""} ${hasTarget ? "희망가 도달" : hasRecord ? "신고가" : "새 실거래"} 알림 (${md(date)} 신고분)`;
     const unsub = `${SITE_URL}/api/unsubscribe?t=${u.unsub_token}`;
     const html = mailLayout(
       `${md(date)} 관심 단지 실거래`,

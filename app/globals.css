@@ -1700,3 +1700,22 @@ article.block { padding: 20px 16px 0; }
   .t5-ctx > span { display: block; }
   .t5-ctx > span + span::before { content: none; }
 }
+
+/* 🎯 희망가 알림 (단지 페이지 · 알림 설정) */
+.price-alert { margin: 14px 0 6px; padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--teal); background: var(--surface); }
+.price-alert-h { margin: 0 0 8px; font-size: 16.5px; font-weight: 800; color: var(--teal-deep); }
+.price-alert-saved { margin: 0 0 10px; font-size: 14.5px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.price-alert-off { font: inherit; font-size: 13px; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; margin-left: 4px; }
+.price-alert-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.price-alert-sel, .price-alert-input { font: inherit; font-size: 16px; padding: 9px 10px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: #fff; color: #111; }
+.price-alert-input { width: 86px; text-align: right; }
+.price-alert-price { display: inline-flex; align-items: center; gap: 6px; font-size: 14.5px; color: var(--ink); }
+.price-alert-btn { font: inherit; font-size: 15px; font-weight: 800; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--teal); color: #fff; cursor: pointer; }
+.price-alert-btn:disabled { opacity: .6; }
+.price-alert-msg { margin: 8px 0 0; font-size: 14px; color: var(--teal-deep); font-weight: 700; }
+.price-alert-note { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
+.acct-target { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; font-size: 14px; }
+.acct-target-label { color: var(--ink-soft); }
+.acct-target-in { font: inherit; font-size: 15px; width: 96px; padding: 6px 8px; border: 1.5px solid var(--line-strong); border-radius: 8px; background: #fff; color: #111; }
+.acct-target-btn { font: inherit; font-size: 13.5px; font-weight: 700; padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--teal); background: none; color: var(--teal-deep); cursor: pointer; }
+.acct-target-done { font-size: 13px; color: var(--teal-deep); }
