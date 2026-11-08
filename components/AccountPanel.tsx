@@ -15,6 +15,7 @@ type Watch = {
   notify_record: boolean;
   notify_all: boolean;
   target_price_manwon: number | null;
+  target_above_manwon: number | null;
   target_area_m2: number | null;
 };
 
@@ -62,21 +63,32 @@ export default function AccountPanel({
     });
   }
 
-  async function setTarget(w: Watch, eok: string, area: string) {
-    const v = Number(eok.replace(/[^\d.]/g, ""));
-    const price = v >= 0.1 && v <= 300 ? Math.round(v * 10000) : null;
+  async function setTarget(w: Watch, below: string, above: string, area: string) {
+    const conv = (t: string) => {
+      const v = Number(t.replace(/[^\d.]/g, ""));
+      return v >= 0.1 && v <= 300 ? Math.round(v * 10000) : null;
+    };
+    const lo = conv(below);
+    const hi = conv(above);
     const a = Number(area) >= 10 && Number(area) <= 400 ? Math.round(Number(area)) : null;
+    const any = !!(lo || hi);
     setWatches((list) =>
       (list ?? []).map((x) =>
         x.region_code === w.region_code && x.complex === w.complex
-          ? { ...x, target_price_manwon: price, target_area_m2: price ? a : null }
+          ? { ...x, target_price_manwon: lo, target_above_manwon: hi, target_area_m2: any ? a : null }
           : x
       )
     );
     await fetch("/api/me/watches", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ regionCode: w.region_code, complex: w.complex, targetPrice: price, targetArea: price ? a : null }),
+      body: JSON.stringify({
+        regionCode: w.region_code,
+        complex: w.complex,
+        targetPrice: lo,
+        targetAbove: hi,
+        targetArea: any ? a : null,
+      }),
     });
   }
 
@@ -135,7 +147,7 @@ export default function AccountPanel({
         </h2>
         <p className="chart-basis-note">
           매일 아침 실거래가 갱신되면, 관심 단지에 새로 신고된 거래를 모아 <strong>하루 한 통</strong> 보내드려요. 알림 종류는
-          단지마다 고를 수 있고, <strong>🎯 희망가</strong>를 넣어 두면 그 가격 이하로 거래됐을 때 알려드려요.
+          단지마다 고를 수 있고, <strong>🎯 가격 알림</strong>에 가격을 넣어 두면 그 가격 이하 또는 이상으로 거래됐을 때 알려드려요.
         </p>
 
         {favCount > 0 && (
@@ -218,9 +230,10 @@ export default function AccountPanel({
   );
 }
 
-/** 관심 단지 한 줄의 "🎯 희망가" 칸 — 평형은 버튼으로 고르고 가격(억)을 넣어 저장, 가격을 비우고 저장하면 끄기 */
-function TargetRow({ w, onSave }: { w: Watch; onSave: (w: Watch, eok: string, area: string) => void }) {
-  const [eok, setEok] = useState(w.target_price_manwon ? String(w.target_price_manwon / 10000) : "");
+/** 관심 단지 한 줄의 "🎯 가격 알림" 칸 — 평형은 버튼으로 고르고 이하/이상 가격(억)을 넣어 저장, 둘 다 비우고 저장하면 끄기 */
+function TargetRow({ w, onSave }: { w: Watch; onSave: (w: Watch, below: string, above: string, area: string) => void }) {
+  const [below, setBelow] = useState(w.target_price_manwon ? String(w.target_price_manwon / 10000) : "");
+  const [above, setAbove] = useState(w.target_above_manwon ? String(w.target_above_manwon / 10000) : "");
   const [area, setArea] = useState(w.target_area_m2 ? String(w.target_area_m2) : "");
   const [areas, setAreas] = useState<number[]>([]);
   const [done, setDone] = useState(false);
@@ -234,16 +247,24 @@ function TargetRow({ w, onSave }: { w: Watch; onSave: (w: Watch, eok: string, ar
       .catch(() => {});
   }, [w.region_code, w.complex]);
 
+  const savedText = [
+    w.target_price_manwon ? `${fmtManwon(w.target_price_manwon)} 이하` : "",
+    w.target_above_manwon ? `${fmtManwon(w.target_above_manwon)} 이상` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const touch = () => setDone(false);
+
   return (
     <div className="acct-target">
-      <span className="acct-target-label">🎯 희망가 알림</span>
+      <span className="acct-target-label">🎯 가격 알림</span>
       {areas.length > 1 && (
         <AreaChips
           areas={areas}
           value={area}
           onChange={(v) => {
             setArea(v);
-            setDone(false);
+            touch();
           }}
         />
       )}
@@ -251,30 +272,46 @@ function TargetRow({ w, onSave }: { w: Watch; onSave: (w: Watch, eok: string, ar
         className="acct-target-form"
         onSubmit={(e) => {
           e.preventDefault();
-          onSave(w, eok, area);
+          onSave(w, below, above, area);
           setDone(true);
         }}
       >
-        <input
-          className="acct-target-in"
-          inputMode="decimal"
-          value={eok}
-          onChange={(e) => {
-            setEok(e.target.value);
-            setDone(false);
-          }}
-          placeholder="예: 9.5"
-          aria-label="희망가(억)"
-        />
-        <span className="acct-target-label">억 이하로 거래되면</span>
+        <span className="acct-target-pair">
+          <input
+            className="acct-target-in"
+            inputMode="decimal"
+            value={below}
+            onChange={(e) => {
+              setBelow(e.target.value);
+              touch();
+            }}
+            placeholder="예: 9.5"
+            aria-label="이 가격 이하(억)"
+          />
+          <span className="acct-target-label">
+            억 <b className="price-alert-dn">이하</b>
+          </span>
+        </span>
+        <span className="acct-target-pair">
+          <input
+            className="acct-target-in"
+            inputMode="decimal"
+            value={above}
+            onChange={(e) => {
+              setAbove(e.target.value);
+              touch();
+            }}
+            placeholder="예: 12"
+            aria-label="이 가격 이상(억)"
+          />
+          <span className="acct-target-label">
+            억 <b className="price-alert-up">이상</b>
+          </span>
+        </span>
         <button type="submit" className="acct-target-btn">
           저장
         </button>
-        {done && (
-          <span className="acct-target-done">
-            {w.target_price_manwon ? `${fmtManwon(w.target_price_manwon)} 이하로 저장됨` : "희망가 알림 꺼짐"}
-          </span>
-        )}
+        {done && <span className="acct-target-done">{savedText ? `${savedText} 저장됨` : "가격 알림 꺼짐"}</span>}
       </form>
     </div>
   );

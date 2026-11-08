@@ -1737,3 +1737,9 @@ article.block { padding: 20px 16px 0; }
 .area-chip small { font-size: 11.5px; color: var(--muted); }
 .area-chip[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
 .area-chip[aria-pressed="true"] small { color: rgba(255,255,255,.85); }
+
+/* 가격 알림 — 이하/이상 두 줄 */
+.price-alert-rows { display: grid; gap: 8px; }
+.price-alert-dn { color: #2563eb; }
+.price-alert-up { color: var(--rise, #c23b30); }
+.acct-target-pair { display: inline-flex; align-items: center; gap: 6px; }
