@@ -76,3 +76,12 @@ export function ymdMonthLabel(ymd: number): string {
 export function aptLabel(name: string): string {
   return name.replace(/\s*\(\d+(-\d+)?\)$/, "") || name;
 }
+
+/**
+ * 평면도 보기 링크 — 국토부 실거래 자료에는 평면도가 없어서, 네이버 이미지 검색으로 연결합니다
+ * (평면도 그림은 저작권이 있어 사이트에 직접 가져와 싣지 않습니다).
+ */
+export function floorPlanSearchUrl(complex: string, areaM2: number): string {
+  const q = `${complex} ${Math.round(areaM2)}㎡ 평면도`;
+  return `https://search.naver.com/search.naver?where=image&query=${encodeURIComponent(q)}`;
+}

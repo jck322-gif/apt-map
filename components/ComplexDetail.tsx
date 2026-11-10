@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fmtManwon, areaDetail, typeLabel, pickJosa, aptLabel } from "@/lib/format";
+import { fmtManwon, areaDetail, typeLabel, pickJosa, aptLabel, floorPlanSearchUrl } from "@/lib/format";
 import { complexHref, complexAreaHref, type ComplexTrend, type ComplexListRow } from "@/lib/complex";
 import FavoriteButton from "@/components/FavoriteButton";
 import InteriorLinks from "@/components/InteriorLinks";
@@ -149,6 +149,11 @@ export default function ComplexDetail({
         {data.buildYear ? ` · ${data.buildYear}년 준공 (${data.age}년차)` : ""}
         {selectedArea ? ` · ${areaDetail(selectedArea)}` : ""}
       </p>
+      {selectedArea && (
+        <a className="floorplan-link" href={floorPlanSearchUrl(name, selectedArea)} target="_blank" rel="noopener noreferrer">
+          📐 {Math.round(selectedArea)}㎡ 타입 평면도 보기 <span>네이버 이미지 검색 ↗</span>
+        </a>
+      )}
 
       <p className="guide-summary">
         {aptLabel(name)}

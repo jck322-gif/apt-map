@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fmtManwon, fmtManwonShort, typeLabel, areaDetail, aptLabel } from "@/lib/format";
+import { fmtManwon, fmtManwonShort, typeLabel, areaDetail, aptLabel, floorPlanSearchUrl } from "@/lib/format";
 import { downloadDealCard, copyDealCard, type CardPayload, type CardRow } from "@/lib/dealCard";
 import { SITE_NAME } from "@/lib/site";
 import { REGIONS } from "@/lib/regions";
@@ -519,6 +519,16 @@ export default function ComplexTrendModal({
                 전체
               </button>
             </div>
+            {selectedArea !== undefined && (
+              <a
+                className="floorplan-link"
+                href={floorPlanSearchUrl(complex, selectedArea)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                📐 {Math.round(selectedArea)}㎡ 타입 평면도 보기 <span>네이버 이미지 검색 ↗</span>
+              </a>
+            )}
           </div>
         )}
 
