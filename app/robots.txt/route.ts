@@ -20,9 +20,9 @@ const DISALLOW = ["/api/", "/share", "/account", "/login", "/signup", "/reset"];
 // (구글·네이버·다음·빙 검색 로봇은 여기에 넣지 않습니다. Google-Extended 는 구글 검색이 아니라 AI 학습용 표시라 막아도 검색에는 영향 없음)
 // robots.txt 는 "지켜 주는" 봇에게만 통하므로, 무시하는 봇은 Vercel 방화벽에서 따로 막습니다.
 const BLOCKED_BOTS = [
-  // AI 학습·수집
-  "GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "anthropic-ai", "CCBot",
-  "Google-Extended", "PerplexityBot", "Bytespider", "Amazonbot", "meta-externalagent", "FacebookBot",
+  // AI 학습·수집 (ChatGPT·Perplexity 검색/답변용 봇은 막지 않습니다 — 답변에 우리 사이트가 출처로 걸리면 방문자가 들어올 수 있어서)
+  "GPTBot", "ClaudeBot", "Claude-Web", "anthropic-ai", "CCBot",
+  "Google-Extended", "Bytespider", "Amazonbot", "meta-externalagent", "FacebookBot",
   "Applebot-Extended", "cohere-ai", "Diffbot", "Omgilibot", "ImagesiftBot", "YouBot", "ExaSearchBot", "Exabot",
   // SEO 분석·광고 수집 (방문자 유입과 무관)
   "AhrefsBot", "SemrushBot", "MJ12bot", "DotBot", "PetalBot", "BLEXBot", "DataForSeoBot", "serpstatbot", "barkrowler",
