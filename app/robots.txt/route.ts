@@ -23,7 +23,7 @@ const BLOCKED_BOTS = [
   // AI 학습·수집
   "GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "anthropic-ai", "CCBot",
   "Google-Extended", "PerplexityBot", "Bytespider", "Amazonbot", "meta-externalagent", "FacebookBot",
-  "Applebot-Extended", "cohere-ai", "Diffbot", "Omgilibot", "ImagesiftBot", "YouBot",
+  "Applebot-Extended", "cohere-ai", "Diffbot", "Omgilibot", "ImagesiftBot", "YouBot", "ExaSearchBot", "Exabot",
   // SEO 분석·광고 수집 (방문자 유입과 무관)
   "AhrefsBot", "SemrushBot", "MJ12bot", "DotBot", "PetalBot", "BLEXBot", "DataForSeoBot", "serpstatbot", "barkrowler",
 ];
